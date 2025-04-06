@@ -47,8 +47,7 @@ class _LoginPageState extends State<LoginPage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              Text(
-                                "Welcome back!",
+                              Text("Welcome back!",
                                 style: TextStyle(color: Color(0xFF3E4E00)),
                               ),
                             ],
