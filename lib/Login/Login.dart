@@ -9,14 +9,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String? selectedRole;
 
-  final List<String> roles = [
-    'Client',
-    'Designer',
-    'Vendor',
-    'Admin',
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -53,64 +46,11 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       child: Column(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: DropdownButton<String>(
-                              value: selectedRole,
-                              hint: const Text("Select a role"),
-                              isExpanded: true,
-                              underline: const SizedBox(),
-                              icon: const Icon(Icons.arrow_drop_down),
-                              items: roles.map((role) {
-                                return DropdownMenuItem<String>(
-                                  value: role,
-                                  child: Text(role),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedRole = value;
-                                });
-                              },
-                            ),
-                          ),
-
-                          SizedBox(height: 50.h),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              ElevatedButton(
-                                onPressed: () {},
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF3E4E00),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(24),
-                                  ),
-                                  padding:  EdgeInsets.symmetric(
-                                      horizontal: 30, vertical: 10),
-                                ),
-                                child:  Text("PREVIOUS",
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {},
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(24),
-                                  ),
-                                  padding:  EdgeInsets.symmetric(
-                                      horizontal: 40, vertical: 10),
-                                ),
-                                child: const Text(
-                                  "NEXT",
-                                  style: TextStyle(color: Color(0xFF3E4E00)),
-                                ),
+                              Text("Welcome back!",
+                                style: TextStyle(color: Color(0xFF3E4E00)),
                               ),
                             ],
                           ),
