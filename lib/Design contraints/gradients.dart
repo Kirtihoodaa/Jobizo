@@ -9,4 +9,5 @@ class AppGradients {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
+
 }
