@@ -7,7 +7,10 @@ import 'RoleSelection.dart';
 import 'Sucess Registration.dart';
 
 class RegistrationScreen extends StatefulWidget {
-  const RegistrationScreen({super.key});
+  final dynamic selectedRole;
+
+  const RegistrationScreen({Key? key, required this.selectedRole})
+      : super(key: key);
 
   @override
   State<RegistrationScreen> createState() => _RegistrationScreenState();
@@ -159,7 +162,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 decoration: InputDecoration(
                                   filled: true,
                                   fillColor: Colors.white,
-                                  hintText: "Role",
+                                  hintText: widget.selectedRole?.toString() ?? "Role",
                                   hintStyle: TextStyle(
                                     fontSize: 16,
                                     color: Color(0xFF66680E),
