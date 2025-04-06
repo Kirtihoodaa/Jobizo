@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: ThemeData(textTheme: GoogleFonts.poppinsTextTheme()),
           //home: LoginPage(),
-          home: LoginPage(),
+          home: RoleScreen(),
         );
       },
     );
