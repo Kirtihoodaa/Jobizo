@@ -104,12 +104,20 @@ class _RoleScreenState extends State<RoleScreen> {
                                   ),
                                   ElevatedButton(
                                     onPressed: () {
+                                      if(selectedRole != null){
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                RegistrationScreen()),
+                                                RegistrationScreen(selectedRole: selectedRole!,
+                                                )
+                                        ),
                                       );
+                                      }else{
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text("Please select a role before proceeding")),
+                                        );
+                                      }
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.white,
