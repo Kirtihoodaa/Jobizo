@@ -1,26 +1,17 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../Design contraints/gradients.dart';
-import 'Registration Screen.dart';
 
-class RoleScreen extends StatefulWidget {
-  const RoleScreen({Key? key}) : super(key: key);
+class SucessRegister extends StatefulWidget {
+  const SucessRegister({super.key});
 
   @override
-  State<RoleScreen> createState() => _RoleScreenState();
+  State<SucessRegister> createState() => _SucessRegisterState();
 }
 
-class _RoleScreenState extends State<RoleScreen> {
-  String? selectedRole;
-
-  final List<String> roles = [
-    'Client',
-    'Designer',
-    'Vendor',
-    'Admin',
-  ];
-
+class _SucessRegisterState extends State<SucessRegister> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,10 +42,12 @@ class _RoleScreenState extends State<RoleScreen> {
                               top: 100, left: 20, right: 20, bottom: 20),
                           margin: const EdgeInsets.symmetric(horizontal: 8),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFCAF61),
+                            gradient: AppGradients.Green,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Container(
                                 padding:
@@ -63,56 +56,41 @@ class _RoleScreenState extends State<RoleScreen> {
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                child: DropdownButton<String>(
-                                  value: selectedRole,
-                                  hint: const Text("Select a role"),
-                                  isExpanded: true,
-                                  underline: const SizedBox(),
-                                  icon: const Icon(Icons.arrow_drop_down),
-                                  items: roles.map((role) {
-                                    return DropdownMenuItem<String>(
-                                      value: role,
-                                      child: Text(role),
-                                    );
-                                  }).toList(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectedRole = value;
-                                    });
-                                  },
-                                ),
                               ),
-                              SizedBox(height: 50.h),
+                              Text(
+                                "SUCCESS !",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontStyle: FontStyle.italic,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold, fontSize: 20),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                "Thank you for \nshowing interest \n in Jobizo",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontStyle: FontStyle.italic,
+                                    color: Colors.white,
+                                    ),
+                              ),
+                              SizedBox(height: 40.h),
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   ElevatedButton(
-                                    onPressed: () {},
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF2C4305),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(24),
-                                      ),
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 30, vertical: 10),
-                                    ),
-                                    child: Text(
-                                      "PREVIOUS",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                  ElevatedButton(
                                     onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                RegistrationScreen()),
-                                      );
+                                      // Navigator.push(
+                                      //   context,
+                                      //   MaterialPageRoute(
+                                      //       builder: (context) =>
+                                      //           RegistrationScreen()),
+                                      // );
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white,
+                                      backgroundColor: Color(0xFFEEA700),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(24),
                                       ),
@@ -120,8 +98,8 @@ class _RoleScreenState extends State<RoleScreen> {
                                           horizontal: 40, vertical: 10),
                                     ),
                                     child: const Text(
-                                      "NEXT",
-                                      style: TextStyle(color: Colors.black),
+                                      "COMPLETE YOUR PROFILE",
+                                      style: TextStyle(color: Colors.white),
                                     ),
                                   ),
                                 ],
@@ -144,6 +122,30 @@ class _RoleScreenState extends State<RoleScreen> {
                           ),
                         ),
                       ],
+                    ),
+                    SizedBox(
+                      height: 40,
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () {},
+                      label: const Text(
+                        "Skip",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 30,
+                          vertical: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(40),
+                        ),
+                      ),
                     ),
                   ],
                 ),

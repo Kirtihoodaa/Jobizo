@@ -8,6 +8,16 @@ class AppGradients {
     ],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
+
+  );
+  static  LinearGradient Green = LinearGradient(
+    colors: [
+      Color(0xFF6D9114),
+      Color(0xFF111702),
+    ],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+
   );
 
 }
