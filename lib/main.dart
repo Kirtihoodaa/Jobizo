@@ -22,8 +22,8 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: ThemeData(textTheme: GoogleFonts.poppinsTextTheme()),
-          //home: LoginPage(),
-          home: RoleScreen(),
+          home: LoginPage(),
+          //home: RoleScreen(),
         );
       },
     );

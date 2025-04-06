@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../Design contraints/gradients.dart';
+import 'Login.dart';
 
 class ResetPassword extends StatefulWidget {
   const ResetPassword({Key? key}) : super(key: key);
@@ -115,7 +116,7 @@ class _ResetPasswordState extends State<ResetPassword> {
             child: Container(
               height: 140.h,
               decoration: BoxDecoration(
-                  gradient: AppGradients.yellowOrangeVertical,
+                  gradient: AppGradients.Green,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
@@ -123,7 +124,9 @@ class _ResetPasswordState extends State<ResetPassword> {
               child: Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    // TODO: Implement navigation back to login
+                    Navigator.push(context,
+                      MaterialPageRoute(builder: (context)=> LoginPage()),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFFFAC015),
