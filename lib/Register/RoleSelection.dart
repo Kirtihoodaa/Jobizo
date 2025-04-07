@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jobizo/splash/splash_screen2.dart';
 
 import '../Design contraints/gradients.dart';
 import 'Registration Screen.dart';
@@ -88,7 +89,13 @@ class _RoleScreenState extends State<RoleScreen> {
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
                                   ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  SplashScreen2()));
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFF2C4305),
                                       shape: RoundedRectangleBorder(
@@ -104,18 +111,21 @@ class _RoleScreenState extends State<RoleScreen> {
                                   ),
                                   ElevatedButton(
                                     onPressed: () {
-                                      if(selectedRole != null){
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                RegistrationScreen(selectedRole: selectedRole!,
-                                                )
-                                        ),
-                                      );
-                                      }else{
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text("Please select a role before proceeding")),
+                                      if (selectedRole != null) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  RegistrationScreen(
+                                                    selectedRole: selectedRole!,
+                                                  )),
+                                        );
+                                      } else {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                              content: Text(
+                                                  "Please select a role before proceeding")),
                                         );
                                       }
                                     },
