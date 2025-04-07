@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../Dashboard/Edit Profile.dart';
 import '../Design contraints/gradients.dart';
 
 class SucessRegister extends StatefulWidget {
@@ -82,12 +83,12 @@ class _SucessRegisterState extends State<SucessRegister> {
                                 children: [
                                   ElevatedButton(
                                     onPressed: () {
-                                      // Navigator.push(
-                                      //   context,
-                                      //   MaterialPageRoute(
-                                      //       builder: (context) =>
-                                      //           RegistrationScreen()),
-                                      // );
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                EditProfileScreen()),
+                                      );
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Color(0xFFEEA700),
