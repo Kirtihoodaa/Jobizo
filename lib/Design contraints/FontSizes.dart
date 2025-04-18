@@ -1,6 +1,9 @@
 
-double primary() => 16;
+import 'dart:ui';
 
-double secondary() => 14;
+double primary() => 18;
 
-double tertiary() => 12;
+double secondary() => 16;
+
+double tertiary() => 14;
+

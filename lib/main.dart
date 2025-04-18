@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jobizo/splash/splash_screen1.dart';
-
 import 'Labour_POV/Home Screens/HomePage.dart';
 import 'Labour_POV/NavBar.dart';
 import 'app_bar.dart';
+import 'Labour_POV/Home Screens/EmergencyPage.dart';
+import 'Labour_POV/Profle pages/MyProfile.dart';
+
 
 
 
@@ -30,6 +32,7 @@ class MyApp extends StatelessWidget {
           // home: EditProfileScreen(),
           //  home: CustomAppBar(name: 'Deepak', location: 'chandigarh', profileImageUrl: '',),
            home: Homepage(),
+          home: EmergencyPage(),
         );
       },
     );
