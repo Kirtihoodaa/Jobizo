@@ -20,6 +20,7 @@ class _RoleScreenState extends State<RoleScreen> {
     'Designer',
     'Vendor',
     'Admin',
+    'Labour',
   ];
 
   @override

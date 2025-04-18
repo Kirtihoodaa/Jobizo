@@ -65,6 +65,7 @@ flutter:
   assets:
 
      - Assets/jobizo/
+     - Assets/Labour_image/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
