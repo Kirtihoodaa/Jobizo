@@ -3,7 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jobizo/splash/splash_screen1.dart';
 
+import 'Labour_POV/Home Screens/HomePage.dart';
 import 'Labour_POV/NavBar.dart';
+import 'app_bar.dart';
 
 
 
@@ -26,7 +28,8 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(textTheme: GoogleFonts.poppinsTextTheme()),
           //home: LoginPage(),
           // home: EditProfileScreen(),
-          home: NavBarLabour(),
+          //  home: CustomAppBar(name: 'Deepak', location: 'chandigarh', profileImageUrl: '',),
+           home: Homepage(),
         );
       },
     );
