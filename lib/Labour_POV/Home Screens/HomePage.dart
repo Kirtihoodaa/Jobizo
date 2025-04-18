@@ -5,6 +5,7 @@ import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import '../../Design contraints/gradients.dart';
 import '../../app_bar.dart';
 import '../NavBar.dart';
+import 'OngoingContract.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -33,7 +34,7 @@ class _HomepageState extends State<Homepage> {
     {
       "label": "Ongoing\nContract",
       "image": "Assets/Labour_image/ongoing contract.png",
-      // "navigateTo": Screen4(),
+      "navigateTo": OngoingContractPage(),
     },
     {
       "label": "labour\nIssue",

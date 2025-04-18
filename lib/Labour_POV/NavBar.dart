@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import '../Design contraints/FontSizes.dart';
+import '../../Design contraints/FontSizes.dart';
+import '../../Design contraints/app color.dart';
 import 'Approval Screens/ApprovalsPage.dart';
 import 'Histroy Pages/HistoryPage.dart';
 import 'Home Screens/HomePage.dart';
 import 'Settings pages/SettingPage.dart';
 
 class NavBarLabour extends StatefulWidget {
+  /// Which tab to highlight on startup (0 = Home, 1 = Approvals, 2 = History, 3 = Settings)
   final int currentIndex;
 
   const NavBarLabour({Key? key, this.currentIndex = 0}) : super(key: key);
@@ -27,9 +29,7 @@ class _NavBarLabourState extends State<NavBarLabour> {
   void _onItemTapped(int index) {
     if (_selectedIndex == index) return;
 
-    setState(() {
-      _selectedIndex = index;
-    });
+    setState(() => _selectedIndex = index);
 
     Widget page;
     switch (index) {

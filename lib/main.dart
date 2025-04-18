@@ -8,9 +8,6 @@ import 'app_bar.dart';
 import 'Labour_POV/Home Screens/EmergencyPage.dart';
 import 'Labour_POV/Profle pages/MyProfile.dart';
 
-
-
-
 void main() {
   runApp(const MyApp());
 }
@@ -31,8 +28,7 @@ class MyApp extends StatelessWidget {
           //home: LoginPage(),
           // home: EditProfileScreen(),
           //  home: CustomAppBar(name: 'Deepak', location: 'chandigarh', profileImageUrl: '',),
-           home: Homepage(),
-          home: EmergencyPage(),
+          home: Homepage(),
         );
       },
     );
