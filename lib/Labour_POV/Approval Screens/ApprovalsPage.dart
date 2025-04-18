@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:jobizo/Design contraints/app color.dart';
 import 'package:jobizo/Design contraints/FontSizes.dart';
 
-import '../../app_bar.dart';
+// import '../../app_bar.dart';
+import '../../All_app_bars/app_bar.dart';
 import '../NavBar.dart';
 
 class ApprovalsPage extends StatefulWidget {
