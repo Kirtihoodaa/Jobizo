@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import '../Dashboard/Edit Profile.dart';
 import '../Design contraints/gradients.dart';
+import '../Labour_POV/Profle pages/EditProfile.dart';
 
 class SucessRegister extends StatefulWidget {
   const SucessRegister({super.key});
@@ -86,8 +85,7 @@ class _SucessRegisterState extends State<SucessRegister> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) =>
-                                                EditProfileScreen()),
+                                            builder: (context) => EditProfileScreen()),
                                       );
                                     },
                                     style: ElevatedButton.styleFrom(

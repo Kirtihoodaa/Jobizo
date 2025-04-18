@@ -11,18 +11,18 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController nameController =
-      TextEditingController(text: 'Rajesh Kumar');
+  TextEditingController(text: 'Rajesh Kumar');
   final TextEditingController emailController =
-      TextEditingController(text: 'rajeshkumar@email.com');
+  TextEditingController(text: 'rajeshkumar@email.com');
   final TextEditingController phoneController =
-      TextEditingController(text: '+91 8856554432');
+  TextEditingController(text: '+91 8856554432');
   final TextEditingController dobController =
-      TextEditingController(text: '15-01-1990');
+  TextEditingController(text: '15-01-1990');
   final TextEditingController bioController = TextEditingController(
       text:
-          'Product Designer with 5+ years of experience in creating user-centered digital experiences.');
+      'Product Designer with 5+ years of experience in creating user-centered digital experiences.');
   final TextEditingController locationController =
-      TextEditingController(text: 'mumbai');
+  TextEditingController(text: 'mumbai');
   final TextEditingController skillsController = TextEditingController();
   final TextEditingController experienceController = TextEditingController();
 
@@ -140,11 +140,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget buildTextField(
-    String label,
-    TextEditingController controller, {
-    int maxLines = 1,
-    String? hint,
-  }) {
+      String label,
+      TextEditingController controller, {
+        int maxLines = 1,
+        String? hint,
+      }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
