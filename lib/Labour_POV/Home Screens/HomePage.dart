@@ -5,8 +5,10 @@ import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import '../../Design contraints/gradients.dart';
 import '../../All_app_bars/app_bar.dart';
 import '../NavBar.dart';
+import 'Dashboard.dart';
 import 'OngoingContract.dart';
 import 'EmergencyPage.dart';
+import 'Issue.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -20,7 +22,7 @@ class _HomepageState extends State<Homepage> {
     {
       "label": "Dashboard",
       "image": "Assets/Labour_image/dashboard icon.png",
-      // "navigateTo": Screen1(),
+      "navigateTo": DashboardScreen(),
     },
     {
       "label": "Payment",
@@ -40,7 +42,7 @@ class _HomepageState extends State<Homepage> {
     {
       "label": "labour\nIssue",
       "image": "Assets/Labour_image/labour issue.png",
-      // "navigateTo": Screen5(),
+      "navigateTo": LabourIssuesScreen(),
     },
     {
       "label": "Emergency",
