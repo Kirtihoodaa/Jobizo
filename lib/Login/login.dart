@@ -80,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
+                                  padding:  EdgeInsets.symmetric(
                                     horizontal: 75,
                                     vertical: 12,
                                   ),
@@ -111,6 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                                     color: Color(0xFF66680E),
                                     fontWeight: FontWeight.w500,
                                   ),
+
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                     borderSide: BorderSide.none,
