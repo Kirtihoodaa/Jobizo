@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 
 import '../../Design contraints/gradients.dart';
-import '../../app_bar.dart';
+import '../../All_app_bars/app_bar.dart';
 import '../NavBar.dart';
 import 'OngoingContract.dart';
+import 'EmergencyPage.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -44,7 +45,7 @@ class _HomepageState extends State<Homepage> {
     {
       "label": "Emergency",
       "image": "Assets/Labour_image/emergency icon.png",
-      // "navigateTo": Screen6(),
+      "navigateTo": EmergencyPage(),
     },
   ];
   @override
@@ -131,7 +132,7 @@ class _HomepageState extends State<Homepage> {
                             fit: BoxFit.contain,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 5),
                         Text(
                           item['label'],
                           textAlign: TextAlign.center,

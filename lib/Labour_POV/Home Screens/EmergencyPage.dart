@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../All_app_bars/normal_app_bar.dart';
 import '../../Design contraints/FontSizes.dart';
 import '../../Design contraints/app color.dart';
 
@@ -53,23 +54,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
 
     return Scaffold(
       backgroundColor: Color(0xFFF9FAFB),
-      appBar: AppBar(
-        backgroundColor: AppColors.gold,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          'Emergency',
-          style: TextStyle(
-            fontSize: primary(),
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+      appBar: CustomBackAppBar(title: 'Emergency',),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
