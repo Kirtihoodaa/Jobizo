@@ -19,5 +19,5 @@ class AppGradients {
     end: Alignment.bottomCenter,
 
   );
-
 }
+

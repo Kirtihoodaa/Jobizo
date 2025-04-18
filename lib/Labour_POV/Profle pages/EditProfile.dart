@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../Design contraints/FontSizes.dart';
+
+
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({Key? key}) : super(key: key);
 
@@ -15,16 +18,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController emailController =
   TextEditingController(text: 'rajeshkumar@email.com');
   final TextEditingController phoneController =
-  TextEditingController(text: '+91 8856554432');
+  TextEditingController(text: '+91 8856554432');
   final TextEditingController dobController =
   TextEditingController(text: '15-01-1990');
   final TextEditingController bioController = TextEditingController(
       text:
       'Product Designer with 5+ years of experience in creating user-centered digital experiences.');
   final TextEditingController locationController =
-  TextEditingController(text: 'mumbai');
-  final TextEditingController skillsController = TextEditingController();
-  final TextEditingController experienceController = TextEditingController();
+  TextEditingController(text: 'Mumbai');
+  final TextEditingController skillsController =
+  TextEditingController(text: 'Plumbing, Electrician');
+  final TextEditingController experienceController =
+  TextEditingController(text: '4 Yrs');
 
   DateTime? selectedDate;
 
@@ -40,13 +45,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           data: Theme.of(context).copyWith(
             dialogBackgroundColor: Colors.white,
             colorScheme: ColorScheme.light(
-              primary: Color(0xFFFAC015), // Your accent color
+              primary: const Color(0xFFFAC015), // Your accent color
               onPrimary: Colors.white, // Text color on header
               onSurface: Colors.black, // Text color
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: Color(0xFFFAC015), // Button text color
+                foregroundColor: const Color(0xFFFAC015), // Button text color
               ),
             ),
           ),
@@ -69,61 +74,79 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFFFAC015),
         elevation: 0,
-        leading: const Icon(Icons.arrow_back, color: Colors.white),
-        title: const Text(
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
           'Edit Profile',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: primary(),
+          ),
         ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 10),
-            child: ElevatedButton(
+            child: TextButton(
               onPressed: () {
                 // Save functionality
               },
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Color(0xFFFAC015),
-                  elevation: 0),
-              child: const Text(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: const Color(0xFFFAC015),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
                 'Save',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: tertiary(),
+                ),
               ),
             ),
           )
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Stack(
-              alignment: Alignment.bottomRight,
-              children: [
-                Material(
-                  elevation: 10,
-                  shape: const CircleBorder(),
-                  shadowColor: Colors.grey,
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.white,
-                    backgroundImage: NetworkImage(
-                        'https://i.imgur.com/BoN9kdC.png'), // Optional
+            Center(
+              child: Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  Material(
+                    elevation: 10,
+                    shape: const CircleBorder(),
+                    shadowColor: Colors.grey,
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.white,
+                      backgroundImage: NetworkImage(
+                          'https://i.imgur.com/BoN9kdC.png'),
+                    ),
                   ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 4,
-                  child: CircleAvatar(
-                    backgroundColor: Color(0xFFFAC015),
-                    radius: 16,
-                    child: const Icon(Icons.camera_alt,
-                        size: 20, color: Colors.white),
-                  ),
-                )
-              ],
+                  Positioned(
+                    bottom: 0,
+                    right: 4,
+                    child: CircleAvatar(
+                      backgroundColor: const Color(0xFFFAC015),
+                      radius: 16,
+                      child: const Icon(Icons.camera_alt,
+                          size: 20, color: Colors.white),
+                    ),
+                  )
+                ],
+              ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 24),
             buildTextField('Full Name', nameController),
             buildTextField('Email', emailController),
             buildTextField('Phone Number', phoneController),
@@ -131,8 +154,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             buildTextField('Bio', bioController, maxLines: 3),
             buildTextField('Location', locationController),
             buildTextField('Skills', skillsController, hint: 'eg. Plumber'),
-            buildTextField('Experience', experienceController,
-                hint: 'eg. 4 Yrs'),
+            buildTextField('Experience', experienceController, hint: 'eg. 4 Yrs'),
           ],
         ),
       ),
@@ -145,82 +167,91 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         int maxLines = 1,
         String? hint,
       }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-            color: Colors.black,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: secondary(),
+              color: Colors.black,
+            ),
           ),
-        ),
-        const SizedBox(height: 6),
-        Focus(
-          child: Builder(
-            builder: (context) {
-              final hasFocus = Focus.of(context).hasFocus;
-              return TextField(
-                controller: controller,
-                maxLines: maxLines,
-                decoration: InputDecoration(
-                  hintText: hint ?? '',
-                  contentPadding: const EdgeInsets.all(12),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade400,
-                      width: 1,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFFAC015),
-                      width: 2,
-                    ),
-                  ),
+          const SizedBox(height: 6),
+          TextField(
+            controller: controller,
+            maxLines: maxLines,
+            decoration: InputDecoration(
+              hintText: hint ?? '',
+              contentPadding: const EdgeInsets.all(12),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: Colors.grey.shade400,
+                  width: 1,
                 ),
-              );
-            },
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(
+                  color: Color(0xFFFAC015),
+                  width: 2,
+                ),
+              ),
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
-      ],
+        ],
+      ),
     );
   }
 
   Widget buildDatePickerField(
-      String label, TextEditingController controller, VoidCallback onTap) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label,
-            style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-                color: Colors.black)),
-        const SizedBox(height: 6),
-        TextField(
-          controller: controller,
-          readOnly: true,
-          onTap: onTap,
-          decoration: InputDecoration(
-            suffixIcon: const Icon(Icons.calendar_today),
-            contentPadding: const EdgeInsets.all(12),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: Color(0xFFFAC015),
-                width: 2,
+      String label,
+      TextEditingController controller,
+      VoidCallback onTap,
+      ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: secondary(),
+              color: Colors.black,
+            ),
+          ),
+          const SizedBox(height: 6),
+          TextField(
+            controller: controller,
+            readOnly: true,
+            onTap: onTap,
+            decoration: InputDecoration(
+              suffixIcon: const Icon(Icons.calendar_today),
+              contentPadding: const EdgeInsets.all(12),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: Colors.grey.shade400,
+                  width: 1,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(
+                  color: Color(0xFFFAC015),
+                  width: 2,
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 16),
-      ],
+        ],
+      ),
     );
   }
 }
