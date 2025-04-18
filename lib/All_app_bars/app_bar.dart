@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'Design contraints/FontSizes.dart';
+import '../Design contraints/FontSizes.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String name;
@@ -110,3 +110,4 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
+
