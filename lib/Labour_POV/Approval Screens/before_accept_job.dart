@@ -16,7 +16,7 @@ class _BeforeAcceptJobState extends State<BeforeAcceptJob> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: AppColors.bgColor,
       appBar: CustomBackAppBar(title: 'Upcoming Assignment'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -214,16 +214,12 @@ class _BeforeAcceptJobState extends State<BeforeAcceptJob> {
                 ],
               ),
             ),
-
             const SizedBox(height: 16),
-          
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
-                      
-                    },
+                    onPressed: () {},
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4B1E03), // Deep brown
                       shape: RoundedRectangleBorder(
@@ -247,7 +243,7 @@ class _BeforeAcceptJobState extends State<BeforeAcceptJob> {
                       // Start Job Logic
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF62A910), // Green
+                      backgroundColor: AppColors.green,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
