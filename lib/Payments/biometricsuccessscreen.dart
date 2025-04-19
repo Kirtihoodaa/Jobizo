@@ -10,7 +10,7 @@ class BiometricSuccessScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.bgColor,
       appBar: AppBar(
         backgroundColor: Colors.amber,
         elevation: 0,
