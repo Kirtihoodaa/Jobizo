@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:jobizo/All_app_bars/app_bar.dart';
 import 'package:jobizo/Design contraints/app color.dart';
 import 'package:jobizo/Design contraints/FontSizes.dart';
-
-import '../../app_bar.dart';
+import 'package:jobizo/Labour_POV/Approval%20Screens/before_accept_job.dart';
 import '../NavBar.dart';
 
 class ApprovalsPage extends StatefulWidget {
@@ -16,32 +16,31 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
   int _selectedFilter = 0;
 
   final List<Map<String, String>> _filters = [
-    {'label': 'All',     'count': '24'},
+    {'label': 'All', 'count': '24'},
     {'label': 'Pending', 'count': '8'},
-    {'label': 'Approved','count': '12'},
-    {'label': 'Rejected','count': '12'},
+    {'label': 'Approved', 'count': '12'},
+    {'label': 'Rejected', 'count': '12'},
   ];
 
   final List<Map<String, String>> _apps = [
     {
-      'name':       'Sarah Martinez',
-      'role':       'Electrician',
-      'company':    'RAA Construction Co.',
-      'location':   'Boston, MA',
-      'startDate':  '15-04-2025',
-      'duration':   '3 Months',
-      'status':     'Pending',
+      'name': 'Sarah Martinez',
+      'role': 'Electrician',
+      'company': 'RAA Construction Co.',
+      'location': 'Boston, MA',
+      'startDate': '15-04-2025',
+      'duration': '3 Months',
+      'status': 'Pending',
     },
     {
-      'name':       'Sarah Martinez',
-      'role':       'Electrician',
-      'company':    'VIP Construction Co.',
-      'location':   'Boston, MA',
-      'startDate':  '15-04-2025',
-      'duration':   '3 Months',
-      'status':     'Accepted',
+      'name': 'Sarah Martinez',
+      'role': 'Electrician',
+      'company': 'VIP Construction Co.',
+      'location': 'Boston, MA',
+      'startDate': '15-04-2025',
+      'duration': '3 Months',
+      'status': 'Accepted',
     },
-
   ];
 
   @override
@@ -132,8 +131,8 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
                 final statusColor = status == 'Pending'
                     ? AppColors.gold
                     : status == 'Accepted'
-                    ? Colors.lightGreen[700]
-                    : Colors.brown;
+                        ? Colors.lightGreen[700]
+                        : Colors.brown;
                 return Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -165,10 +164,9 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
                                 Text(
                                   a['name']!,
                                   style: TextStyle(
-                                    fontSize: secondary(),
-                                    fontWeight: FontWeight.w600,
-                                    color:AppColors.green
-                                  ),
+                                      fontSize: secondary(),
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.green),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
@@ -206,10 +204,9 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
                       Text(
                         a['company']!,
                         style: TextStyle(
-                          fontSize: secondary(),
-                          fontWeight: FontWeight.w600,
-                          color:AppColors.green
-                        ),
+                            fontSize: secondary(),
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.green),
                       ),
 
                       const SizedBox(height: 8),
@@ -261,7 +258,10 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
                             elevation: 0,
                           ),
                           onPressed: () {
-                            // TODO: navigate to detail page
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => BeforeAcceptJob()));
                           },
                           child: Text(
                             'View Details',
