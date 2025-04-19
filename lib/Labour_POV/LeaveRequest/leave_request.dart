@@ -39,7 +39,7 @@ class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.bgColor,
       appBar: CustomBackAppBar(title: 'Leave Request Details'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
