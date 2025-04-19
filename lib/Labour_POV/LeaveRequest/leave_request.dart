@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jobizo/All_app_bars/normal_app_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
+import 'package:jobizo/Design%20contraints/app%20color.dart';
 
 class LeaveRequestDetailsPage extends StatefulWidget {
   const LeaveRequestDetailsPage({super.key});
@@ -63,7 +64,7 @@ class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
                   // handle submit logic
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber,
+                  backgroundColor: AppColors.gold,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -82,7 +83,7 @@ class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
             const SizedBox(height: 30),
             Container(
               decoration: BoxDecoration(
-                color: Colors.amber,
+                color: AppColors.gold,
                 borderRadius: BorderRadius.circular(8),
               ),
               padding: const EdgeInsets.all(16),
@@ -163,7 +164,7 @@ class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: const Color(0xFF62A910),
+            color: AppColors.green,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
