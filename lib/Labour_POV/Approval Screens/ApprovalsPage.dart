@@ -3,6 +3,9 @@ import 'package:jobizo/All_app_bars/app_bar.dart';
 import 'package:jobizo/Design contraints/app color.dart';
 import 'package:jobizo/Design contraints/FontSizes.dart';
 import 'package:jobizo/Labour_POV/Approval%20Screens/before_accept_job.dart';
+
+// import '../../app_bar.dart';
+import '../../All_app_bars/app_bar.dart';
 import '../NavBar.dart';
 
 class ApprovalsPage extends StatefulWidget {

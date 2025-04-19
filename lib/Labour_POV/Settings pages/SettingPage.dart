@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jobizo/All_app_bars/app_bar.dart';
+import '../../All_app_bars/app_bar.dart';
 import '../../Design contraints/app color.dart';
 import '../../Design contraints/FontSizes.dart';
 import '../NavBar.dart';
