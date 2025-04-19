@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
+import 'package:jobizo/Labour_POV/LeaveRequest/leave_request.dart';
+import 'package:jobizo/Payments/Payment.dart';
 
 import '../../Design contraints/gradients.dart';
 import '../../All_app_bars/app_bar.dart';
@@ -27,12 +29,12 @@ class _HomepageState extends State<Homepage> {
     {
       "label": "Payment",
       "image": "Assets/Labour_image/payment icon.png",
-      // "navigateTo": Screen2(),
+      "navigateTo": Payment(),
     },
     {
       "label": "Leave\nRequest",
       "image": "Assets/Labour_image/Leave req icon.png",
-      // "navigateTo": Screen3(),
+      "navigateTo": LeaveRequestDetailsPage(),
     },
     {
       "label": "Ongoing\nContract",

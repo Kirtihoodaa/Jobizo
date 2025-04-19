@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
+import 'package:jobizo/Labour_POV/Home%20Screens/upcoming.dart';
 
 import '../../All_app_bars/app_bar.dart';
 import '../../Design contraints/FontSizes.dart';
@@ -40,7 +41,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _buildProfileCard(),
             _buildCurrentStatus(),
             _buildEarnings(),
-            _buildUpcomingAssignments(),
+            GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => UpcomingAssignmentScreen()));
+                },
+                child: _buildUpcomingAssignments()),
             _buildAttendanceOverview(),
             _buildRecentActivity(),
           ],
@@ -394,10 +402,15 @@ class _activityTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: color)),
-      subtitle: Text(description,style: TextStyle(fontSize: tertiary()),),
+      title: Text(title,
+          style: TextStyle(fontWeight: FontWeight.bold, color: color)),
+      subtitle: Text(
+        description,
+        style: TextStyle(fontSize: tertiary()),
+      ),
       trailing: Text(status,
-          style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: tertiary())),
+          style: TextStyle(
+              color: color, fontWeight: FontWeight.bold, fontSize: tertiary())),
     );
   }
 }
