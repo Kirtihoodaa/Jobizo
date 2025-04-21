@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import '../../All_app_bars/app_bar.dart';
 import '../../Design contraints/app color.dart';
 import '../../Design contraints/FontSizes.dart';
+import '../../Login/login.dart';
+import '../../logout.dart';
 import '../NavBar.dart';
 import '../Profle pages/MyProfile.dart';
 import 'ChangePassword.dart';
+import 'Delete.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -77,9 +80,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           horizontal: 16, vertical: 8),
                       elevation: 0,
                     ),
-                    onPressed: () {
-
-                    },
+                    onPressed: () {},
                     child: Text(
                       'Edit Profile',
                       style: TextStyle(
@@ -104,7 +105,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   color: Colors.black,
                 ),
               ),
-            ),Divider(),
+            ),
+            Divider(),
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16),
               title: Text(
@@ -114,9 +116,10 @@ class _SettingsPageState extends State<SettingsPage> {
               trailing: Icon(Icons.chevron_right),
               onTap: () {
                 Navigator.push(context,
-                MaterialPageRoute(builder: (context)=> MyProfilePage()));
+                    MaterialPageRoute(builder: (context) => MyProfilePage()));
               },
-            ),Divider(),
+            ),
+            Divider(),
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16),
               title: Text(
@@ -128,18 +131,16 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   Text(
                     'English',
-                    style: TextStyle(fontSize: tertiary(), color: Colors.grey[700]),
+                    style: TextStyle(
+                        fontSize: tertiary(), color: Colors.grey[700]),
                   ),
                   const SizedBox(width: 8),
                   Icon(Icons.chevron_right),
                 ],
               ),
-
-              onTap: () {
-
-              },
+              onTap: () {},
             ),
-             Divider(height: 8, thickness: 15, color: Colors.grey[200]),
+            Divider(height: 8, thickness: 15, color: Colors.grey[200]),
 
             // Security
             Padding(
@@ -152,7 +153,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   color: Colors.black,
                 ),
               ),
-            ),Divider(),
+            ),
+            Divider(),
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16),
               title: Text(
@@ -162,8 +164,7 @@ class _SettingsPageState extends State<SettingsPage> {
               trailing: Icon(Icons.chevron_right),
               onTap: () {
                 Navigator.push(context,
-                MaterialPageRoute(builder: (context)=>Changepassword()));
-
+                    MaterialPageRoute(builder: (context) => Changepassword()));
               },
             ),
             Divider(),
@@ -201,7 +202,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 'Push Notifications',
                 style: TextStyle(fontSize: tertiary(), color: Colors.black),
               ),
-
               trailing: Switch(
                 value: _pushNotif,
                 activeColor: AppColors.gold,
@@ -236,9 +236,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   Icon(Icons.chevron_right),
                 ],
               ),
-
-              onTap: () {
-              },
+              onTap: () {},
             ),
             Divider(height: 8, thickness: 15, color: Colors.grey[200]),
             SizedBox(height: 20),
@@ -247,46 +245,54 @@ class _SettingsPageState extends State<SettingsPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 80),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-
                   children: [
                     ElevatedButton(
-                        style: ElevatedButton.styleFrom(
+                      style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.gold,
                           minimumSize: Size.fromHeight(45),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
-                          )
-                        ),
-                        onPressed: (){},
-                        child: Text("Logout",style: TextStyle(
-                          fontSize: secondary(),
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold
-                        ),
-                        ),
+                          )),
+                      onPressed: () {
+                        showLogoutDialog(context, () {
+                          // Place your logout logic here
+                          // For example:
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => LoginPage()),
+                                (route) => false,
+                          );
+                        });
+                      },
+                      child: Text(
+                        "Logout",
+                        style: TextStyle(
+                            fontSize: secondary(),
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
                     SizedBox(height: 20),
                     OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: AppColors.gold,width: 1),
-                            minimumSize: Size.fromHeight(45),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            )
-                        ),
-                        onPressed: (){},
-                        child: Text("Delete Account",style: TextStyle(
+                      style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: AppColors.gold, width: 1),
+                          minimumSize: Size.fromHeight(45),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          )),
+                      onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context)=> DeleteAccount()));},
+                      child: Text(
+                        "Delete Account",
+                        style: TextStyle(
                             fontSize: secondary(),
-                            color:  AppColors.gold,
-                            fontWeight: FontWeight.bold
-                        ),
-                        ),
+                            color: AppColors.gold,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ],
                 ),
               ),
             )
-
           ],
         ),
       ),
