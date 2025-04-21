@@ -1,6 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
+import 'package:jobizo/Design%20contraints/app%20color.dart';
+import 'package:jobizo/Labour_POV/CustomMenu.dart';
+import 'package:jobizo/Labour_POV/Home%20Screens/Feedback.dart';
+import 'package:jobizo/Labour_POV/Home%20Screens/HelpandSupport.dart';
 import 'package:jobizo/Labour_POV/LeaveRequest/leave_request.dart';
 import 'package:jobizo/Payments/Payment.dart';
 
@@ -52,6 +56,7 @@ class _HomepageState extends State<Homepage> {
       "navigateTo": EmergencyPage(),
     },
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,6 +65,7 @@ class _HomepageState extends State<Homepage> {
         name: 'Deepak',
         location: 'Chandigarh',
         profileImageUrl: '',
+        onMenuTap: () => CustomMenu.show(context),
       ),
       body: SingleChildScrollView(
         child: Column(
