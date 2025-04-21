@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jobizo/Design%20contraints/FontSizes.dart';
+import 'package:jobizo/Design%20contraints/app%20color.dart';
 
 import '../Design contraints/gradients.dart';
+
+import '../Labour_POV/Home Screens/Dashboard.dart';
+import '../Labour_POV/Home Screens/HomePage.dart';
+import '../splash/splash_screen2.dart';
 import 'forgotPassword.dart';
 
 class LoginPage extends StatefulWidget {
@@ -80,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
-                                  padding:  EdgeInsets.symmetric(
+                                  padding: EdgeInsets.symmetric(
                                     horizontal: 75,
                                     vertical: 12,
                                   ),
@@ -111,7 +117,6 @@ class _LoginPageState extends State<LoginPage> {
                                     color: Color(0xFF66680E),
                                     fontWeight: FontWeight.w500,
                                   ),
-
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                     borderSide: BorderSide.none,
@@ -139,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               SizedBox(height: 20),
                               ElevatedButton.icon(
-                                onPressed: () {},
+                                onPressed: () {Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> Homepage()));},
                                 label: const Text(
                                   "Login",
                                   style: TextStyle(
@@ -176,7 +181,26 @@ class _LoginPageState extends State<LoginPage> {
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                     ),
-                                  ))
+                                  )),
+                              // SizedBox(height: 10),
+                              Text(
+                                "New User? ",
+                                style: TextStyle(
+                                  fontSize: tertiary(),
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => SplashScreen2()),
+                                  );
+                                },
+                                child: Text("Register Here", style: TextStyle(color: AppColors.green, fontWeight: FontWeight.bold),),
+                              )
                             ],
                           ),
                         ),
