@@ -20,6 +20,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onProfileTap,
   }) : super(key: key);
 
+
+  
+
   @override
   Widget build(BuildContext context) {
     return AppBar(
