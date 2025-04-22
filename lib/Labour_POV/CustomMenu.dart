@@ -4,8 +4,6 @@ import 'package:jobizo/Labour_POV/Home%20Screens/Dashboard.dart';
 import 'package:jobizo/Labour_POV/Home%20Screens/Feedback.dart';
 import 'package:jobizo/Labour_POV/Home%20Screens/HelpandSupport.dart';
 import 'package:jobizo/Labour_POV/Profle%20pages/MyProfile.dart';
-import 'package:jobizo/Payments/Payment.dart';
-
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 
 import '../Login/login.dart';
