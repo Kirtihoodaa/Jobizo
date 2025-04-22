@@ -5,6 +5,7 @@ import 'package:jobizo/splash/splash_screen1.dart';
 import 'Customer_POV/AppBar/CustomerAppBar.dart';
 import 'Customer_POV/CustomerNavBar.dart';
 import 'Customer_POV/HomePages/HomePagess.dart';
+import 'Customer_POV/HomePages/IndustryDetails.dart';
 import 'Labour_POV/Home Screens/HomePage.dart';
 import 'Labour_POV/NavBar.dart';
 import 'Labour_POV/Home Screens/EmergencyPage.dart';
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
           // home: EditProfileScreen(),
           //  home: CustomAppBar(name: 'Deepak', location: 'chandigarh', profileImageUrl: '',),
            home: Homepagess(),
+           //home: Industrydetails(),
         );
       },
     );
