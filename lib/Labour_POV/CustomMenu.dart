@@ -8,6 +8,9 @@ import 'package:jobizo/Payments/Payment.dart';
 
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 
+import '../Login/login.dart';
+import '../logout.dart';
+
 class CustomMenu {
   static void show(BuildContext context) {
     showDialog(
@@ -17,132 +20,144 @@ class CustomMenu {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           child: Container(
-            width: 300,
+            width: MediaQuery.sizeOf(context).height*0.4,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Top section
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.gold,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                    ),
-                  ),
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.center,
-                        child: Column(
-                          children: [
-                            CircleAvatar(
-                                backgroundColor: Colors.white,
-                                radius: 28,
-                                child: Image.asset(
-                                    "Assets/Labour_image/person.png")),
-                            SizedBox(height: 8),
-                            Text(
-                              'Deepak',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18),
-                            ),
-                            Text(
-                              'Joined March 2025',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 12),
-                            ),
-                          ],
-                        ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Top section
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.gold,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10),
                       ),
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: InkWell(
-                          onTap: () => Navigator.of(context).pop(),
-                          child: Container(
-                            padding: EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: AppColors.brown,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(Icons.close,
-                                color: AppColors.gold, size: 18),
+                    ),
+                    child: Stack(
+                      children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: Column(
+                            children: [
+                              CircleAvatar(
+                                  backgroundColor: Colors.white,
+                                  radius: 28,
+                                  child: Image.asset(
+                                      "Assets/Labour_image/person.png")),
+                              SizedBox(height: 8),
+                              Text(
+                                'Deepak',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18),
+                              ),
+                              Text(
+                                'Joined March 2025',
+                                style:
+                                    TextStyle(color: Colors.white, fontSize: 12),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: InkWell(
+                            onTap: () => Navigator.of(context).pop(),
+                            child: Container(
+                              padding: EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: AppColors.brown,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.close,
+                                  color: AppColors.gold, size: 18),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-
-                SizedBox(height: 16),
-
-                // Menu items
-                ListTile(
-                  leading: Icon(Icons.dashboard_customize),
-                  title: Text('Dashboard'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const DashboardScreen()),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.person),
-                  title: Text('Profile'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MyProfilePage()),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.support_agent),
-                  title: Text('Help & Support'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const HelpSupportPage()),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.feedback),
-                  title: Text('Feedback'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const FeedbackPage()),
-                    );
-                  },
-                ),
-
-                // Logout button
-                Container(
-                  width: double.infinity,
-                  margin: EdgeInsets.only(top: 12),
-                  color: AppColors.brown,
-                  child: TextButton.icon(
-                    onPressed: () {},
-                    icon: Icon(Icons.logout, color: Colors.white),
-                    label:
-                        Text('Logout', style: TextStyle(color: Colors.white)),
+              
+                  SizedBox(height: 16),
+              
+                  // Menu items
+                  ListTile(
+                    leading: Icon(Icons.dashboard_customize),
+                    title: Text('Dashboard'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const DashboardScreen()),
+                      );
+                    },
                   ),
-                ),
-                SizedBox(height: 36),
-              ],
+                  ListTile(
+                    leading: Icon(Icons.person),
+                    title: Text('Profile'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MyProfilePage()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.support_agent),
+                    title: Text('Help & Support'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const HelpSupportPage()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.feedback),
+                    title: Text('Feedback'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const FeedbackPage()),
+                      );
+                    },
+                  ),
+              
+                  // Logout button
+                  Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.only(top: 12),
+                    color: AppColors.brown,
+                    child: TextButton.icon(
+                      onPressed: () {
+                        showLogoutDialog(context, () {
+                          // Place your logout logic here
+                          // For example:
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => LoginPage()),
+                            (route) => false,
+                          );
+                        });
+                      },
+                      icon: Icon(Icons.logout, color: Colors.white),
+                      label:
+                          Text('Logout', style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
+                  SizedBox(height: 36),
+                ],
+              ),
             ),
           ),
         );
