@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../../Design contraints/FontSizes.dart';
 import '../../Design contraints/app color.dart';
 
-class Commonappbar extends StatelessWidget {
+class Commonappbar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
 
   const Commonappbar({Key? key, required this.title}) : super(key: key);
@@ -29,7 +29,7 @@ class Commonappbar extends StatelessWidget {
       ),
     );
   }
+
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-
 }
