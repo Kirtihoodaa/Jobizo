@@ -6,8 +6,6 @@ import '../All_app_bars/normal_app_bar.dart';
 import 'biometricsuccessscreen.dart';
 
 
-import '../Labour_POV/All_app_bars/normal_app_bar.dart';
-
 class RequestSalary extends StatefulWidget {
   const RequestSalary({super.key});
 
