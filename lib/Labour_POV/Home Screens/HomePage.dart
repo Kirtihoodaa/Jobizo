@@ -2,11 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Labour_POV/LeaveRequest/leave_request.dart';
-import 'package:jobizo/Payments/Payment.dart';
+
 
 import '../../Design contraints/gradients.dart';
 import '../../All_app_bars/app_bar.dart';
 import '../NavBar.dart';
+import '../Payments/Payment.dart';
 import 'Dashboard.dart';
 import 'OngoingContract.dart';
 import 'EmergencyPage.dart';

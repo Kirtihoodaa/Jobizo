@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:jobizo/All_app_bars/normal_app_bar.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
-import 'package:jobizo/Payments/request_advance.dart';
-import 'package:jobizo/Payments/request_salary.dart';
+import 'package:jobizo/Labour_POV/Payments/request_advance.dart';
+import 'package:jobizo/Labour_POV/Payments/request_salary.dart';
+
 
 class Payment extends StatefulWidget {
   const Payment({super.key});
