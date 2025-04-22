@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jobizo/Design%20contraints/app%20color.dart';
 import 'package:jobizo/Login/ResetPassword.dart';
+import '../Design contraints/FontSizes.dart';
 import '../Design contraints/gradients.dart';
+import 'login.dart';
 
 class Forgotpassword extends StatefulWidget {
   const Forgotpassword({super.key});
@@ -129,6 +132,28 @@ class _ForgotpasswordState extends State<Forgotpassword> {
                           ),
                         ),
                       ],
+                    ),
+                    SizedBox(height: 30),
+                    ElevatedButton.icon(
+                      onPressed: () {Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> LoginPage()));},
+                      label:  Text(
+                        "Back",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: secondary(),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:AppColors.green,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 40,
+                          vertical: 8,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(40),
+                        ),
+                      ),
                     ),
                   ],
                 ),
