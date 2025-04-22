@@ -7,8 +7,6 @@ import 'package:jobizo/Labour_POV/CustomMenu.dart';
 import 'package:jobizo/Labour_POV/Home%20Screens/Feedback.dart';
 import 'package:jobizo/Labour_POV/Home%20Screens/HelpandSupport.dart';
 import 'package:jobizo/Labour_POV/LeaveRequest/leave_request.dart';
-
-
 import '../../Design contraints/gradients.dart';
 import '../../All_app_bars/app_bar.dart';
 import '../NavBar.dart';
