@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:jobizo/All_app_bars/normal_app_bar.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
+
+import '../All_app_bars/normal_app_bar.dart';
 
 class FeedbackPage extends StatefulWidget {
   const FeedbackPage({Key? key}) : super(key: key);
