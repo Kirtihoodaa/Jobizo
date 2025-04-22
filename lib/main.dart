@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jobizo/splash/splash_screen1.dart';
+import 'Customer_POV/AppBar/LabourAppBar.dart';
+import 'Customer_POV/CustomerNavBar.dart';
 import 'Labour_POV/Home Screens/HomePage.dart';
 import 'Labour_POV/NavBar.dart';
 import 'All_app_bars/app_bar.dart';
@@ -25,10 +27,10 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: ThemeData(textTheme: GoogleFonts.poppinsTextTheme()),
-          home: SplashScreen1(),
+          //home: SplashScreen1(),
           // home: EditProfileScreen(),
           //  home: CustomAppBar(name: 'Deepak', location: 'chandigarh', profileImageUrl: '',),
-          // home: Homepage(),
+           home: Customernavbar(),
         );
       },
     );
