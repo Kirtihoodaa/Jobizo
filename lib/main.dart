@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:jobizo/Customer_POV/HomePages/Allsites.dart';
 import 'package:jobizo/splash/splash_screen1.dart';
 import 'Customer_POV/AppBar/CustomerAppBar.dart';
 import 'Customer_POV/CustomerNavBar.dart';
@@ -31,8 +32,8 @@ class MyApp extends StatelessWidget {
           //home: SplashScreen1(),
           // home: EditProfileScreen(),
           //  home: CustomAppBar(name: 'Deepak', location: 'chandigarh', profileImageUrl: '',),
-           home: Homepagess(),
-           //home: Industrydetails(),
+          //home: Homepagess(),
+          home: Industrydetails(),
         );
       },
     );

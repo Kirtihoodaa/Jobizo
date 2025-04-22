@@ -3,7 +3,7 @@ import 'package:jobizo/Design contraints/app color.dart';
 import 'package:jobizo/Design contraints/FontSizes.dart';
 
 class OngoingContractPage extends StatelessWidget {
-  const OngoingContractPage({Key? key}) : super(key: key);
+  const OngoingContractPage({super.key});
 
   @override
   Widget build(BuildContext context) {
