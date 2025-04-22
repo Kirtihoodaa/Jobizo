@@ -39,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
                       "Assets/jobizo/JobizoName.png",
                       width: 180.w,
                     ),
-                    SizedBox(height: 80.h),
+                    SizedBox(height: 50.h),
                     Stack(
                       clipBehavior: Clip.none,
                       alignment: Alignment.topCenter,
@@ -72,15 +72,15 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 20),
+                              SizedBox(height: 10),
                               // Login with Gmail Button
                               ElevatedButton.icon(
                                 onPressed: () {},
-                                label: const Text(
+                                label:  Text(
                                   "Login with Gmail",
                                   style: TextStyle(
                                     color: Color(0xFF66680E),
-                                    fontSize: 16,
+                                    fontSize: secondary(),
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -95,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 ),
                               ),
-                              SizedBox(height: 15),
+                              SizedBox(height: 10),
                               // OR text
                               Text(
                                 "OR",
@@ -105,7 +105,7 @@ class _LoginPageState extends State<LoginPage> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              SizedBox(height: 15),
+                              SizedBox(height: 10),
                               // Username TextField
                               TextField(
                                 decoration: InputDecoration(
@@ -113,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                                   fillColor: Colors.white,
                                   hintText: "Username",
                                   hintStyle: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: secondary(),
                                     color: Color(0xFF66680E),
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -132,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                                   fillColor: Colors.white,
                                   hintText: "Password",
                                   hintStyle: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: secondary(),
                                     color: Color(0xFF66680E),
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -142,14 +142,14 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 ),
                               ),
-                              SizedBox(height: 20),
+                              SizedBox(height: 15),
                               ElevatedButton.icon(
                                 onPressed: () {Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> Homepage()));},
-                                label: const Text(
+                                label:  Text(
                                   "Login",
                                   style: TextStyle(
                                     color: Color(0xFF66680E),
-                                    fontSize: 16,
+                                    fontSize: secondary(),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -164,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 ),
                               ),
-                              SizedBox(height: 10),
+                              // SizedBox(height: 10),
                               TextButton(
                                   onPressed: () {
                                     Navigator.push(
@@ -177,7 +177,7 @@ class _LoginPageState extends State<LoginPage> {
                                   child: Text(
                                     "Forgot Password?",
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: tertiary(),
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -235,7 +235,7 @@ class _LoginPageState extends State<LoginPage> {
                   "Need Help? Contact Support",
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 14,
+                    fontSize: tertiary(),
                   ),
                 ),
                 SizedBox(height: 4),
@@ -243,7 +243,7 @@ class _LoginPageState extends State<LoginPage> {
                   "Version 2.1.0",
                   style: TextStyle(
                     color: Colors.white70,
-                    fontSize: 12,
+                    fontSize: tertiary(),
                   ),
                 ),
               ],
