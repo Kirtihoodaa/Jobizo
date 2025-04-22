@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
-import '../Design contraints/app color.dart';
+
+import '../../Design contraints/app color.dart';
+// import '../Design contraints/app color.dart';
 
 
 class CustomBackAppBar extends StatelessWidget implements PreferredSizeWidget {
