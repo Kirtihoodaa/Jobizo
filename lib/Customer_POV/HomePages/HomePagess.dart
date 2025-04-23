@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:jobizo/Customer_POV/HomePages/Labour_types/labour_avi.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Labour_POV/LeaveRequest/leave_request.dart';
 import '../../Labour_POV/Home Screens/Dashboard.dart';
@@ -29,17 +30,17 @@ class _HomepagessState extends State<Homepagess> {
     {
       "label": "Industry",
       "image": "Assets/Customer_Images/industry.png",
-      "navigateTo": Payment(),
+      //"navigateTo": Payment(),
     },
     {
       "label": "Sites",
       "image": "Assets/Customer_Images/sites.png",
-      "navigateTo": LeaveRequestDetailsPage(),
+      //"navigateTo": LeaveRequestDetailsPage(),
     },
     {
       "label": "Labour\nTypes",
       "image": "Assets/Customer_Images/labour type.png",
-      "navigateTo": OngoingContractPage(),
+      "navigateTo": AllLaboursScreen(),
     },
     {
       "label": "Agents",
@@ -49,19 +50,22 @@ class _HomepagessState extends State<Homepagess> {
     {
       "label": "Labour\nLocalities",
       "image": "Assets/Customer_Images/location.png",
-      "navigateTo": EmergencyPage(),
-    },{
+      //"navigateTo": EmergencyPage(),
+    },
+    {
       "label": "Add Company\nDetails",
       "image": "Assets/Customer_Images/add comp details.png",
-      "navigateTo": EmergencyPage(),
-    },{
+      //"navigateTo": EmergencyPage(),
+    },
+    {
       "label": "Company\nDetails",
       "image": "Assets/Customer_Images/details comp.png",
-      "navigateTo": EmergencyPage(),
-    },{
+      //"navigateTo": EmergencyPage(),
+    },
+    {
       "label": "Assigned\nLabour",
       "image": "Assets/Customer_Images/assigned labour.png",
-      "navigateTo": EmergencyPage(),
+      //"navigateTo": EmergencyPage(),
     },
   ];
 
@@ -85,12 +89,12 @@ class _HomepagessState extends State<Homepagess> {
             children: [
               Center(
                   child: Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Text(
-                      "Welcome to Jobizo !",
-                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                    ),
-                  )),
+                padding: const EdgeInsets.all(15.0),
+                child: Text(
+                  "Welcome to Jobizo !",
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                ),
+              )),
               Container(
                 // height: 250,
                 width: MediaQuery.sizeOf(context).width,

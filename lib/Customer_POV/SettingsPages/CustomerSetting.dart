@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:jobizo/Labour_POV/All_app_bars/app_bar.dart';
 
-import '../../All_app_bars/app_bar.dart';
 import '../../Design contraints/FontSizes.dart';
 import '../../Design contraints/app color.dart';
 import '../../Login/login.dart';
@@ -19,7 +19,6 @@ class Customersetting extends StatefulWidget {
 }
 
 class _CustomersettingState extends State<Customersetting> {
-
   bool _biometric = false;
   bool _pushNotif = true;
   bool _emailNotif = true;
@@ -34,21 +33,21 @@ class _CustomersettingState extends State<Customersetting> {
         profileImageUrl: '',
       ),
       body: SingleChildScrollView(
-        padding:  EdgeInsets.only(bottom: 16),
+        padding: EdgeInsets.only(bottom: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Profile header
             Container(
               color: Colors.white,
-              padding:  EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
               child: Row(
                 children: [
                   CircleAvatar(
                     radius: 40,
                     backgroundColor: AppColors.gold,
-                    backgroundImage: NetworkImage(
-                        'https://i.imgur.com/BoN9kdC.png'),
+                    backgroundImage:
+                        NetworkImage('https://i.imgur.com/BoN9kdC.png'),
                   ),
                   SizedBox(width: 16),
                   Expanded(
@@ -58,10 +57,9 @@ class _CustomersettingState extends State<Customersetting> {
                         Text(
                           'Deepak',
                           style: TextStyle(
-                            fontSize: secondary(),
-                            fontWeight: FontWeight.w600,
-                              color: AppColors.green
-                          ),
+                              fontSize: secondary(),
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.green),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -77,14 +75,15 @@ class _CustomersettingState extends State<Customersetting> {
                             backgroundColor: AppColors.gold,
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20)),
-                            padding:  EdgeInsets.symmetric(
+                            padding: EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 8),
                             elevation: 0,
                           ),
                           onPressed: () {
-                            Navigator.push(context,
-                            MaterialPageRoute(builder: (context)=> Ceditprofile()));
-
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Ceditprofile()));
                           },
                           child: Text(
                             'Edit Profile',
@@ -124,7 +123,7 @@ class _CustomersettingState extends State<Customersetting> {
               trailing: Icon(Icons.chevron_right),
               onTap: () {
                 Navigator.push(context,
-                MaterialPageRoute(builder: (context) => Customerprofile()));
+                    MaterialPageRoute(builder: (context) => Customerprofile()));
               },
             ),
             Divider(),
@@ -263,11 +262,11 @@ class _CustomersettingState extends State<Customersetting> {
                           )),
                       onPressed: () {
                         showLogoutDialog(context, () {
-
                           Navigator.pushAndRemoveUntil(
                             context,
-                            MaterialPageRoute(builder: (context) => LoginPage()),
-                                (route) => false,
+                            MaterialPageRoute(
+                                builder: (context) => LoginPage()),
+                            (route) => false,
                           );
                         });
                       },
@@ -287,7 +286,12 @@ class _CustomersettingState extends State<Customersetting> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           )),
-                      onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context)=> CDeleteaccount()));},
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CDeleteaccount()));
+                      },
                       child: Text(
                         "Delete Account",
                         style: TextStyle(
