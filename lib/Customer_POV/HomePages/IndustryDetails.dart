@@ -11,6 +11,9 @@ class Industrydetails extends StatefulWidget {
 }
 
 class _IndustrydetailsState extends State<Industrydetails> {
+  bool _insuranceExpanded = false;
+  bool _verifiedExpanded  = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -340,7 +343,81 @@ class _IndustrydetailsState extends State<Industrydetails> {
             ),
             const SizedBox(height: 24),
 
-// … end of your Column …
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'Work Gallery',
+                style: TextStyle(
+                  color: AppColors.green,
+                  fontSize: primary(),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: GridView.count(
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                children: [
+                  'Assets/Customer_Images/villa.png',
+                  'Assets/Customer_Images/villa.png',
+                  'Assets/Customer_Images/villa.png',
+                  'Assets/Customer_Images/villa.png',
+                ].map((path) => ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.asset(path, fit: BoxFit.cover),
+                )).toList(),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+// — FAQ Section —
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'FAQ',
+                style: TextStyle(
+                  color: AppColors.green,
+                  fontSize: primary(),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
+                  // Q1
+                  _buildFaqItem(
+                    question: 'What insurance do workers carry?',
+                    answer:
+                    'Workers carry comprehensive liability and workers\' compensation insurance, covering both property damage and personal injury on-site.',
+                    expanded: _insuranceExpanded,
+                    onTap: () => setState(() => _insuranceExpanded = !_insuranceExpanded),
+                  ),
+                  const SizedBox(height: 8),
+                  // Q2
+                  _buildFaqItem(
+                    question: 'How are workers verified?',
+                    answer:
+                    'Workers undergo background checks, license verification, and skills assessment before joining our platform.',
+                    expanded: _verifiedExpanded,
+                    onTap: () => setState(() => _verifiedExpanded = !_verifiedExpanded),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+
 
           ],
         ),
@@ -406,6 +483,49 @@ class _IndustrydetailsState extends State<Industrydetails> {
         );
   }
 
+  Widget _buildFaqItem({
+    required String question,
+    required String answer,
+    required bool expanded,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          ListTile(
+            title: Text(
+              question,
+              style: TextStyle(
+                fontSize: tertiary(),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            trailing: Icon(
+              expanded ? Icons.cancel_outlined : Icons.add,
+              color: AppColors.green,
+            ),
+            onTap: onTap,
+          ),
+          if (expanded)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                answer,
+                style: TextStyle(
+                  fontSize: tertiary(),
+                  height: 1.4,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
 
   Widget _buildRecentWork(String imgPath, String title, String subtitle) {
     return Card(
@@ -450,7 +570,6 @@ class _IndustrydetailsState extends State<Industrydetails> {
       ),
     );
   }
-
 
   Widget _buildStat(String value, String label) {
     return Expanded(

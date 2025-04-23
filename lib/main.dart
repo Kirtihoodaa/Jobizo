@@ -5,6 +5,8 @@ import 'package:jobizo/Customer_POV/HomePages/Allsites.dart';
 import 'package:jobizo/splash/splash_screen1.dart';
 import 'Customer_POV/AppBar/CustomerAppBar.dart';
 import 'Customer_POV/CustomerNavBar.dart';
+import 'Customer_POV/HomePages/LabourLocalities.dart';
+import 'Customer_POV/SettingsPages/CustomerSetting.dart';
 import 'Customer_POV/HomePages/HomePagess.dart';
 import 'Customer_POV/HomePages/IndustryDetails.dart';
 import 'Labour_POV/Home Screens/HomePage.dart';
@@ -34,6 +36,7 @@ class MyApp extends StatelessWidget {
           //  home: CustomAppBar(name: 'Deepak', location: 'chandigarh', profileImageUrl: '',),
           //home: Homepagess(),
           home: Industrydetails(),
+
         );
       },
     );
