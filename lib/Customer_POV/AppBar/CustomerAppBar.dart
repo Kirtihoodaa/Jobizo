@@ -2,11 +2,12 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:jobizo/Customer_POV/CustomMenuCustomer.dart';
 
 import '../../Design contraints/FontSizes.dart';
 import '../../Labour_POV/CustomMenu.dart';
 
-class Labourappbar extends StatelessWidget {
+class Customerappbar extends StatelessWidget implements PreferredSizeWidget {
   final String name;
   final String location;
   final String profileImageUrl;
@@ -14,7 +15,7 @@ class Labourappbar extends StatelessWidget {
   final VoidCallback? onNotificationTap;
   final VoidCallback? onProfileTap;
 
-  const Labourappbar({
+  const Customerappbar({
     Key? key,
     required this.name,
     required this.location,
@@ -42,7 +43,7 @@ class Labourappbar extends StatelessWidget {
               children: [
                 IconButton(
                   icon: const Icon(Icons.menu, color: Colors.white),
-                  onPressed: onMenuTap ?? () {CustomMenu.show(context);},
+                  onPressed: onMenuTap ?? () {CustomMenuCustomer.show(context);},
                 ),
                 GestureDetector(
                   onTap: onProfileTap,

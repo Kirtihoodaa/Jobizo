@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:jobizo/Customer_POV/HomePages/Allsites.dart';
 import 'package:jobizo/splash/splash_screen1.dart';
-import 'Customer_POV/AppBar/LabourAppBar.dart';
+import 'Customer_POV/AppBar/CustomerAppBar.dart';
 import 'Customer_POV/CustomerNavBar.dart';
 import 'Customer_POV/HomePages/LabourLocalities.dart';
 import 'Customer_POV/SettingsPages/CustomerSetting.dart';
+import 'Customer_POV/HomePages/HomePagess.dart';
+import 'Customer_POV/HomePages/IndustryDetails.dart';
 import 'Labour_POV/Home Screens/HomePage.dart';
 import 'Labour_POV/NavBar.dart';
 import 'Labour_POV/Home Screens/EmergencyPage.dart';
@@ -31,7 +34,9 @@ class MyApp extends StatelessWidget {
           //home: SplashScreen1(),
           // home: EditProfileScreen(),
           //  home: CustomAppBar(name: 'Deepak', location: 'chandigarh', profileImageUrl: '',),
-           home: Labourlocalities(),
+          //home: Homepagess(),
+          home: Industrydetails(),
+
         );
       },
     );
