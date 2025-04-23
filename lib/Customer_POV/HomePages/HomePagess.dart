@@ -3,15 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Labour_POV/LeaveRequest/leave_request.dart';
-
-import '../../Labour_POV/All_app_bars/app_bar.dart';
 import '../../Labour_POV/Home Screens/Dashboard.dart';
 import '../../Labour_POV/Home Screens/EmergencyPage.dart';
 import '../../Labour_POV/Home Screens/Issue.dart';
 import '../../Labour_POV/Home Screens/OngoingContract.dart';
-import '../../Labour_POV/NavBar.dart';
 import '../../Labour_POV/Payments/Payment.dart';
 import '../AppBar/CustomerAppBar.dart';
+import '../CustomerNavBar.dart';
+import 'Dashboard.dart';
 
 class Homepagess extends StatefulWidget {
   const Homepagess({super.key});
@@ -25,31 +24,43 @@ class _HomepagessState extends State<Homepagess> {
     {
       "label": "Dashboard",
       "image": "Assets/Labour_image/dashboard icon.png",
-      "navigateTo": DashboardScreen(),
+      "navigateTo": DashboardScreenC(),
     },
     {
-      "label": "Payment",
-      "image": "Assets/Labour_image/payment icon.png",
+      "label": "Industry",
+      "image": "Assets/Customer_Images/industry.png",
       "navigateTo": Payment(),
     },
     {
-      "label": "Leave\nRequest",
-      "image": "Assets/Labour_image/Leave req icon.png",
+      "label": "Sites",
+      "image": "Assets/Customer_Images/sites.png",
       "navigateTo": LeaveRequestDetailsPage(),
     },
     {
-      "label": "Ongoing\nContract",
-      "image": "Assets/Labour_image/ongoing contract.png",
+      "label": "Labour\nTypes",
+      "image": "Assets/Customer_Images/labour type.png",
       "navigateTo": OngoingContractPage(),
     },
     {
-      "label": "labour\nIssue",
-      "image": "Assets/Labour_image/labour issue.png",
+      "label": "Agents",
+      "image": "Assets/Customer_Images/agents.png",
       "navigateTo": LabourIssuesScreen(),
     },
     {
-      "label": "Emergency",
-      "image": "Assets/Labour_image/emergency icon.png",
+      "label": "Labour\nLocalities",
+      "image": "Assets/Customer_Images/location.png",
+      "navigateTo": EmergencyPage(),
+    },{
+      "label": "Add Company\nDetails",
+      "image": "Assets/Customer_Images/add comp details.png",
+      "navigateTo": EmergencyPage(),
+    },{
+      "label": "Company\nDetails",
+      "image": "Assets/Customer_Images/details comp.png",
+      "navigateTo": EmergencyPage(),
+    },{
+      "label": "Assigned\nLabour",
+      "image": "Assets/Customer_Images/assigned labour.png",
       "navigateTo": EmergencyPage(),
     },
   ];
@@ -74,7 +85,7 @@ class _HomepagessState extends State<Homepagess> {
             children: [
               Center(
                   child: Padding(
-                    padding: const EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.all(15.0),
                     child: Text(
                       "Welcome to Jobizo !",
                       style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
@@ -118,8 +129,8 @@ class _HomepagessState extends State<Homepagess> {
                 // height: 300,
                 child: GridView.count(
                   crossAxisCount: 3,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
                   childAspectRatio: 1.1,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -162,7 +173,7 @@ class _HomepagessState extends State<Homepagess> {
             ],
           ),
         ),
-        bottomNavigationBar: NavBarLabour(),
+        bottomNavigationBar: Customernavbar(),
       ),
     );
   }
