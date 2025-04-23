@@ -8,7 +8,6 @@ import 'Customer_POV/HomePages/LabourLocalities.dart';
 import 'Customer_POV/SettingsPages/CustomerSetting.dart';
 import 'Labour_POV/Home Screens/HomePage.dart';
 import 'Labour_POV/NavBar.dart';
-import 'All_app_bars/app_bar.dart';
 import 'Labour_POV/Home Screens/EmergencyPage.dart';
 import 'Labour_POV/Profle pages/MyProfile.dart';
 
