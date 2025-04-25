@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:jobizo/Customer_POV/HomePages/AddComplaint.dart';
+import 'package:jobizo/Customer_POV/HomePages/ComplaintStatus.dart';
+import 'package:jobizo/Customer_POV/HomePages/WorkOpportunities.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 
@@ -50,7 +53,7 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
               _buildStatsSection(),
               _buildCategorySection(),
               _buildMainButtons(),
-              _buildActionButtons(),
+              _buildActionButtons(context),
               _buildAttendanceChart(),
               _buildRecentActivities(),
             ],
@@ -146,15 +149,20 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _categoryCard("Construction", "32", "Assets/Customer_Images/Construction.png"),
+                    _categoryCard("Construction", "32",
+                        "Assets/Customer_Images/Construction.png"),
                     const SizedBox(width: 10),
-                    _categoryCard("Electrical", "21", "Assets/Customer_Images/Electrician.png"),
+                    _categoryCard("Electrical", "21",
+                        "Assets/Customer_Images/Electrician.png"),
                     const SizedBox(width: 10),
-                    _categoryCard("Plumber", "15", "Assets/Customer_Images/plumbing.png"),
+                    _categoryCard(
+                        "Plumber", "15", "Assets/Customer_Images/plumbing.png"),
                     const SizedBox(width: 10),
-                    _categoryCard("Painter", "12", "Assets/Customer_Images/painter.png"),
+                    _categoryCard(
+                        "Painter", "12", "Assets/Customer_Images/painter.png"),
                     const SizedBox(width: 10),
-                    _categoryCard("Carpenter", "12", "Assets/Customer_Images/carpanter.png"),
+                    _categoryCard("Carpenter", "12",
+                        "Assets/Customer_Images/carpanter.png"),
                   ],
                 ),
               ),
@@ -167,74 +175,103 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
 
   Widget _categoryCard(String title, String count, String imagePath) {
     return Container(
-        height: 100,
-        width: MediaQuery.sizeOf(context).width/3,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              imagePath,
-              height: 40,
-              fit: BoxFit.contain,
-            ),
-            const SizedBox(height: 6),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text(
-                  "$title",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: tertiary()),
-                ),
-                Text(
-                  "$count",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: tertiary(),
-                      color: AppColors.gold),
-                ),
-              ],
-            ),
-          ],
-        ),
+      height: 100,
+      width: MediaQuery.sizeOf(context).width / 3,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      padding: const EdgeInsets.all(8),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            imagePath,
+            height: 40,
+            fit: BoxFit.contain,
+          ),
+          const SizedBox(height: 6),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(
+                "$title",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: tertiary()),
+              ),
+              Text(
+                "$count",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: tertiary(),
+                    color: AppColors.gold),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildMainButtons() {
     return Column(
       children: [
-        _mainButton("ALLOTED LABOUR", Color(0xFF415202), "Assets/Customer_Images/labour type.png"),
-        _mainButton("REQUEST LABOUR", Color(0xFF4B1E03), "Assets/Customer_Images/add comp details.png"),
-        _mainButton("WORK INTEREST", Color(0xFFF97616),"Assets/Customer_Images/work.png"),
+        _mainButton(
+          "ALLOTED LABOUR",
+          const Color(0xFF415202),
+          "Assets/Customer_Images/labour type.png",
+          null, // Replace with your actual page class
+        ),
+        _mainButton(
+          "REQUEST LABOUR",
+          const Color(0xFF4B1E03),
+          "Assets/Customer_Images/add comp details.png",
+          null, // Replace with your actual page class
+        ),
+        _mainButton(
+          "WORK INTEREST",
+          const Color(0xFFF97616),
+          "Assets/Customer_Images/work.png",
+          WorkOpportunitiesPage(), // Navigation disabled for now
+        ),
       ],
     );
   }
 
-  Widget _mainButton(String label, Color color, String imagePath) {
+  Widget _mainButton(
+      String label, Color color, String imagePath, Widget? destination) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         ),
-        onPressed: () {},
+        onPressed: () {
+          if (destination != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => destination),
+            );
+          } else {
+            // Optional: Show a snackbar if no destination is available
+            // ScaffoldMessenger.of(context).showSnackBar(
+            //   SnackBar(content: Text('Coming Soon')),
+            // );
+          }
+        },
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
               imagePath,
-              height: 20,  // Set size as needed
+              height: 20,
               width: 20,
-              color: Colors.white, // Optional: tint to match button style
+              color: Colors.white,
             ),
             const SizedBox(width: 10),
             Text(
@@ -251,26 +288,36 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
     );
   }
 
-  Widget _buildActionButtons() {
-    return  Container(
-        color: AppColors.gold,
-        width: MediaQuery.sizeOf(context).width,
-        child: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            _actionButton("Required Labour"),
-            _actionButton("Manage Labour"),
-            _actionButton("Add Complaint"),
-            _actionButton("Complaint Status"),
-          ],
-        ),
+  Widget _buildActionButtons(BuildContext context) {
+    return Container(
+      color: AppColors.gold,
+      width: MediaQuery.sizeOf(context).width,
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          _actionButton(context, "Required Labour", null),
+          _actionButton(context, "Manage Labour", null),
+          _actionButton(context, "Add Complaint", AddComplaintPage()),
+          _actionButton(context, "Complaint Status", ComplaintStatusScreen()),
+        ],
+      ),
     );
   }
 
-  Widget _actionButton(String label) {
+  Widget _actionButton(BuildContext context, String label, Widget? targetPage) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: () {
+        if (targetPage != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => targetPage),
+          );
+        } else {
+          // Optional: Add placeholder logic here if needed later
+          print('$label page is not implemented yet.');
+        }
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
