@@ -4,6 +4,7 @@ import 'package:jobizo/Customer_POV/HomePages/ComplaintStatus.dart';
 import 'package:jobizo/Customer_POV/HomePages/WorkOpportunities.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
+import 'package:pie_chart/pie_chart.dart';
 
 import '../AppBar/CustomerAppBar.dart';
 
@@ -292,61 +293,96 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
     return Container(
       color: AppColors.gold,
       width: MediaQuery.sizeOf(context).width,
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          _actionButton(context, "Required Labour", null),
+      child:GridView.count(
+        crossAxisCount: 2,
+        childAspectRatio: 3,
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        children: [_actionButton(context, "Required Labour", null),
           _actionButton(context, "Manage Labour", null),
           _actionButton(context, "Add Complaint", AddComplaintPage()),
-          _actionButton(context, "Complaint Status", ComplaintStatusScreen()),
-        ],
+          _actionButton(context, "Complaint Status", ComplaintStatusScreen()),]
       ),
     );
   }
 
   Widget _actionButton(BuildContext context, String label, Widget? targetPage) {
-    return ElevatedButton(
-      onPressed: () {
-        if (targetPage != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => targetPage),
-          );
-        } else {
-          // Optional: Add placeholder logic here if needed later
-          print('$label page is not implemented yet.');
-        }
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ElevatedButton(
+        onPressed: () {
+          if (targetPage != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => targetPage),
+            );
+          } else {
+            // Optional: Add placeholder logic here if needed later
+            print('$label page is not implemented yet.');
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+        child: Text(label),
       ),
-      child: Text(label),
     );
   }
 
   Widget _buildAttendanceChart() {
+    Map<String, double> dataMap = {
+      "Present": 142,
+      "Late": 20,
+      "Leave": 4,
+    };
+
+    final colorList = <Color>[
+      Color(0xFF4B1E03),
+      Color(0xFFEE6666),
+      Color(0xFFFAC858),
+    ];
+
     return Card(
-      margin: const EdgeInsets.all(12),
+      margin: const EdgeInsets.all(10),
+      color: Colors.white,
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(10),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Today's Attendance",
-                style: TextStyle(fontWeight: FontWeight.bold)),
+             Text(
+              "Today's Attendance",
+              style: TextStyle(fontWeight: FontWeight.bold,color: AppColors.green),
+            ),
+            const SizedBox(height: 20),
+            PieChart(
+              dataMap: dataMap,
+              animationDuration: const Duration(milliseconds: 2000),
+              chartRadius: 120, // Adjust size
+              colorList: colorList,
+              chartType: ChartType.ring, // RING for Donut chart
+              ringStrokeWidth: 20,
+              legendOptions: const LegendOptions(
+                showLegends: false, // Already showing below
+              ),
+              chartValuesOptions: const ChartValuesOptions(
+                showChartValuesInPercentage: true,
+                showChartValueBackground: true,
+                showChartValues: true,
+                decimalPlaces: 1,
+              ),
+            ),
             const SizedBox(height: 10),
-            Image.asset("Assets/DonutChart.png",
-                height: 150), // Replace with dynamic chart later
-            const Row(
+             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text("Present - 142", style: TextStyle(color: Colors.blue)),
-                Text("Late - 20", style: TextStyle(color: Colors.orange)),
-                Text("Leave - 4", style: TextStyle(color: Colors.red)),
+                Text("Present - 142", style: TextStyle(color: Color(0xFF4B1E03), fontSize: tertiary(), fontWeight: FontWeight.bold)),
+                Text("Late - 20", style: TextStyle(color: Color(0xFFEE6666), fontSize: tertiary(), fontWeight: FontWeight.bold)),
+                Text("Leave - 4", style: TextStyle(color: Color(0xFFFAC858), fontSize: tertiary(), fontWeight: FontWeight.bold)),
               ],
             ),
           ],
@@ -358,13 +394,14 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
   Widget _buildRecentActivities() {
     return Card(
       margin: const EdgeInsets.all(12),
+      color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
             Text("Recent Activities",
-                style: TextStyle(fontWeight: FontWeight.bold)),
+                style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.gold)),
             SizedBox(height: 10),
             ListTile(
               leading: Icon(Icons.location_on, color: Colors.blue),
