@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:jobizo/Customer_POV/HomePages/Labour_types/labour_avi.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
-import 'package:jobizo/Labour_POV/LeaveRequest/leave_request.dart';
-import '../../Labour_POV/Home Screens/Dashboard.dart';
-import '../../Labour_POV/Home Screens/EmergencyPage.dart';
-import '../../Labour_POV/Home Screens/Issue.dart';
-import '../../Labour_POV/Home Screens/OngoingContract.dart';
-import '../../Labour_POV/Payments/Payment.dart';
 import '../AppBar/CustomerAppBar.dart';
 import '../CustomerNavBar.dart';
+import 'AddCompanyDetails.dart';
+import 'AgentsList.dart';
+import 'CompanyDetails.dart';
 import 'Dashboard.dart';
+import 'IndustryDetails.dart';
+import 'LabourLocalities.dart';
+import 'SiteDetails.dart';
 
 class Homepagess extends StatefulWidget {
   const Homepagess({super.key});
@@ -30,12 +30,12 @@ class _HomepagessState extends State<Homepagess> {
     {
       "label": "Industry",
       "image": "Assets/Customer_Images/industry.png",
-      //"navigateTo": Payment(),
+      "navigateTo": Industrydetails(),
     },
     {
       "label": "Sites",
       "image": "Assets/Customer_Images/sites.png",
-      //"navigateTo": LeaveRequestDetailsPage(),
+      "navigateTo": Sitedetails(),
     },
     {
       "label": "Labour\nTypes",
@@ -45,22 +45,22 @@ class _HomepagessState extends State<Homepagess> {
     {
       "label": "Agents",
       "image": "Assets/Customer_Images/agents.png",
-      "navigateTo": LabourIssuesScreen(),
+      "navigateTo": Agentslist(),
     },
     {
       "label": "Labour\nLocalities",
       "image": "Assets/Customer_Images/location.png",
-      //"navigateTo": EmergencyPage(),
+      "navigateTo": Labourlocalities(),
     },
     {
       "label": "Add Company\nDetails",
       "image": "Assets/Customer_Images/add comp details.png",
-      //"navigateTo": EmergencyPage(),
+      "navigateTo": AddCompanyDetails(),
     },
     {
       "label": "Company\nDetails",
       "image": "Assets/Customer_Images/details comp.png",
-      //"navigateTo": EmergencyPage(),
+      "navigateTo": Companydetails(),
     },
     {
       "label": "Assigned\nLabour",
