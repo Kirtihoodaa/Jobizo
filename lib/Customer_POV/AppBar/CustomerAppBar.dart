@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:jobizo/Customer_POV/CustomMenuCustomer.dart';
+import 'package:jobizo/hamburgerCustomer/CustomMenuCustomer.dart';
 
 import '../../Design contraints/FontSizes.dart';
 import '../../Labour_POV/CustomMenu.dart';

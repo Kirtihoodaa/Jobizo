@@ -1,13 +1,14 @@
 // CustomMenu.dart
 import 'package:flutter/material.dart';
-import 'package:jobizo/Labour_POV/Home%20Screens/Dashboard.dart';
 import 'package:jobizo/Labour_POV/Home%20Screens/Feedback.dart';
 import 'package:jobizo/Labour_POV/Home%20Screens/HelpandSupport.dart';
 import 'package:jobizo/Labour_POV/Profle%20pages/MyProfile.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
-
 import '../Login/login.dart';
 import '../logout.dart';
+import '../Customer_POV/HomePages/Dashboard.dart';
+import '../Customer_POV/SettingsPages/CustomerProfile.dart';
+import 'Customerfeedback.dart';
 
 class CustomMenuCustomer {
   static void show(BuildContext context) {
@@ -94,7 +95,7 @@ class CustomMenuCustomer {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const DashboardScreen()),
+                            builder: (context) => const DashboardScreenC()),
                       );
                     },
                   ),
@@ -104,7 +105,7 @@ class CustomMenuCustomer {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => MyProfilePage()),
+                        MaterialPageRoute(builder: (context) => Customerprofile()),
                       );
                     },
                   ),
@@ -126,7 +127,7 @@ class CustomMenuCustomer {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const FeedbackPage()),
+                            builder: (context) => const Customerfeedback()),
                       );
                     },
                   ),
