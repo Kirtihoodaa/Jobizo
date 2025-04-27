@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:jobizo/Customer_POV/HomePages/Allsites.dart';
 import 'package:jobizo/Customer_POV/HomePages/Labour_types/labour_avi.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Labour_POV/LeaveRequest/leave_request.dart';
@@ -35,7 +36,7 @@ class _HomepagessState extends State<Homepagess> {
     {
       "label": "Sites",
       "image": "Assets/Customer_Images/sites.png",
-      //"navigateTo": LeaveRequestDetailsPage(),
+      "navigateTo": AllSitesScreen(),
     },
     {
       "label": "Labour\nTypes",

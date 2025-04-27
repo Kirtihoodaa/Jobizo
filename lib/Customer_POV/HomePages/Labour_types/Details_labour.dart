@@ -70,7 +70,7 @@ class _LabourListScreenState extends State<LabourListScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.bgColor,
-      appBar: Commonappbar(title: "Construction Labours"),
+      appBar: Commonappbar(title: "${widget.category} Labours"),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
