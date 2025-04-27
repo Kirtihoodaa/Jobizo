@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // For TextInputFormatter
 import 'package:jobizo/Customer_POV/AppBar/commonAppBar.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 
@@ -28,22 +29,6 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
   File? _resumeFile;
   File? _coverLetterFile;
   File? _photoIdFile;
-
-  // Submit Form
-  // void submitForm() {
-  //   // Here you will call your API later
-  //   if (_fullNameController.text.isEmpty || _resumeFile == null) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text('Please fill all required fields.')),
-  //     );
-  //     return;
-  //   }
-
-  //   // Example:
-  //   print('Full Name: ${_fullNameController.text}');
-  //   print('Resume Path: ${_resumeFile!.path}');
-  //   // API call will be placed here
-  // }
 
   // Pick File
   Future<File?> pickFile() async {
@@ -73,13 +58,12 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
-      appBar: Commonappbar(title: 'Complaint Status'),
+      appBar: Commonappbar(title: 'Work Application'),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              // Select Position
               _buildDropdownField(),
               const SizedBox(height: 20),
 
@@ -108,18 +92,14 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
                       hintText: 'Enter your email',
                     ),
                     _buildLabel('Phone Number'),
-                    _buildTextField(
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      hintText: 'Enter your phone number',
-                    ),
+                    _buildPhoneNumberField(), // << Updated this
                     _buildLabel('Date of Birth'),
                     _buildDateField(context),
                     _buildLabel('Current Location'),
                     _buildTextField(
                       controller: _locationController,
                       keyboardType: TextInputType.text,
-                      hintText: 'Enter your Location',
+                      hintText: 'Enter your location',
                     ),
                   ],
                 ),
@@ -217,22 +197,31 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
               ),
               const SizedBox(height: 20),
 
-              // Why do you want to join us?
+              // Motivation
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: _containerDecoration(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Why do you want to join us?',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Why do you want to join us?',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _motivationController,
                       maxLines: 5,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Tell us about your motivation...',
-                        border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: AppColors.gold, width: 2),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: AppColors.gold, width: 2),
+                        ),
                       ),
                     ),
                   ],
@@ -240,7 +229,7 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
               ),
               const SizedBox(height: 20),
 
-              // Start Journey Button
+              // Submit Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -251,70 +240,7 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
                         borderRadius: BorderRadius.circular(30)),
                   ),
                   onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16)),
-                          contentPadding: const EdgeInsets.all(24),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.check_circle,
-                                  color: Color(0xFF62A910), size: 48),
-                              const SizedBox(height: 16),
-                              const Text(
-                                'Request Submitted',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF62A910),
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              const Text(
-                                'Thank you for applying for the Office Manager position at Jobizo.\n\nWe’ve received your application and will review it shortly And Report to your Personal Mail',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 14),
-                              ),
-                              const SizedBox(height: 16),
-                              RichText(
-                                text: const TextSpan(
-                                  text: 'Application ID ',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF62A910),
-                                      fontSize: 14),
-                                  children: [
-                                    TextSpan(
-                                      text: 'TB58856CRI876',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.black),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30)),
-                                ),
-                                onPressed: () {
-                                  Navigator.of(context)
-                                      .pop(); // Close the dialog
-                                },
-                                child: const Text('OK',
-                                    style: TextStyle(color: Colors.white)),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
+                    _showSubmittedDialog();
                   },
                   child: const Text('Start Your Journey',
                       style: TextStyle(color: Colors.white, fontSize: 16)),
@@ -325,6 +251,69 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showSubmittedDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          contentPadding: const EdgeInsets.all(24),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.check_circle,
+                  color: Color(0xFF62A910), size: 48),
+              const SizedBox(height: 16),
+              const Text(
+                'Request Submitted',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF62A910)),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Thank you for applying for the Office Manager position at Jobizo.\n\nWe’ve received your application and will review it shortly and report to your Personal Mail.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              RichText(
+                text: const TextSpan(
+                  text: 'Application ID ',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF62A910),
+                      fontSize: 14),
+                  children: [
+                    TextSpan(
+                      text: 'TB58856CRI876',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w500, color: Colors.black),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30)),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -350,27 +339,40 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
     );
   }
 
-  Widget _buildTextField(
-      {required TextEditingController controller,
-      required TextInputType keyboardType,
-      String? hintText}) {
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required TextInputType keyboardType,
+    String? hintText,
+    List<TextInputFormatter>? inputFormatters,
+  }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
       decoration: InputDecoration(
         hintText: hintText,
-        contentPadding: const EdgeInsets.symmetric(
-            vertical: 10, horizontal: 12), // Reduces the height
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12), // Rounded corners
+          borderRadius: BorderRadius.circular(12),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(12), // Rounded corners for focused state
-          borderSide: const BorderSide(
-              color: Colors.black, width: 2), // Black border when focused
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppColors.gold, width: 2),
         ),
       ),
+    );
+  }
+
+  Widget _buildPhoneNumberField() {
+    return _buildTextField(
+      controller: _phoneController,
+      keyboardType: TextInputType.number,
+      hintText: 'Enter your 10-digit phone number',
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly, // Allow only digits
+        LengthLimitingTextInputFormatter(10), // Limit to 10 digits
+      ],
     );
   }
 
@@ -380,16 +382,14 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
       readOnly: true,
       decoration: InputDecoration(
         hintText: 'Select Date',
-        contentPadding: const EdgeInsets.symmetric(
-            vertical: 10, horizontal: 12), // Reduces the height
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12), // Rounded corners
+          borderRadius: BorderRadius.circular(12),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(12), // Rounded corners for focused state
-          borderSide: const BorderSide(
-              color: Colors.black, width: 2), // Black border when focused
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppColors.gold, width: 2),
         ),
         suffixIcon: const Icon(Icons.calendar_today),
       ),
@@ -399,6 +399,18 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
           initialDate: DateTime(2001, 2, 5),
           firstDate: DateTime(1900),
           lastDate: DateTime.now(),
+          builder: (context, child) {
+            return Theme(
+              data: Theme.of(context).copyWith(
+                colorScheme: ColorScheme.light(
+                  primary: AppColors.gold,
+                  onSurface: Colors.black,
+                  surface: AppColors.bgColor,
+                ),
+              ),
+              child: child!,
+            );
+          },
         );
         if (pickedDate != null) {
           _dobController.text =
@@ -416,29 +428,20 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
         child: TextFormField(
           decoration: InputDecoration(
             hintText: file != null ? file.path.split('/').last : 'Select File',
-            contentPadding: const EdgeInsets.symmetric(
-                vertical: 10, horizontal: 12), // Reduces the height
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12), // Rounded corners
+              borderRadius: BorderRadius.circular(12),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.black, width: 2),
+              borderSide: BorderSide(color: AppColors.gold, width: 2),
             ),
-            // Use a Row to combine hint text and icon
-            suffixIcon: Row(
-              mainAxisSize: MainAxisSize
-                  .min, // Ensures the Row only takes up as much space as needed
-              children: [
-                // Space between text and icon
-                const Icon(Icons.cloud_upload),
-              ],
-            ),
+            suffixIcon: const Icon(Icons.cloud_upload),
             hintStyle: const TextStyle(fontWeight: FontWeight.normal),
           ),
-          textAlign:
-              TextAlign.center, // Centers the text inside the TextFormField
-          readOnly: true, // Makes the field readonly
+          textAlign: TextAlign.center,
+          readOnly: true,
         ),
       ),
     );
@@ -465,9 +468,11 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Colors.black, width: 2),
+                borderSide: BorderSide(color: AppColors.gold, width: 2),
               ),
             ),
+            dropdownColor: AppColors.bgColor,
+            borderRadius: BorderRadius.circular(12),
             items: const [
               DropdownMenuItem(value: 'role1', child: Text('Role 1')),
               DropdownMenuItem(value: 'role2', child: Text('Role 2')),

@@ -12,7 +12,7 @@ class WorkOpportunitiesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
-      appBar: Commonappbar(title: 'Complaint Status'),
+      appBar: Commonappbar(title: 'Work Opportunities'),
       body: SingleChildScrollView(
         child: Column(
           children: [
