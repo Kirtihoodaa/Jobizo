@@ -63,7 +63,6 @@ class _AllSitesScreenState extends State<AllSitesScreen> {
 
   Widget buildSiteCard(Site site) {
     return Container(
-      width: 343,
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
