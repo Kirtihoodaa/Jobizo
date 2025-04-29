@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:jobizo/Customer_POV/HomePages/Allsites.dart';
+import 'package:jobizo/Customer_POV/HomePages/AssignedLabour.dart';
 import 'package:jobizo/Customer_POV/HomePages/Labour_types/labour_avi.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import '../AppBar/CustomerAppBar.dart';
@@ -67,7 +68,7 @@ class _HomepagessState extends State<Homepagess> {
     {
       "label": "Assigned\nLabour",
       "image": "Assets/Customer_Images/assigned labour.png",
-      //"navigateTo": EmergencyPage(),
+      "navigateTo": AssignedWorkerPage(),
     },
   ];
 
