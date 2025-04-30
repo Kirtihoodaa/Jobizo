@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:jobizo/Customer_POV/HomePages/ActiveList.dart';
 import 'package:jobizo/Customer_POV/HomePages/AddComplaint.dart';
+import 'package:jobizo/Customer_POV/HomePages/Allsites.dart';
 import 'package:jobizo/Customer_POV/HomePages/ComplaintStatus.dart';
+import 'package:jobizo/Customer_POV/HomePages/Payement/PendingPayement.dart';
+import 'package:jobizo/Customer_POV/HomePages/PendingRequest.dart';
 import 'package:jobizo/Customer_POV/HomePages/WorkOpportunities.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
@@ -66,10 +70,30 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
 
   Widget _buildStatsSection() {
     final stats = [
-      {"title": "Total Active Labour", "value": "24", "desc": "+12 TODAY"},
-      {"title": "Total Billing Amount", "value": "INR 230000", "desc": ""},
-      {"title": "Pending Requests", "value": "23", "desc": "5 URGENT"},
-      {"title": "Active Sites", "value": "18", "desc": "2 NEW"},
+      {
+        "title": "Total Active Labour",
+        "value": "24",
+        "desc": "+12 TODAY",
+        "screen": Activelist()
+      },
+      {
+        "title": "Total Billing Amount",
+        "value": "INR 230000",
+        "desc": "",
+        "screen": PendingPaymentScreen()
+      },
+      {
+        "title": "Pending Requests",
+        "value": "23",
+        "desc": "5 URGENT",
+        "screen": PendingRequestScreen()
+      },
+      {
+        "title": "Active Sites",
+        "value": "18",
+        "desc": "2 NEW",
+        "screen": AllSitesScreen()
+      },
     ];
 
     return Padding(
@@ -85,8 +109,34 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           children: stats
-              .map((item) =>
-                  _statCard(item['title']!, item['value']!, item['desc']!))
+              .map((item) => GestureDetector(
+                    onTap: () {
+                      // Check if a screen exists and navigate accordingly
+                      if (item['screen'] != null) {
+                        // Explicitly cast 'screen' to Widget
+                        Widget? screen = item['screen'] as Widget?;
+                        if (screen != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  screen, // Navigate to the assigned screen
+                            ),
+                          );
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text('No page assigned for this card!')),
+                        );
+                      }
+                    },
+                    child: _statCard(
+                      item['title'] as String, // Cast the values as String
+                      item['value'] as String, // Cast the values as String
+                      item['desc'] as String, // Cast the values as String
+                    ),
+                  ))
               .toList(),
         ),
       ),
@@ -293,16 +343,17 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
     return Container(
       color: AppColors.gold,
       width: MediaQuery.sizeOf(context).width,
-      child:GridView.count(
-        crossAxisCount: 2,
-        childAspectRatio: 3,
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        children: [_actionButton(context, "Required Labour", null),
-          _actionButton(context, "Manage Labour", null),
-          _actionButton(context, "Add Complaint", AddComplaintPage()),
-          _actionButton(context, "Complaint Status", ComplaintStatusScreen()),]
-      ),
+      child: GridView.count(
+          crossAxisCount: 2,
+          childAspectRatio: 3,
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          children: [
+            _actionButton(context, "Required Labour", null),
+            _actionButton(context, "Manage Labour", null),
+            _actionButton(context, "Add Complaint", AddComplaintPage()),
+            _actionButton(context, "Complaint Status", ComplaintStatusScreen()),
+          ]),
     );
   }
 
@@ -326,7 +377,8 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
           foregroundColor: Colors.black,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
         child: Text(label),
       ),
@@ -354,9 +406,10 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Text(
+            Text(
               "Today's Attendance",
-              style: TextStyle(fontWeight: FontWeight.bold,color: AppColors.green),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, color: AppColors.green),
             ),
             const SizedBox(height: 20),
             PieChart(
@@ -377,12 +430,24 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
               ),
             ),
             const SizedBox(height: 10),
-             Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text("Present - 142", style: TextStyle(color: Color(0xFF4B1E03), fontSize: tertiary(), fontWeight: FontWeight.bold)),
-                Text("Late - 20", style: TextStyle(color: Color(0xFFEE6666), fontSize: tertiary(), fontWeight: FontWeight.bold)),
-                Text("Leave - 4", style: TextStyle(color: Color(0xFFFAC858), fontSize: tertiary(), fontWeight: FontWeight.bold)),
+                Text("Present - 142",
+                    style: TextStyle(
+                        color: Color(0xFF4B1E03),
+                        fontSize: tertiary(),
+                        fontWeight: FontWeight.bold)),
+                Text("Late - 20",
+                    style: TextStyle(
+                        color: Color(0xFFEE6666),
+                        fontSize: tertiary(),
+                        fontWeight: FontWeight.bold)),
+                Text("Leave - 4",
+                    style: TextStyle(
+                        color: Color(0xFFFAC858),
+                        fontSize: tertiary(),
+                        fontWeight: FontWeight.bold)),
               ],
             ),
           ],
@@ -401,7 +466,8 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
             Text("Recent Activities",
-                style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.gold)),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: AppColors.gold)),
             SizedBox(height: 10),
             ListTile(
               leading: Icon(Icons.location_on, color: Colors.blue),

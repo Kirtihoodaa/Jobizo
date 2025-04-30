@@ -13,6 +13,7 @@ class WorkOpportunitiesPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: Commonappbar(title: 'Work'),
+
       body: SingleChildScrollView(
         child: Column(
           children: [
