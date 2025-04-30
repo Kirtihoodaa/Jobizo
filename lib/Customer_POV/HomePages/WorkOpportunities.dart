@@ -12,13 +12,13 @@ class WorkOpportunitiesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
-      appBar: Commonappbar(title: 'Complaint Status'),
+      appBar: Commonappbar(title: 'Work'),
       body: SingleChildScrollView(
         child: Column(
           children: [
             // Top Image
             Image.asset(
-              'assets/your_image.png', // Replace with your image path
+              'Assets/Customer_Images/work frame.png', // Replace with your image path
               width: double.infinity,
               height: 200,
               fit: BoxFit.cover,
