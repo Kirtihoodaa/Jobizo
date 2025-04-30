@@ -93,7 +93,7 @@ class _HistotypageeState extends State<Histotypagee> {
               Text(
                 r.serviceType,
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: primary(),
                   fontWeight: FontWeight.w600,
                   color: AppColors.green,
                 ),
@@ -108,7 +108,7 @@ class _HistotypageeState extends State<Histotypagee> {
                 child: Text(
                   r.status,
                   style:  TextStyle(
-                    fontSize: 12,
+                    fontSize: tertiary(),
                     fontWeight: FontWeight.w500,
                     color: Colors.white,
                   ),
@@ -125,7 +125,7 @@ class _HistotypageeState extends State<Histotypagee> {
                SizedBox(width: 6),
               Text(
                 '${r.workers} Workers',
-                style:  TextStyle(fontSize: 14),
+                style:  TextStyle(fontSize: secondary()),
               ),
             ],
           ),
@@ -134,7 +134,7 @@ class _HistotypageeState extends State<Histotypagee> {
           // Location
           Text(
             r.location,
-            style:  TextStyle(fontSize: 14),
+            style:  TextStyle(fontSize: secondary()),
           ),
            SizedBox(height: 8),
 
@@ -145,7 +145,7 @@ class _HistotypageeState extends State<Histotypagee> {
               SizedBox(width: 6),
               Text(
                 'Start: ${_formatDate(r.startDate)}',
-                style:  TextStyle(fontSize: 14),
+                style:  TextStyle(fontSize: secondary()),
               ),
             ],
           ),
@@ -158,7 +158,7 @@ class _HistotypageeState extends State<Histotypagee> {
             children: [
               Text(
                 'Submitted: ${_formatDate(r.submittedDate)}',
-                style:  TextStyle(fontSize: 12, color: Colors.black),
+                style:  TextStyle(fontSize: tertiary(), color: Colors.black),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -168,7 +168,7 @@ class _HistotypageeState extends State<Histotypagee> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.gold,
                   padding:  EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 8),
+                      horizontal: 13, vertical: 5),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20)),
                 ),

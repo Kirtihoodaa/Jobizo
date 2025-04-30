@@ -146,7 +146,7 @@ class _CategoryItem extends StatelessWidget {
                 "$title $count",
                 style: TextStyle(
                     fontSize: tertiary(),
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.bold,
                     color: AppColors.green),
               ),
             ),

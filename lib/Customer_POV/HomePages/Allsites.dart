@@ -46,9 +46,10 @@ class _AllSitesScreenState extends State<AllSitesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.bgColor,
       appBar: Commonappbar(title: 'All Sites'),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.all(10),
         child: Column(
           children: siteList
               .map((site) => Padding(
@@ -63,6 +64,7 @@ class _AllSitesScreenState extends State<AllSitesScreen> {
 
   Widget buildSiteCard(Site site) {
     return Container(
+      width: MediaQuery.of(context).size.width,
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,

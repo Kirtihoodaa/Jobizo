@@ -9,6 +9,7 @@ import '../AppBar/CustomerAppBar.dart';
 import '../CustomerNavBar.dart';
 import 'AddCompanyDetails.dart';
 import 'AgentsList.dart';
+import 'Allsites.dart';
 import 'CompanyDetails.dart';
 import 'Dashboard.dart';
 import 'IndustryDetails.dart';
@@ -37,8 +38,7 @@ class _HomepagessState extends State<Homepagess> {
     {
       "label": "Sites",
       "image": "Assets/Customer_Images/sites.png",
-
-      "navigateTo": Sitedetails(),
+      "navigateTo": AllSitesScreen(),
     },
     {
       "label": "Labour\nTypes",
