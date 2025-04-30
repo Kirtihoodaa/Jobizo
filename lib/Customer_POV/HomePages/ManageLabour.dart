@@ -64,11 +64,35 @@ class _LabourManagementScreenState extends State<LabourManagementScreen> {
     final TimeOfDay? start = await showTimePicker(
       context: context,
       initialTime: const TimeOfDay(hour: 6, minute: 0),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Colors.amber, // Header background color
+              onPrimary: Colors.black, // Header text color
+              onSurface: Colors.black, // Body text color
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     final TimeOfDay? end = await showTimePicker(
       context: context,
       initialTime: const TimeOfDay(hour: 14, minute: 0),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Colors.amber,
+              onPrimary: Colors.black,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (start != null && end != null) {

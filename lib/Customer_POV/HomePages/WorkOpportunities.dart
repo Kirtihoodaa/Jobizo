@@ -13,16 +13,37 @@ class WorkOpportunitiesPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: Commonappbar(title: 'Work'),
-
       body: SingleChildScrollView(
         child: Column(
           children: [
             // Top Image
-            Image.asset(
-              'Assets/Customer_Images/work frame.png', // Replace with your image path
-              width: double.infinity,
-              height: 200,
-              fit: BoxFit.cover,
+            Stack(
+              children: [
+                Image.asset(
+                  'Assets/Customer_Images/work frame.png',
+                  height: 200,
+                  width: MediaQuery.of(context).size.width,
+                  fit: BoxFit.cover,
+                ),
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Color.fromRGBO(250, 192, 21, 0.76), // Yellowish
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
 
             const SizedBox(height: 16),
