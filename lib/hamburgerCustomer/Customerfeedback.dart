@@ -196,12 +196,7 @@ class _CustomerfeedbackState extends State<Customerfeedback> {
                           borderRadius: BorderRadius.circular(30),
                         ),
                       ),
-                      onPressed: () {
-                        // Handle submit action
-                        print('Feedback: ${feedbackController.text}');
-                        print('Selected Type: $selectedFeedbackType');
-                        print('Rating: $selectedRating');
-                      },
+                      onPressed: () {},
                       child: const Text(
                         'Submit Feedback',
                         style: TextStyle(color: Colors.white, fontSize: 16),
