@@ -4,14 +4,14 @@ import 'package:jobizo/Customer_POV/HomePages/Labour_types/Details_labour.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 
-class AllLaboursScreen extends StatefulWidget {
-  const AllLaboursScreen({super.key});
+class Requiredlabour extends StatefulWidget {
+  const Requiredlabour({super.key});
 
   @override
-  State<AllLaboursScreen> createState() => _AllLaboursScreenState();
+  State<Requiredlabour> createState() => _RequiredlabourState();
 }
 
-class _AllLaboursScreenState extends State<AllLaboursScreen> {
+class _RequiredlabourState extends State<Requiredlabour> {
   List<Map<String, dynamic>> labourCategories = [
     {"category": "Construction", "count": 32},
     {"category": "Electrician", "count": 33},
@@ -33,7 +33,7 @@ class _AllLaboursScreenState extends State<AllLaboursScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
-      appBar: Commonappbar(title: "All Labours"),
+      appBar: Commonappbar(title: "Required Workers"),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -153,14 +153,7 @@ class _CategoryItem extends StatelessWidget {
             Container(
               margin: const EdgeInsets.only(right: 16),
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LabourListScreen(category: title),
-                    ),
-                  );
-                },
+                onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.gold,
                   padding:

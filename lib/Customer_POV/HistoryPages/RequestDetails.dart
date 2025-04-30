@@ -18,7 +18,7 @@ class _RequestdetailsState extends State<Requestdetails> {
       appBar: Commonappbar(title: "Request Details"),
       body: SingleChildScrollView(
         child: Padding(
-          padding:  EdgeInsets.only(top: 30, bottom: 50, right: 20, left: 20),
+          padding: EdgeInsets.only(top: 30, bottom: 50, right: 20, left: 20),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -73,11 +73,35 @@ class _RequestdetailsState extends State<Requestdetails> {
                   Wrap(
                     spacing: 16,
                     runSpacing: 8,
-                    children: const [
-                      Text("Painting 25"),
-                      Text("Carpenter 25"),
-                      Text("Construction 25"),
-                      Text("Electrical 10"),
+                    children: [
+                      Text(
+                        "Painting 25",
+                        style: TextStyle(
+                          fontSize: tertiary(),
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      Text(
+                        "Carpenter 25",
+                        style: TextStyle(
+                          fontSize: tertiary(),
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      Text(
+                        "Construction 25",
+                        style: TextStyle(
+                          fontSize: tertiary(),
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      Text(
+                        "Electrical 10",
+                        style: TextStyle(
+                          fontSize: tertiary(),
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -93,7 +117,10 @@ class _RequestdetailsState extends State<Requestdetails> {
                   const SizedBox(height: 4),
                   Text(
                     "10 days",
-                    style: TextStyle(fontSize: primary()),
+                    style: TextStyle(
+                      fontSize: tertiary(),
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                   const SizedBox(height: 16),
 
@@ -111,10 +138,13 @@ class _RequestdetailsState extends State<Requestdetails> {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                             SizedBox(height: 4),
+                            SizedBox(height: 4),
                             Text(
                               "Apr 18, 2024",
-                              style: TextStyle(fontSize: primary()),
+                              style: TextStyle(
+                                fontSize: tertiary(),
+                                fontWeight: FontWeight.w400,
+                              ),
                             ),
                           ],
                         ),
@@ -130,17 +160,20 @@ class _RequestdetailsState extends State<Requestdetails> {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                             SizedBox(height: 4),
+                            SizedBox(height: 4),
                             Text(
                               "Apr 28, 2024",
-                              style: TextStyle(fontSize: primary()),
+                              style: TextStyle(
+                                fontSize: tertiary(),
+                                fontWeight: FontWeight.w400,
+                              ),
                             ),
                           ],
                         ),
                       ),
                     ],
                   ),
-                   SizedBox(height: 30),
+                  SizedBox(height: 30),
 
                   // Location
                   Text(
@@ -150,12 +183,15 @@ class _RequestdetailsState extends State<Requestdetails> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                   SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     "Mumbai Construction Site, Maharashtra",
-                    style: TextStyle(fontSize: primary()),
+                    style: TextStyle(
+                      fontSize: tertiary(),
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
-                   SizedBox(height: 30),
+                  SizedBox(height: 30),
 
                   // Site Manager
                   Text(
@@ -165,12 +201,15 @@ class _RequestdetailsState extends State<Requestdetails> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                   SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     "Wilton",
-                    style: TextStyle(fontSize: primary()),
+                    style: TextStyle(
+                      fontSize: tertiary(),
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
-                   SizedBox(height: 30),
+                  SizedBox(height: 30),
 
                   // Phone Number
                   Text(
@@ -180,12 +219,15 @@ class _RequestdetailsState extends State<Requestdetails> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                   SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     "+91 8878990087",
-                    style: TextStyle(fontSize: primary()),
+                    style: TextStyle(
+                      fontSize: tertiary(),
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
-                   SizedBox(height: 30),
+                  SizedBox(height: 30),
 
                   // Email
                   Text(
@@ -195,12 +237,15 @@ class _RequestdetailsState extends State<Requestdetails> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                   SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     "eg. ZIUahn@gmail.com",
-                    style: TextStyle(fontSize: primary()),
+                    style: TextStyle(
+                      fontSize: tertiary(),
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
-                   SizedBox(height: 30),
+                  SizedBox(height: 30),
 
                   // Work Description
                   Text(
@@ -210,10 +255,13 @@ class _RequestdetailsState extends State<Requestdetails> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                   SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     "Construction work involves building foundation, structural work, and finishing for a new commercial complex. Workers needed for various tasks including masonry, carpentry, and general labor.",
-                    style: TextStyle(fontSize: primary()),
+                    style: TextStyle(
+                      fontSize: tertiary(),
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ],
               ),
@@ -221,7 +269,6 @@ class _RequestdetailsState extends State<Requestdetails> {
           ),
         ),
       ),
-
     );
   }
 }

@@ -37,8 +37,7 @@ class _HomepagessState extends State<Homepagess> {
     {
       "label": "Sites",
       "image": "Assets/Customer_Images/sites.png",
-
-      "navigateTo": Sitedetails(),
+      "navigateTo": AllSitesScreen(),
     },
     {
       "label": "Labour\nTypes",

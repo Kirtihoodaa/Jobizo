@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:jobizo/Customer_POV/HomePages/ActiveList.dart';
 import 'package:jobizo/Customer_POV/HomePages/AddComplaint.dart';
+import 'package:jobizo/Customer_POV/HomePages/AllotoedLabour.dart';
 import 'package:jobizo/Customer_POV/HomePages/Allsites.dart';
 import 'package:jobizo/Customer_POV/HomePages/ComplaintStatus.dart';
+import 'package:jobizo/Customer_POV/HomePages/Labour_types/Details_labour.dart';
+import 'package:jobizo/Customer_POV/HomePages/ManageLabour.dart';
 import 'package:jobizo/Customer_POV/HomePages/Payement/PendingPayement.dart';
 import 'package:jobizo/Customer_POV/HomePages/PendingRequest.dart';
+import 'package:jobizo/Customer_POV/HomePages/RequiredLabour.dart';
 import 'package:jobizo/Customer_POV/HomePages/WorkOpportunities.dart';
+import 'package:jobizo/Customer_POV/RequestPages/CustomerRequest.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 import 'package:pie_chart/pie_chart.dart';
@@ -41,6 +46,14 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
     //   ...
     // });
   }
+
+  List<Map<String, dynamic>> labourCategories = [
+    {"category": "Construction", "count": 32},
+    {"category": "Electrician", "count": 33},
+    {"category": "Plumber", "count": 60},
+    {"category": "Painter", "count": 45},
+    {"category": "Carpenter", "count": 44},
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -111,16 +124,13 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
           children: stats
               .map((item) => GestureDetector(
                     onTap: () {
-                      // Check if a screen exists and navigate accordingly
                       if (item['screen'] != null) {
-                        // Explicitly cast 'screen' to Widget
                         Widget? screen = item['screen'] as Widget?;
                         if (screen != null) {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  screen, // Navigate to the assigned screen
+                              builder: (context) => screen,
                             ),
                           );
                         }
@@ -132,9 +142,9 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
                       }
                     },
                     child: _statCard(
-                      item['title'] as String, // Cast the values as String
-                      item['value'] as String, // Cast the values as String
-                      item['desc'] as String, // Cast the values as String
+                      item['title'] as String,
+                      item['value'] as String,
+                      item['desc'] as String,
                     ),
                   ))
               .toList(),
@@ -203,7 +213,7 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
                     _categoryCard("Construction", "32",
                         "Assets/Customer_Images/Construction.png"),
                     const SizedBox(width: 10),
-                    _categoryCard("Electrical", "21",
+                    _categoryCard("Electrician", "21",
                         "Assets/Customer_Images/Electrician.png"),
                     const SizedBox(width: 10),
                     _categoryCard(
@@ -225,43 +235,55 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
   }
 
   Widget _categoryCard(String title, String count, String imagePath) {
-    return Container(
-      height: 100,
-      width: MediaQuery.sizeOf(context).width / 3,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.all(8),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            imagePath,
-            height: 40,
-            fit: BoxFit.contain,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LabourListScreen(
+              category: title,
+            ),
           ),
-          const SizedBox(height: 6),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(
-                "$title",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: tertiary()),
-              ),
-              Text(
-                "$count",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: tertiary(),
-                    color: AppColors.gold),
-              ),
-            ],
-          ),
-        ],
+        );
+      },
+      child: Container(
+        height: 100,
+        width: MediaQuery.sizeOf(context).width / 3,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              imagePath,
+              height: 40,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(height: 6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(
+                  "$title",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: tertiary()),
+                ),
+                Text(
+                  "$count",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: tertiary(),
+                      color: AppColors.gold),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -273,19 +295,19 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
           "ALLOTED LABOUR",
           const Color(0xFF415202),
           "Assets/Customer_Images/labour type.png",
-          null, // Replace with your actual page class
+          AllottedLaboursScreen(),
         ),
         _mainButton(
           "REQUEST LABOUR",
           const Color(0xFF4B1E03),
           "Assets/Customer_Images/add comp details.png",
-          null, // Replace with your actual page class
+          Customerrequest(),
         ),
         _mainButton(
           "WORK INTEREST",
           const Color(0xFFF97616),
           "Assets/Customer_Images/work.png",
-          WorkOpportunitiesPage(), // Navigation disabled for now
+          WorkOpportunitiesPage(),
         ),
       ],
     );
@@ -349,8 +371,8 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           children: [
-            _actionButton(context, "Required Labour", null),
-            _actionButton(context, "Manage Labour", null),
+            _actionButton(context, "Required Labour", Requiredlabour()),
+            _actionButton(context, "Manage Labour", LabourManagementScreen()),
             _actionButton(context, "Add Complaint", AddComplaintPage()),
             _actionButton(context, "Complaint Status", ComplaintStatusScreen()),
           ]),
