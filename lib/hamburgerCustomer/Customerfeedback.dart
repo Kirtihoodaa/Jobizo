@@ -126,20 +126,21 @@ class _CustomerfeedbackState extends State<Customerfeedback> {
                   const SizedBox(height: 8),
 
                   // Feedback text field
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.black12),
-                    ),
-                    child: TextField(
-                      controller: feedbackController,
-                      maxLength: 500,
-                      maxLines: 5,
-                      decoration: const InputDecoration(
-                        hintText: 'Describe your feedback in detail...',
-                        border: InputBorder.none,
-                        counterText: '',
+                  TextField(
+                    controller: feedbackController,
+                    maxLength: 500,
+                    maxLines: 5,
+                    decoration: InputDecoration(
+                      hintText: 'Describe your feedback in detail...',
+                      border: InputBorder.none,
+                      counterText: '',
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.black12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: AppColors.gold, width: 2),
                       ),
                     ),
                   ),
