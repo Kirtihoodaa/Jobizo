@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import '../../Design contraints/app color.dart';
+import '../AppBar/CustomerAppBar.dart';
 import '../AppBar/commonAppBar.dart';
 
 class Customerrequest extends StatefulWidget {
@@ -43,8 +44,8 @@ class _CustomerrequestState extends State<Customerrequest> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: Commonappbar(
-        title: 'Labour Requirements',
+      appBar: Customerappbar(
+         name: 'Deep', location: 'Chand', profileImageUrl: '',
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(10.0),

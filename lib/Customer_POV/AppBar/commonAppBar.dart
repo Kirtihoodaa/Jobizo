@@ -17,7 +17,13 @@ class Commonappbar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.white),
-        onPressed: () => Navigator.of(context).pop(),
+        onPressed: () {
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          } else {
+            debugPrint('⚠️ No screen to pop. You may have used pushReplacement.');
+          }
+        },
       ),
       title: Text(
         title,

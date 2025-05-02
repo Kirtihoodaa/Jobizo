@@ -48,7 +48,7 @@ class _CustomernavbarState extends State<Customernavbar> {
         return;
     }
 
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => page),
     );
