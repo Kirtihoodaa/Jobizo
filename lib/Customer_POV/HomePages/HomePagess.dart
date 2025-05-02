@@ -95,7 +95,7 @@ class _HomepagessState extends State<Homepagess> {
                 padding: const EdgeInsets.all(15.0),
                 child: Text(
                   "Welcome to Jobizo !",
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFF2C4305)),
                 ),
               )),
               Container(
@@ -114,15 +114,15 @@ class _HomepagessState extends State<Homepagess> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.only(top: 10.0, right: 25, left: 25, bottom: 10),
                       child: Image.asset(
                           "Assets/Labour_image/labour deshboard image.png"),
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(15.0),
+                      padding: const EdgeInsets.only(top: 10.0, bottom: 10),
                       child: Image.asset(
                         "Assets/jobizo/JobizoName.png",
-                        width: 200,
+                        width: 120,
                       ),
                     )
                   ],
