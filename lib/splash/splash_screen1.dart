@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:jobizo/Design%20contraints/gradients.dart';
 import 'package:jobizo/splash/splash_screen2.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:jobizo/Design%20contraints/gradients.dart';
+import '../Labour_POV/Home Screens/HomePage.dart';       // Labour Dashboard
+import '../Customer_POV/HomePages/HomePagess.dart';     // Customer Dashboard
+import '../Login/login.dart';                     // Login Screen
 
 class SplashScreen1 extends StatefulWidget {
   const SplashScreen1({super.key});
@@ -14,7 +19,7 @@ class _SplashScreen1State extends State<SplashScreen1>
     with TickerProviderStateMixin {
   late AnimationController _controller;
   Animation<Offset>? _slideAnimation;
-  bool _showLogo = false; //first the logo will not appeared
+  bool _showLogo = false;
 
   @override
   void initState() {
@@ -30,6 +35,7 @@ class _SplashScreen1State extends State<SplashScreen1>
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
+    // Start logo animation after delay
     Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         _showLogo = true;
@@ -37,10 +43,29 @@ class _SplashScreen1State extends State<SplashScreen1>
       _controller.forward();
     });
 
-    Future.delayed(const Duration(seconds: 4), () {
+    // Check login session and redirect accordingly
+    Future.delayed(const Duration(seconds: 4), () async {
+      final prefs = await SharedPreferences.getInstance();
+      final bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+      final String role = prefs.getString('userRole') ?? '';
+
+      Widget nextScreen;
+
+      if (isLoggedIn) {
+        if (role == 'labour') {
+          nextScreen = const Homepage();
+        } else if (role == 'customer') {
+          nextScreen = const Homepagess();
+        } else {
+          nextScreen = const LoginPage(); // Fallback
+        }
+      } else {
+        nextScreen = const SplashScreen2();
+      }
+
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const SplashScreen2()),
+        MaterialPageRoute(builder: (_) => nextScreen),
       );
     });
   }

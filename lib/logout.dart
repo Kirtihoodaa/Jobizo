@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'Design contraints/FontSizes.dart';
 import 'Login/login.dart'; // Import your login screen
+
 
 void showLogoutDialog(BuildContext context, VoidCallback onConfirm) {
   showDialog(
@@ -33,9 +35,12 @@ void showLogoutDialog(BuildContext context, VoidCallback onConfirm) {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF4B1E03),
                 ),
-                onPressed: () {
+                onPressed: () async {
                   Navigator.pop(context); // Close dialog
-                  // Then perform logout action
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.remove('isLoggedIn');
+                  await prefs.remove('userRole');
+                  await prefs.remove('auth_token');
                   onConfirm();
                 },
                 child: Text(

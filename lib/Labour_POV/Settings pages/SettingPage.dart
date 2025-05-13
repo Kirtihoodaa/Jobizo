@@ -5,6 +5,7 @@ import '../../Login/login.dart';
 import '../../logout.dart';
 import '../All_app_bars/app_bar.dart';
 import '../NavBar.dart';
+import '../Profle pages/EditProfile.dart';
 import '../Profle pages/MyProfile.dart';
 import 'ChangePassword.dart';
 import 'Delete.dart';
@@ -80,7 +81,12 @@ class _SettingsPageState extends State<SettingsPage> {
                           horizontal: 16, vertical: 8),
                       elevation: 0,
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => EditProfileScreen()));
+                    },
                     child: Text(
                       'Edit Profile',
                       style: TextStyle(
@@ -259,8 +265,9 @@ class _SettingsPageState extends State<SettingsPage> {
                           // For example:
                           Navigator.pushAndRemoveUntil(
                             context,
-                            MaterialPageRoute(builder: (context) => LoginPage()),
-                                (route) => false,
+                            MaterialPageRoute(
+                                builder: (context) => LoginPage()),
+                            (route) => false,
                           );
                         });
                       },
@@ -280,7 +287,12 @@ class _SettingsPageState extends State<SettingsPage> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           )),
-                      onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context)=> DeleteAccount()));},
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => DeleteAccount()));
+                      },
                       child: Text(
                         "Delete Account",
                         style: TextStyle(
