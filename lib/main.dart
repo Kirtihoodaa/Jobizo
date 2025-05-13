@@ -31,10 +31,10 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: ThemeData(textTheme: GoogleFonts.poppinsTextTheme()),
-          // home: SplashScreen1(),
+           home: SplashScreen1(),
           // home: EditProfileScreen(),
           //  home: CustomAppBar(name: 'Deepak', location: 'chandigarh', profileImageUrl: '',),
-          home: Homepagess(),
+         // home: Homepagess(),
           // home: Homepage(),
           //home: Industrydetails(),
         );
