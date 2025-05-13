@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jobizo/splash/splash_screen2.dart';
 
 import '../Design contraints/gradients.dart';
+import '../SnackBar/Snackbar.dart';
 import 'Registration Screen.dart';
 
 class RoleScreen extends StatefulWidget {
@@ -122,13 +123,7 @@ class _RoleScreenState extends State<RoleScreen> {
                                                   )),
                                         );
                                       } else {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                              content: Text(
-                                                  "Please select a role before proceeding")),
-                                        );
-                                      }
+                                        SnackbarHelper.showWarning(context, "Please select a role before proceeding");                                      }
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.white,

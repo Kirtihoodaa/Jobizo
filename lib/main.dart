@@ -34,8 +34,6 @@ class MyApp extends StatelessWidget {
            home: SplashScreen1(),
           // home: EditProfileScreen(),
           //  home: CustomAppBar(name: 'Deepak', location: 'chandigarh', profileImageUrl: '',),
-         // home: Homepagess(),
-          // home: Homepage(),
           //home: Industrydetails(),
         );
       },
