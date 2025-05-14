@@ -24,8 +24,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  bool _obscurePassword = true;
 
   // ✅ Dispose controllers
   @override
@@ -33,7 +31,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     _nameController.dispose();
     _mobileController.dispose();
     _emailController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 
@@ -42,14 +39,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     final name = _nameController.text.trim();
     final mobile = _mobileController.text.trim();
     final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
     final role = widget.selectedRole?.toString().toLowerCase();
 
     // ✅ Field validation
     if (name.isEmpty ||
         mobile.isEmpty ||
         email.isEmpty ||
-        password.isEmpty ||
         role == null) {
       SnackbarHelper.showWarning(
           context, "All fields are required.");
@@ -68,12 +63,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       return;
     }
 
-    if (password.length < 6) {
-      SnackbarHelper.showWarning(
-          context, "Password must be at least 6 characters.");
-      return;
-    }
-
     try {
       Dio dio = Dio();
       final response = await dio.post(
@@ -81,7 +70,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         data: {
           "name": name,
           "email": email,
-          "password": password,
           "role": role,
           "phone": mobile,
         },
@@ -202,27 +190,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               TextField(
                                 controller: _emailController,
                                 decoration: _inputDecoration("Email ID"),
-                              ),
-                              const SizedBox(height: 10),
-                              TextField(
-                                controller: _passwordController,
-                                obscureText: _obscurePassword,
-                                decoration:
-                                    _inputDecoration("Password").copyWith(
-                                  suffixIcon: IconButton(
-                                    icon: Icon(
-                                      _obscurePassword
-                                          ? Icons.visibility_off
-                                          : Icons.visibility,
-                                      color: AppColors.gold,
-                                    ),
-                                    onPressed: () {
-                                      setState(() {
-                                        _obscurePassword = !_obscurePassword;
-                                      });
-                                    },
-                                  ),
-                                ),
                               ),
                               const SizedBox(height: 10),
                               TextField(

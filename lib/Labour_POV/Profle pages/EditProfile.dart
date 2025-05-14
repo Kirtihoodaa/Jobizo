@@ -1,9 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Design contraints/FontSizes.dart';
-
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({Key? key}) : super(key: key);
@@ -13,25 +14,98 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final TextEditingController nameController =
-  TextEditingController(text: 'Rajesh Kumar');
-  final TextEditingController emailController =
-  TextEditingController(text: 'rajeshkumar@email.com');
-  final TextEditingController phoneController =
-  TextEditingController(text: '+91 8856554432');
-  final TextEditingController dobController =
-  TextEditingController(text: '15-01-1990');
-  final TextEditingController bioController = TextEditingController(
-      text:
-      'Product Designer with 5+ years of experience in creating user-centered digital experiences.');
-  final TextEditingController locationController =
-  TextEditingController(text: 'Mumbai');
-  final TextEditingController skillsController =
-  TextEditingController(text: 'Plumbing, Electrician');
-  final TextEditingController experienceController =
-  TextEditingController(text: '4 Yrs');
+  bool isLoading = true;
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController dobController = TextEditingController();
+  final TextEditingController bioController = TextEditingController();
+  final TextEditingController locationController = TextEditingController();
+  final TextEditingController skillsController = TextEditingController();
+  final TextEditingController experienceController = TextEditingController();
 
   DateTime? selectedDate;
+  Future<void> updateProfile() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token'); // replace with your key
+
+      if (token == null) {
+        print("⚠️ Token not found");
+        return;
+      }
+      final skillsText = skillsController.text.trim();
+      final List<String> skillsArray = skillsText.isEmpty
+          ? []
+          : skillsText.split(',').map((e) => e.trim()).toList();
+      Dio dio = Dio();
+      dio.options.headers["Authorization"] = "Bearer $token";
+
+      final response = await dio.post(
+        'https://backend.jobizoindia.com/api/profile', // 🔁 Replace with actual endpoint
+        data: {
+          "name": nameController.text.trim(),
+          "email": emailController.text.trim(),
+          "phone": phoneController.text.trim(),
+          "dob": dobController.text.trim(),
+          "address": locationController.text.trim(),
+          "bio": bioController.text.trim(),
+          "experience": experienceController.text.trim(),
+          "skills": skillsArray, // ✅ array
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print("✅ Profile updated successfully: ${response.data}");
+        Navigator.pop(context); // Optional: Go back on success
+      } else {
+        print("❌ Failed to update: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("❌ Error: $e");
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProfileData();
+  }
+
+  Future<void> fetchProfileData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      if (token == null) {
+        print("❌ No token found");
+        return;
+      }
+
+      final dio = Dio();
+      dio.options.headers["Authorization"] = "Bearer $token";
+
+      final response =
+          await dio.get('https://backend.jobizoindia.com/api/profile');
+
+      print("Full response: ${response.data}");
+
+      final user = response.data['user'];
+      if (user == null || user['email'] == null) {
+        print("❌ 'email' is missing in response");
+        return;
+      }
+
+      setState(() {
+        emailController.text = user['email'];
+        isLoading = false;
+      });
+    } catch (e) {
+      print("❌ Exception: $e");
+      setState(() => isLoading = false);
+    }
+  }
+
 
   Future<void> pickDate() async {
     DateTime initialDate = selectedDate ?? DateTime(1990, 1, 15);
@@ -69,6 +143,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // if (isLoading) {
+    //   return const Scaffold(
+    //     body: Center(child: CircularProgressIndicator()),
+    //   );
+    // }
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -92,7 +171,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             padding: const EdgeInsets.only(right: 10),
             child: TextButton(
               onPressed: () {
-                // Save functionality
+                updateProfile();
               },
               style: TextButton.styleFrom(
                 backgroundColor: Colors.white,
@@ -129,8 +208,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     child: CircleAvatar(
                       radius: 50,
                       backgroundColor: Colors.white,
-                      backgroundImage: NetworkImage(
-                          'https://i.imgur.com/BoN9kdC.png'),
+                      backgroundImage:
+                          NetworkImage('https://i.imgur.com/BoN9kdC.png'),
                     ),
                   ),
                   Positioned(
@@ -147,14 +226,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            buildTextField('Full Name', nameController),
-            buildTextField('Email', emailController),
-            buildTextField('Phone Number', phoneController),
+            buildTextField('Full Name', nameController,
+                hint: 'Enter your full name'),
+            buildTextField('Email', emailController, readOnly: true),
+            buildTextField('Phone Number', phoneController,
+                hint: 'Enter your phone number'),
             buildDatePickerField('Date of Birth', dobController, pickDate),
-            buildTextField('Bio', bioController, maxLines: 3),
-            buildTextField('Location', locationController),
+            buildTextField('Bio', bioController,
+                maxLines: 3, hint: 'Enter your bio'),
+            buildTextField('Location', locationController,
+                hint: 'Enter your location'),
             buildTextField('Skills', skillsController, hint: 'eg. Plumber'),
-            buildTextField('Experience', experienceController, hint: 'eg. 4 Yrs'),
+            buildTextField('Experience', experienceController,
+                hint: 'eg. 4 Yrs'),
           ],
         ),
       ),
@@ -162,11 +246,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget buildTextField(
-      String label,
-      TextEditingController controller, {
-        int maxLines = 1,
-        String? hint,
-      }) {
+    String label,
+    TextEditingController controller, {
+    int maxLines = 1,
+    String? hint,
+    bool readOnly = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -184,6 +269,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           TextField(
             controller: controller,
             maxLines: maxLines,
+            readOnly: readOnly,
             decoration: InputDecoration(
               hintText: hint ?? '',
               contentPadding: const EdgeInsets.all(12),
@@ -209,10 +295,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget buildDatePickerField(
-      String label,
-      TextEditingController controller,
-      VoidCallback onTap,
-      ) {
+    String label,
+    TextEditingController controller,
+    VoidCallback onTap,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
