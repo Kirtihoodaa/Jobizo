@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Design contraints/FontSizes.dart';
 import '../CustomMenu.dart';
 
-// import '../Design contraints/FontSizes.dart';
-// import '../Labour_POV/CustomMenu.dart';
-
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String name;
-  final String location;
+class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String profileImageUrl;
   final VoidCallback? onMenuTap;
   final VoidCallback? onNotificationTap;
@@ -16,16 +13,83 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   const CustomAppBar({
     Key? key,
-    required this.name,
-    required this.location,
     required this.profileImageUrl,
     this.onMenuTap,
     this.onNotificationTap,
     this.onProfileTap,
   }) : super(key: key);
 
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
-  
+  @override
+  State<CustomAppBar> createState() => CustomAppBarState();
+}
+
+class CustomAppBarState extends State<CustomAppBar> {
+  String name = "Loading...";
+  String location = "Please wait...";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+  }
+
+  Future<void> _loadProfileData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedName = prefs.getString('user_name');
+    final savedLocation = prefs.getString('user_location');
+
+    if (savedName != null && savedLocation != null) {
+      setState(() {
+        name = savedName;
+        location = savedLocation;
+      });
+    } else {
+      await _fetchAndStoreProfile();
+    }
+  }
+
+  Future<void> _fetchAndStoreProfile() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      if (token == null) {
+        print("Token not found");
+        return;
+      }
+
+      Dio dio = Dio();
+      dio.options.headers["Authorization"] = "Bearer $token";
+
+      final response = await dio.get("https://backend.jobizoindia.com/api/profile");
+
+      if (response.statusCode == 200) {
+        final user = response.data['user'];
+        final userName = user['name'] ?? "No Name";
+        final userLocation = user['address'] ?? "No Location";
+
+        await prefs.setString('user_name', userName);
+        await prefs.setString('user_location', userLocation);
+
+        setState(() {
+          name = userName;
+          location = userLocation;
+        });
+      } else {
+        print("Failed to fetch profile");
+      }
+    } catch (e) {
+      print("Error fetching profile: $e");
+    }
+  }
+
+  // 🔁 Public method to refresh from parent
+  void refreshUserInfo() {
+    _fetchAndStoreProfile();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,19 +108,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               children: [
                 IconButton(
                   icon: const Icon(Icons.menu, color: Colors.white),
-                  onPressed: onMenuTap ?? () {CustomMenu.show(context);},
+                  onPressed: widget.onMenuTap ?? () => CustomMenu.show(context),
                 ),
                 GestureDetector(
-                  onTap: onProfileTap,
+                  onTap: widget.onProfileTap,
                   child: CircleAvatar(
                     radius: 20,
                     backgroundColor: Colors.white,
-                    backgroundImage: profileImageUrl.isNotEmpty
-                        ? NetworkImage(profileImageUrl)
-                        : const AssetImage('Assets/Labour_image/user profile.png')
-                            as ImageProvider,
-                    onBackgroundImageError: (_, __) =>
-                        const Icon(Icons.error, color: Colors.red),
+                    backgroundImage: widget.profileImageUrl.isNotEmpty
+                        ? NetworkImage(widget.profileImageUrl)
+                        : const AssetImage('Assets/Labour_image/user profile.png') as ImageProvider,
                   ),
                 ),
                 const SizedBox(width: 5),
@@ -66,25 +127,28 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     Text(
                       name,
                       style: TextStyle(
-                          color: Colors.white,
-                          fontSize: primary(),
-                          fontWeight: FontWeight.bold),
+                        color: Colors.white,
+                        fontSize: primary(),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     Text(
                       location,
-                      style:
-                          TextStyle(color: Colors.white, fontSize: secondary()),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: secondary(),
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
 
-            /// Notifications and Dynamic Profile Image
+            /// Notifications and Logo
             Row(
               children: [
                 GestureDetector(
-                  onTap: onNotificationTap,
+                  onTap: widget.onNotificationTap,
                   child: Stack(
                     children: [
                       CircleAvatar(
@@ -104,11 +168,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
                 const SizedBox(width: 8),
                 GestureDetector(
-                  onTap: onProfileTap,
+                  onTap: widget.onProfileTap,
                   child: CircleAvatar(
-                      radius: 20,
-                      backgroundColor: Colors.white,
-                      child: Image.asset("Assets/jobizo/jobizoLogo.png")),
+                    radius: 20,
+                    backgroundColor: Colors.white,
+                    child: Image.asset("Assets/jobizo/jobizoLogo.png"),
+                  ),
                 ),
               ],
             )
@@ -117,8 +182,4 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
     );
   }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
-

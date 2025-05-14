@@ -18,6 +18,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  final GlobalKey<CustomAppBarState> appBarKey = GlobalKey<CustomAppBarState>();
   bool _biometric = false;
   bool _pushNotif = true;
   bool _emailNotif = true;
@@ -27,8 +28,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
-        name: 'Deepak',
-        location: 'Chandigarh',
+        key: appBarKey,
         profileImageUrl: '',
       ),
       body: SingleChildScrollView(
@@ -81,12 +81,15 @@ class _SettingsPageState extends State<SettingsPage> {
                           horizontal: 16, vertical: 8),
                       elevation: 0,
                     ),
-                    onPressed: () {
+                    onPressed: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const EditProfileScreen()),
+                      );
 
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => EditProfileScreen()));
+                      if (result == 'refresh') {
+                        appBarKey.currentState?.refreshUserInfo(); // ✅ Now it will work
+                      }
                     },
                     child: Text(
                       'Edit Profile',

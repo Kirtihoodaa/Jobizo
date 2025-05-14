@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../Customer_POV/HomePages/HomePagess.dart';
+import '../Customer_POV/SettingsPages/CustomerProfile.dart';
 import '../Design contraints/gradients.dart';
 import '../Labour_POV/Home Screens/HomePage.dart';
 import '../Labour_POV/Profle pages/EditProfile.dart';
@@ -8,7 +10,8 @@ import '../Login/login.dart';
 import '../logout.dart';
 
 class SucessRegister extends StatefulWidget {
-  const SucessRegister({super.key});
+  final String role;
+  const SucessRegister({super.key, required this.role});
 
   @override
   State<SucessRegister> createState() => _SucessRegisterState();
@@ -99,12 +102,21 @@ class _SucessRegisterState extends State<SucessRegister> {
                                   children: [
                                     ElevatedButton(
                                       onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  EditProfileScreen()),
-                                        );
+                                        if (widget.role == 'labour') {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => EditProfileScreen()),
+                                          );
+                                        } else if (widget.role == 'customer') {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => Customerprofile()),
+                                          );
+                                        } else {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text("Unknown role: ${widget.role}")),
+                                          );
+                                        }
                                       },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Color(0xFFEEA700),
@@ -146,10 +158,21 @@ class _SucessRegisterState extends State<SucessRegister> {
                       ),
                       ElevatedButton.icon(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => Homepage()),
-                          );
+                          if (widget.role == 'labour') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => Homepage()),
+                            );
+                          } else if (widget.role == 'customer') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => Homepagess()),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Unknown role: ${widget.role}")),
+                            );
+                          }
                         },
                         label: const Text(
                           "Skip",

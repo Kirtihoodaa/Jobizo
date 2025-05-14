@@ -81,7 +81,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         SnackbarHelper.showSuccess(context, "Registration Successful");
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => SucessRegister()),
+          MaterialPageRoute(
+            builder: (context) => SucessRegister(role: role ?? "unknown"),
+          ),
         );
       } else {
         SnackbarHelper.showError(
