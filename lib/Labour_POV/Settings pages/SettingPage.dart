@@ -5,6 +5,7 @@ import '../../Login/login.dart';
 import '../../logout.dart';
 import '../All_app_bars/app_bar.dart';
 import '../NavBar.dart';
+import '../Profle pages/EditProfile.dart';
 import '../Profle pages/MyProfile.dart';
 import 'ChangePassword.dart';
 import 'Delete.dart';
@@ -57,7 +58,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           style: TextStyle(
                             fontSize: secondary(),
                             fontWeight: FontWeight.w600,
-                            color: Colors.green[800],
+                            color: AppColors.green,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -65,7 +66,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           'priya@email.com',
                           style: TextStyle(
                             fontSize: tertiary(),
-                            color: Colors.grey[700],
+                            color: Colors.black,
                           ),
                         ),
                       ],
@@ -80,7 +81,10 @@ class _SettingsPageState extends State<SettingsPage> {
                           horizontal: 16, vertical: 8),
                       elevation: 0,
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(context,
+                      MaterialPageRoute(builder: (context)=> EditProfileScreen()));
+                    },
                     child: Text(
                       'Edit Profile',
                       style: TextStyle(
