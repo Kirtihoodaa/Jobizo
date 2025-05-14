@@ -202,40 +202,59 @@ class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
     );
   }
 
-  InputDecoration buildInputDecoration({String? hintText, Widget? suffixIcon}) {
+
+  InputDecoration buildInputDecoration({
+    String? hintText,
+    Widget? suffixIcon,
+  }) {
     return InputDecoration(
+      filled: true,
+      fillColor: Colors.white,
       hintText: hintText,
       hintStyle: TextStyle(fontSize: tertiary()),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: Colors.grey.shade400),
-      ),
+      // grey border when idle:
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: Colors.grey.shade400),
       ),
+      // gold border when focused:
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: Colors.grey.shade600, width: 1.5),
+        borderSide: BorderSide(color: AppColors.gold, width: 2),
       ),
       suffixIcon: suffixIcon,
     );
   }
 
+
+
+  /// 1) White background + gold selection on your calendar:
   Future<void> _selectDate(TextEditingController controller) async {
-    DateTime? pickedDate = await showDatePicker(
+    DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            dialogBackgroundColor: Colors.white,
+            colorScheme: ColorScheme.light(
+              primary: AppColors.gold,
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+              surface: Colors.white,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
-    if (pickedDate != null) {
-      String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
-      setState(() {
-        controller.text = formattedDate;
-      });
+    if (picked != null) {
+      controller.text = DateFormat('dd-MM-yyyy').format(picked);
     }
   }
+
 }

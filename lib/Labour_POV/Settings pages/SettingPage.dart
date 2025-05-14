@@ -58,7 +58,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           style: TextStyle(
                             fontSize: secondary(),
                             fontWeight: FontWeight.w600,
-                            color: Colors.green[800],
+                            color: AppColors.green,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -66,7 +66,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           'priya@email.com',
                           style: TextStyle(
                             fontSize: tertiary(),
-                            color: Colors.grey[700],
+                            color: Colors.black,
                           ),
                         ),
                       ],
@@ -82,6 +82,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       elevation: 0,
                     ),
                     onPressed: () {
+
                       Navigator.push(
                           context,
                           MaterialPageRoute(

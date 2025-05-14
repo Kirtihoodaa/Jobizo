@@ -5,6 +5,7 @@ import 'package:jobizo/Design%20contraints/app%20color.dart';
 import '../Design contraints/gradients.dart';
 import '../Labour_POV/Home Screens/HomePage.dart';
 import '../Customer_POV/HomePages/HomePagess.dart';
+import '../SnackBar/Snackbar.dart';
 import '../splash/splash_screen2.dart';
 import 'forgotPassword.dart';
 import 'package:dio/dio.dart';
@@ -36,9 +37,8 @@ class _LoginPageState extends State<LoginPage> {
     final password = passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter email and password')),
-      );
+      SnackbarHelper.showWarning(
+          context, "Please enter Email and Password");
       return;
     }
 
@@ -81,13 +81,15 @@ class _LoginPageState extends State<LoginPage> {
           );
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(data['message'] ?? 'Login failed')),
+        SnackbarHelper.showError(
+          context,
+          data['message'] ?? 'Login failed',
         );
       }
     } on DioError catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.response?.data['message'] ?? e.message)),
+      SnackbarHelper.showWarning(
+        context,
+        e.response?.data['message'] ?? e.message,
       );
     } finally {
       setState(() => _isLoading = false);
@@ -222,7 +224,7 @@ class _LoginPageState extends State<LoginPage> {
                               _buildInputFields(),
                               SizedBox(height: 15.h),
                               _isLoading
-                                  ? const CircularProgressIndicator()
+                                  ? const CircularProgressIndicator(color: AppColors.green)
                                   : ElevatedButton.icon(
                                       onPressed: _login,
                                       icon: const Icon(Icons.login,
