@@ -92,7 +92,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
               color: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   CircleAvatar(
                     radius: 40,
@@ -117,26 +117,26 @@ class _MyProfilePageState extends State<MyProfilePage> {
                           style: TextStyle(
                               fontSize: tertiary(), color: Colors.grey[700]),
                         ),
-                        const SizedBox(height: 10),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.gold,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20)),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 2),
-                            elevation: 0,
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => EditProfileScreen()));
-                          },
-                          child: Text('Edit Profile',
-                              style: TextStyle(
-                                  fontSize: tertiary(), color: Colors.white)),
-                        ),
+                        // const SizedBox(height: 10),
+                        // ElevatedButton(
+                        //   style: ElevatedButton.styleFrom(
+                        //     backgroundColor: AppColors.gold,
+                        //     shape: RoundedRectangleBorder(
+                        //         borderRadius: BorderRadius.circular(20)),
+                        //     padding: const EdgeInsets.symmetric(
+                        //         horizontal: 30, vertical: 2),
+                        //     elevation: 0,
+                        //   ),
+                        //   onPressed: () {
+                        //     Navigator.push(
+                        //         context,
+                        //         MaterialPageRoute(
+                        //             builder: (_) => EditProfileScreen()));
+                        //   },
+                        //   child: Text('Edit Profile',
+                        //       style: TextStyle(
+                        //           fontSize: tertiary(), color: Colors.white)),
+                        // ),
                       ],
                     ),
                   ),

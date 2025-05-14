@@ -64,8 +64,6 @@ class _HomepageState extends State<Homepage> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: CustomAppBar(
-          name: 'Deepak',
-          location: 'Chandigarh',
           profileImageUrl: '',
           // onMenuTap: () => CustomMenu.show(context),
         ),

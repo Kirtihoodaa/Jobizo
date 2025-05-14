@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:jobizo/Labour_POV/All_app_bars/app_bar.dart';
-
 import '../../Design contraints/FontSizes.dart';
 import '../../Design contraints/app color.dart';
 import '../../Login/login.dart';
 import '../../logout.dart';
+import '../AppBar/CustomerAppBar.dart';
 import '../CustomerNavBar.dart';
 import 'CEditProfile.dart';
 import 'C_ChangePassword.dart';
@@ -27,7 +26,7 @@ class _CustomersettingState extends State<Customersetting> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CustomAppBar(
+      appBar: Customerappbar(
         name: 'Deepak',
         location: 'Chandigarh',
         profileImageUrl: '',

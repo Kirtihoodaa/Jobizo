@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -15,6 +17,8 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   bool isLoading = true;
+  XFile? pickedImage;
+  final ImagePicker _picker = ImagePicker();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
@@ -28,8 +32,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> updateProfile() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token'); // replace with your key
-
+      final token = prefs.getString('auth_token');
       if (token == null) {
         print("⚠️ Token not found");
         return;
@@ -40,9 +43,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           : skillsText.split(',').map((e) => e.trim()).toList();
       Dio dio = Dio();
       dio.options.headers["Authorization"] = "Bearer $token";
+      // final formData = FormData.fromMap({
+      //   "name": nameController.text.trim(),
+      //   "email": emailController.text.trim(),
+      //   "phone": phoneController.text.trim(),
+      //   "dob": dobController.text.trim(),
+      //   "address": locationController.text.trim(),
+      //   "bio": bioController.text.trim(),
+      //   "experience": experienceController.text.trim(),
+      //   "skills": skillsArray.join(','),
+      //   if (pickedImage != null)
+      //     "image": await MultipartFile.fromFile(
+      //       pickedImage!.path,
+      //       filename: pickedImage!.name,
+      //     ),
+      // });
+      // final response = await dio.post(
+      //   'https://backend.jobizoindia.com/api/profile',
+      //   data: formData,
+      // );
 
       final response = await dio.post(
-        'https://backend.jobizoindia.com/api/profile', // 🔁 Replace with actual endpoint
+        'https://backend.jobizoindia.com/api/profile',
         data: {
           "name": nameController.text.trim(),
           "email": emailController.text.trim(),
@@ -57,7 +79,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       if (response.statusCode == 200) {
         print("✅ Profile updated successfully: ${response.data}");
-        Navigator.pop(context); // Optional: Go back on success
+        Navigator.pop(context, 'refresh');
       } else {
         print("❌ Failed to update: ${response.statusCode}");
       }
@@ -106,7 +128,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-
   Future<void> pickDate() async {
     DateTime initialDate = selectedDate ?? DateTime(1990, 1, 15);
     final DateTime? picked = await showDatePicker(
@@ -143,11 +164,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // if (isLoading) {
-    //   return const Scaffold(
-    //     body: Center(child: CircularProgressIndicator()),
-    //   );
-    // }
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -208,20 +224,34 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     child: CircleAvatar(
                       radius: 50,
                       backgroundColor: Colors.white,
-                      backgroundImage:
-                          NetworkImage('https://i.imgur.com/BoN9kdC.png'),
+                      backgroundImage: pickedImage != null
+                          ? FileImage(File(pickedImage!.path))
+                          : NetworkImage('https://i.imgur.com/BoN9kdC.png')
+                              as ImageProvider,
                     ),
                   ),
                   Positioned(
                     bottom: 0,
                     right: 4,
-                    child: CircleAvatar(
-                      backgroundColor: const Color(0xFFFAC015),
-                      radius: 16,
-                      child: const Icon(Icons.camera_alt,
-                          size: 20, color: Colors.white),
+                    child: GestureDetector(
+                      onTap: () async {
+                        final XFile? image = await _picker.pickImage(
+                            source: ImageSource.gallery);
+                        if (image != null) {
+                          setState(() {
+                            pickedImage =
+                                image; // store in your global variable
+                          });
+                        }
+                      },
+                      child: CircleAvatar(
+                        backgroundColor: const Color(0xFFFAC015),
+                        radius: 16,
+                        child: const Icon(Icons.camera_alt,
+                            size: 20, color: Colors.white),
+                      ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

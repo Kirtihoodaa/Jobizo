@@ -28,8 +28,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: CustomAppBar(
-        name: 'Deepak',
-        location: 'chandigarh, kharar',
         profileImageUrl: '',
       ),
       body: SingleChildScrollView(

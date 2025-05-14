@@ -48,8 +48,6 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: CustomAppBar(
-        name: 'Deepak',
-        location: 'Chandigarh',
         profileImageUrl: '',
       ),
       body: SingleChildScrollView(

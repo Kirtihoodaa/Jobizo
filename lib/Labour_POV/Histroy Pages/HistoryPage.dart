@@ -50,8 +50,6 @@ class _HistoryPageState extends State<HistoryPage> {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: CustomAppBar(
-        name: 'Deepak',
-        location: 'Chandigarh',
         profileImageUrl: '',
       ),
       body: SingleChildScrollView(
