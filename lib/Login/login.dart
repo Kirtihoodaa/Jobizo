@@ -50,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
         "https://backend.jobizoindia.com/api/login",
         data: {'email': email, 'password': password},
       );
-
+      print("Login response: ${response.data}");
       final data = response.data as Map<String, dynamic>;
       if (data['status'] == true) {
         final token = '${data['token_type']} ${data['token']}';
