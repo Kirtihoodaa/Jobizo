@@ -58,15 +58,26 @@ class _LoginPageState extends State<LoginPage> {
         await prefs.setString('auth_token', token);
 
         final roles = List<String>.from(data['role'] as List);
+        await prefs.setBool('isLoggedIn', true);
+
+// Save user role
         if (roles.contains('labour')) {
+          await prefs.setString('userRole', 'labour');
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const Homepage()),
           );
-        } else {
+        } else if (roles.contains('customer')) {
+          await prefs.setString('userRole', 'customer');
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const Homepagess()),
+          );
+        } else {
+          // fallback or admin
+          await prefs.setString('userRole', 'unknown');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Unknown role.')),
           );
         }
       } else {
@@ -182,7 +193,7 @@ class _LoginPageState extends State<LoginPage> {
                                 onPressed: () {
                                   // TODO: implement Google login
                                 },
-                               // icon: const Icon(Icons.email, color: AppColors.green, size: 20,),
+                                // icon: const Icon(Icons.email, color: AppColors.green, size: 20,),
                                 label: Text(
                                   "Login with Gmail",
                                   style: TextStyle(
@@ -215,29 +226,32 @@ class _LoginPageState extends State<LoginPage> {
                               _isLoading
                                   ? const CircularProgressIndicator(color: AppColors.green)
                                   : ElevatedButton.icon(
-                                onPressed: _login,
-                                icon: const Icon(Icons.login, color: AppColors.green),
-                                label: Text(
-                                  "Login",
-                                  style: TextStyle(
-                                    color: AppColors.green,
-                                    fontSize: secondary(),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 75.w, vertical: 12.h),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(40.r),
-                                  ),
-                                ),
-                              ),
+                                      onPressed: _login,
+                                      icon: const Icon(Icons.login,
+                                          color: AppColors.green),
+                                      label: Text(
+                                        "Login",
+                                        style: TextStyle(
+                                          color: AppColors.green,
+                                          fontSize: secondary(),
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.white,
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 75.w, vertical: 12.h),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(40.r),
+                                        ),
+                                      ),
+                                    ),
                               TextButton(
                                 onPressed: () => Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (_) => const Forgotpassword()),
+                                  MaterialPageRoute(
+                                      builder: (_) => const Forgotpassword()),
                                 ),
                                 child: Text(
                                   "Forgot Password?",
@@ -248,14 +262,15 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 ),
                               ),
-                               Text(
+                              Text(
                                 "New User?",
                                 style: TextStyle(color: Colors.white),
                               ),
                               TextButton(
                                 onPressed: () => Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (_) => const SplashScreen2()),
+                                  MaterialPageRoute(
+                                      builder: (_) => const SplashScreen2()),
                                 ),
                                 child: const Text(
                                   "Register Here",

@@ -82,8 +82,11 @@ class _SettingsPageState extends State<SettingsPage> {
                       elevation: 0,
                     ),
                     onPressed: () {
-                      Navigator.push(context,
-                      MaterialPageRoute(builder: (context)=> EditProfileScreen()));
+
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => EditProfileScreen()));
                     },
                     child: Text(
                       'Edit Profile',
@@ -263,8 +266,9 @@ class _SettingsPageState extends State<SettingsPage> {
                           // For example:
                           Navigator.pushAndRemoveUntil(
                             context,
-                            MaterialPageRoute(builder: (context) => LoginPage()),
-                                (route) => false,
+                            MaterialPageRoute(
+                                builder: (context) => LoginPage()),
+                            (route) => false,
                           );
                         });
                       },
@@ -284,7 +288,12 @@ class _SettingsPageState extends State<SettingsPage> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           )),
-                      onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context)=> DeleteAccount()));},
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => DeleteAccount()));
+                      },
                       child: Text(
                         "Delete Account",
                         style: TextStyle(
