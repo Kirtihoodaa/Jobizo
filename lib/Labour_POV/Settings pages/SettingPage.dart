@@ -1,4 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../Design contraints/app color.dart';
 import '../../Design contraints/FontSizes.dart';
 import '../../Login/login.dart';
@@ -22,6 +24,37 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _biometric = false;
   bool _pushNotif = true;
   bool _emailNotif = true;
+  Map<String, dynamic>? userData;
+  // bool isLoading = true;
+  @override
+  void initState() {
+    super.initState();
+    fetchProfileData(); // ✅ This was missing
+  }
+  Future<void> fetchProfileData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      if (token == null) {
+        print('No auth token found');
+        // setState(() => isLoading = false);
+        // return;
+      }
+      final dio = Dio();
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      final response =
+          await dio.get('https://backend.jobizoindia.com/api/profile');
+      setState(() {
+        userData = response.data['user'];
+        // isLoading = false;
+      });
+    } catch (e) {
+      print("Error: $e");
+      setState(() {
+        // isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +62,6 @@ class _SettingsPageState extends State<SettingsPage> {
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
         key: appBarKey,
-        profileImageUrl: '',
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: 16),
@@ -45,8 +77,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   CircleAvatar(
                     radius: 40,
                     backgroundColor: AppColors.gold,
-                    backgroundImage: NetworkImage(
-                        'https://i.imgur.com/BoN9kdC.png'), // replace with real image
+                    backgroundImage: userData?['image'] != null && userData!['image'].toString().isNotEmpty
+                        ? NetworkImage("https://backend.jobizoindia.com/storage/${userData!['image']}")
+                        : null,
+                    child: userData?['image'] == null || userData!['image'].toString().isEmpty
+                        ? const Icon(Icons.person, size: 60, color: Colors.white)
+                        : null,
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -54,7 +90,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Priya Kumar',
+                          userData?['name'] ?? '',
                           style: TextStyle(
                             fontSize: secondary(),
                             fontWeight: FontWeight.w600,
@@ -63,7 +99,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'priya@email.com',
+                          userData?['email'] ?? '',
                           style: TextStyle(
                             fontSize: tertiary(),
                             color: Colors.black,
@@ -84,11 +120,13 @@ class _SettingsPageState extends State<SettingsPage> {
                     onPressed: () async {
                       final result = await Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const EditProfileScreen()),
+                        MaterialPageRoute(
+                            builder: (_) => const EditProfileScreen()),
                       );
 
                       if (result == 'refresh') {
-                        appBarKey.currentState?.refreshUserInfo(); // ✅ Now it will work
+                        appBarKey.currentState
+                            ?.refreshUserInfo(); // ✅ Now it will work
                       }
                     },
                     child: Text(

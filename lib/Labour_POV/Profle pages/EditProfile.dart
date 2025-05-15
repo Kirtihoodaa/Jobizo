@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:jobizo/Design%20contraints/app%20color.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Design contraints/FontSizes.dart';
@@ -17,6 +18,7 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   bool isLoading = true;
+  String? profileImagePath;
   XFile? pickedImage;
   final ImagePicker _picker = ImagePicker();
   final TextEditingController nameController = TextEditingController();
@@ -37,44 +39,29 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         print("⚠️ Token not found");
         return;
       }
-      final skillsText = skillsController.text.trim();
-      final List<String> skillsArray = skillsText.isEmpty
-          ? []
-          : skillsText.split(',').map((e) => e.trim()).toList();
+
       Dio dio = Dio();
       dio.options.headers["Authorization"] = "Bearer $token";
-      // final formData = FormData.fromMap({
-      //   "name": nameController.text.trim(),
-      //   "email": emailController.text.trim(),
-      //   "phone": phoneController.text.trim(),
-      //   "dob": dobController.text.trim(),
-      //   "address": locationController.text.trim(),
-      //   "bio": bioController.text.trim(),
-      //   "experience": experienceController.text.trim(),
-      //   "skills": skillsArray.join(','),
-      //   if (pickedImage != null)
-      //     "image": await MultipartFile.fromFile(
-      //       pickedImage!.path,
-      //       filename: pickedImage!.name,
-      //     ),
-      // });
-      // final response = await dio.post(
-      //   'https://backend.jobizoindia.com/api/profile',
-      //   data: formData,
-      // );
+
+      final formData = FormData.fromMap({
+        "name": nameController.text.trim(),
+        "email": emailController.text.trim(),
+        "phone": phoneController.text.trim(),
+        "dob": dobController.text.trim(),
+        "address": locationController.text.trim(),
+        "bio": bioController.text.trim(),
+        "experience": experienceController.text.trim(),
+        "skills": skillsController.text.trim(),
+        if (pickedImage != null)
+          "image": await MultipartFile.fromFile(
+            pickedImage!.path,
+            filename: pickedImage!.name,
+          ),
+      });
 
       final response = await dio.post(
         'https://backend.jobizoindia.com/api/profile',
-        data: {
-          "name": nameController.text.trim(),
-          "email": emailController.text.trim(),
-          "phone": phoneController.text.trim(),
-          "dob": dobController.text.trim(),
-          "address": locationController.text.trim(),
-          "bio": bioController.text.trim(),
-          "experience": experienceController.text.trim(),
-          "skills": skillsArray, // ✅ array
-        },
+        data: formData,
       );
 
       if (response.statusCode == 200) {
@@ -98,7 +85,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
-
+      profileImagePath = prefs.getString('user_profile_image'); // ✅ Assign to class variable
       if (token == null) {
         print("❌ No token found");
         return;
@@ -223,11 +210,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     shadowColor: Colors.grey,
                     child: CircleAvatar(
                       radius: 50,
-                      backgroundColor: Colors.white,
+                      backgroundColor: AppColors.gold,
                       backgroundImage: pickedImage != null
                           ? FileImage(File(pickedImage!.path))
-                          : NetworkImage('https://i.imgur.com/BoN9kdC.png')
-                              as ImageProvider,
+                          : (profileImagePath != null && profileImagePath!.isNotEmpty)
+                          ? NetworkImage("https://backend.jobizoindia.com/storage/$profileImagePath")
+                          : null,
+                      child: (pickedImage == null && (profileImagePath == null || profileImagePath!.isEmpty))
+                          ? const Icon(Icons.person, size: 60, color: Colors.white)
+                          : null,
                     ),
                   ),
                   Positioned(

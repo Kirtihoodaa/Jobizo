@@ -38,10 +38,17 @@ void showLogoutDialog(BuildContext context, VoidCallback onConfirm) {
                 onPressed: () async {
                   Navigator.pop(context); // Close dialog
                   final prefs = await SharedPreferences.getInstance();
-                  await prefs.remove('isLoggedIn');
-                  await prefs.remove('userRole');
-                  await prefs.remove('auth_token');
-                  onConfirm();
+                  await prefs.clear();
+                  if (onConfirm != null) {
+                    onConfirm();
+                  }
+
+                  // ✅ Navigate to login screen & remove history
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginPage()),
+                        (route) => false,
+                  );
                 },
                 child: Text(
                   "Logout",
