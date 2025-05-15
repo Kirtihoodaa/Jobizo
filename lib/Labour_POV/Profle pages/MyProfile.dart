@@ -165,14 +165,14 @@ class _MyProfilePageState extends State<MyProfilePage> {
                 final skillsRaw = userData!['skills'];
                 if (skillsRaw == null) return 'N/A';
                 try {
-                  final parsed = json.decode(skillsRaw); // decode string to List
+                  final parsed = json.decode(skillsRaw);
                   if (parsed is List) {
                     return parsed.join(' , ');
                   } else {
-                    return skillsRaw.toString(); // fallback
+                    return skillsRaw.toString();
                   }
                 } catch (e) {
-                  return skillsRaw.toString(); // fallback if not a valid JSON
+                  return skillsRaw.toString();
                 }
               })(),
             ),
