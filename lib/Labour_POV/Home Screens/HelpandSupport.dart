@@ -6,6 +6,24 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../SnackBar/Snackbar.dart';
 import '../All_app_bars/normal_app_bar.dart';
 
+
+/// Simple model for each FAQ entry
+class Faq {
+  final int id;
+  final String question;
+  final String answer;
+
+  Faq({required this.id, required this.question, required this.answer});
+
+  factory Faq.fromJson(Map<String, dynamic> json) {
+    return Faq(
+      id: json['id'] as int,
+      question: json['question'] as String,
+      answer: json['answer'] as String,
+    );
+  }
+}
+
 class HelpSupportPage extends StatefulWidget {
   const HelpSupportPage({Key? key}) : super(key: key);
 
@@ -14,8 +32,8 @@ class HelpSupportPage extends StatefulWidget {
 }
 
 class _HelpSupportPageState extends State<HelpSupportPage> {
-  List<Map<String, String>> faqItems = [];
-  Map<String, bool> expandedState = {};
+  List<Faq> _faqItems = [];
+  Map<int, bool> _expanded = {}; // key by id, not question text
   bool _isLoading = true;
 
   @override
@@ -27,8 +45,8 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
   Future<void> _fetchFaq() async {
     setState(() {
       _isLoading = true;
-      faqItems.clear();
-      expandedState.clear();
+      _faqItems.clear();
+      _expanded.clear();
     });
 
     try {
@@ -40,37 +58,23 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
       }
 
       final dio = Dio(BaseOptions(headers: {'Authorization': token}));
-      final resp = await dio.get('https://backend.jobizoindia.com/api/helpSupport');
+      final resp = await dio.get(
+        'https://backend.jobizoindia.com/api/helpSupport',
+      );
       final root = resp.data as Map<String, dynamic>;
 
       if (resp.statusCode == 200 && root['status'] == true) {
-        final raw = root['data'];
-        // build a fresh list
-        List<Map<String, String>> items;
-        if (raw is List) {
-          items = raw.map<Map<String, String>>((e) {
-            return {
-              'question': e['question'] as String,
-              'answer':   e['answer']   as String,
-            };
-          }).toList();
-        } else if (raw is Map<String, dynamic>) {
-          items = [
-            {
-              'question': raw['question'] as String,
-              'answer':   raw['answer']   as String,
-            }
-          ];
-        } else {
-          items = [];
-        }
-
-        // debug: how many did we get?
-        debugPrint('🔹 fetched ${items.length} FAQ items: $items');
+        // root['data'] is a List<dynamic>
+        final List<dynamic> rawList = root['data'] as List<dynamic>;
+        final faqs = rawList
+            .map((e) => Faq.fromJson(e as Map<String, dynamic>))
+            .toList();
 
         setState(() {
-          faqItems = items;
-          expandedState = { for (var it in items) it['question']!: false };
+          _faqItems = faqs;
+          for (var f in faqs) {
+            _expanded[f.id] = false;
+          }
         });
       } else {
         SnackbarHelper.showError(
@@ -97,15 +101,15 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: faqItems.length,
+        itemCount: _faqItems.length,
         itemBuilder: (ctx, i) {
-          final q = faqItems[i]['question']!;
-          final a = faqItems[i]['answer']!;
-          final expanded = expandedState[q] ?? false;
+          final faq = _faqItems[i];
+          final isExpanded = _expanded[faq.id] ?? false;
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Question
+              // Question header
               Container(
                 height: 55,
                 margin: const EdgeInsets.only(bottom: 8),
@@ -125,7 +129,7 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
                     children: [
                       Expanded(
                         child: Text(
-                          q,
+                          faq.question,
                           style: TextStyle(
                             fontSize: tertiary(),
                             fontWeight: FontWeight.w700,
@@ -137,12 +141,12 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
                       InkWell(
                         onTap: () {
                           setState(() {
-                            expandedState[q] = !expanded;
+                            _expanded[faq.id] = !isExpanded;
                           });
                         },
                         child: Icon(
-                          expanded ? Icons.close : Icons.add,
-                          color: const Color(0xFF415202),
+                          isExpanded ? Icons.close : Icons.add,
+                          color: AppColors.green,
                         ),
                       ),
                     ],
@@ -151,23 +155,28 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
               ),
 
               // Answer
-              if (expanded)
-                Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.18),
-                        blurRadius: 4,
+              if (isExpanded)
+                Center(
+                  child: Container(
+                    margin:  EdgeInsets.only(bottom: 12),
+                    padding:  EdgeInsets.all(22),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.18),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      faq.answer,
+                      style:  TextStyle(
+                        fontSize: tertiary(),
+                        color: Colors.black,
                       ),
-                    ],
-                  ),
-                  child: Text(
-                    a,
-                    style: const TextStyle(fontSize: 12, color: Colors.black),
+                    ),
                   ),
                 ),
             ],
