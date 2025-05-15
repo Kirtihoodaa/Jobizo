@@ -48,7 +48,7 @@ class _HomepagessState extends State<Homepagess> {
     {
       "label": "Agents",
       "image": "Assets/Customer_Images/agents.png",
-      "navigateTo": Agentslist(),
+      "navigateTo": AgentsList(),
     },
     {
       "label": "Labour\nLocalities",

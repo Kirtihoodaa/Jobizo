@@ -1,7 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Design contraints/FontSizes.dart';
 import '../../Design contraints/app color.dart';
+import '../../SnackBar/Snackbar.dart';
 import '../AppBar/commonAppBar.dart';
 
 class CChangepassword extends StatefulWidget {
@@ -16,22 +19,94 @@ class _CChangepasswordState extends State<CChangepassword> {
   final TextEditingController _currentCtrl = TextEditingController();
   final TextEditingController _newCtrl     = TextEditingController();
   final TextEditingController _confirmCtrl = TextEditingController();
+  bool _isLoading = false;
+
+  Future<void> _changePassword() async {
+    final current = _currentCtrl.text.trim();
+    final neu     = _newCtrl.text.trim();
+    final confirm = _confirmCtrl.text.trim();
+
+    if (current.isEmpty || neu.isEmpty || confirm.isEmpty) {
+      SnackbarHelper.showWarning(context, 'Please fill all fields.');
+      return;
+    }
+    if (neu != confirm) {
+      SnackbarHelper.showError(context, 'New & confirm must match.');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('auth_token') ?? '';
+      if (token.isEmpty) {
+        SnackbarHelper.showError(context, 'Not authenticated. Please log in.');
+        return;
+      }
+      if (!token.startsWith('Bearer ')) token = 'Bearer $token';
+
+      final dio = Dio(BaseOptions(headers: {'Authorization': token}));
+      final resp = await dio.post(
+        'https://backend.jobizoindia.com/api/change-password',
+        data: {
+          'current_password': current,
+          'new_password': neu,
+          'new_password_confirmation': confirm,
+        },
+        options: Options(validateStatus: (s) => s != null && s < 500),
+      );
+
+      final data = resp.data as Map<String, dynamic>;
+      if (resp.statusCode == 200 && data['status'] == true) {
+        SnackbarHelper.showSuccess(context, data['message'] ?? 'Password changed.');
+        Navigator.of(context).pop();  // ← go back on success
+      } else {
+        SnackbarHelper.showError(
+          context,
+          data['message'] ?? 'Password should be atleast 8 characters.',
+        );
+      }
+    } on DioError catch (e) {
+      final msg = e.response?.data['message'] ?? e.message;
+      SnackbarHelper.showInfo(context, 'Error: $msg');
+    } catch (e) {
+      SnackbarHelper.showError(context, 'Unexpected error: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: Commonappbar(title: "Change Password"),
+      appBar: AppBar(
+        backgroundColor: AppColors.gold,
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          'Change Password',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: primary(),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Current Password
-            Text(
-              'Current Password',
-              style: TextStyle(fontSize: secondary(), fontWeight: FontWeight.w600),
-            ),
+            Text('Current Password',
+                style: TextStyle(fontSize: secondary(), fontWeight: FontWeight.w600)),
             const SizedBox(height: 10),
             TextField(
               controller: _currentCtrl,
@@ -49,14 +124,11 @@ class _CChangepasswordState extends State<CChangepassword> {
                 ),
               ),
             ),
-
             const SizedBox(height: 30),
 
             // New Password
-            Text(
-              'New Password',
-              style: TextStyle(fontSize: secondary(), fontWeight: FontWeight.w600),
-            ),
+            Text('New Password',
+                style: TextStyle(fontSize: secondary(), fontWeight: FontWeight.w600)),
             const SizedBox(height: 10),
             TextField(
               controller: _newCtrl,
@@ -74,14 +146,11 @@ class _CChangepasswordState extends State<CChangepassword> {
                 ),
               ),
             ),
-
             const SizedBox(height: 30),
 
             // Confirm New Password
-            Text(
-              'Confirm New Password',
-              style: TextStyle(fontSize: secondary(), fontWeight: FontWeight.w600),
-            ),
+            Text('Confirm New Password',
+                style: TextStyle(fontSize: secondary(), fontWeight: FontWeight.w600)),
             const SizedBox(height: 10),
             TextField(
               controller: _confirmCtrl,
@@ -99,7 +168,6 @@ class _CChangepasswordState extends State<CChangepassword> {
                 ),
               ),
             ),
-
             const SizedBox(height: 32),
 
             // Update Button
@@ -113,12 +181,17 @@ class _CChangepasswordState extends State<CChangepassword> {
                   ),
                   elevation: 0,
                 ),
-                onPressed: () {
-                  // TODO: Validate & submit new password
-                },
-                child: Text(
+                onPressed: _isLoading ? null : _changePassword,
+                child: _isLoading
+                    ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                )
+                    : Text(
                   'Update Password',
-                  style: TextStyle(fontSize: secondary(), color: Colors.white, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                      fontSize: secondary(), color: Colors.white, fontWeight: FontWeight.w600),
                 ),
               ),
             ),

@@ -277,7 +277,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.white,
+                          color: AppColors.green,
                         ),
                       )
                           : const Text(
