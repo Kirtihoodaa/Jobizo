@@ -28,7 +28,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: CustomAppBar(
-        profileImageUrl: '',
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(10),

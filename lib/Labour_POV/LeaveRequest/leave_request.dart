@@ -1,7 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../All_app_bars/normal_app_bar.dart';
 
@@ -14,6 +16,7 @@ class LeaveRequestDetailsPage extends StatefulWidget {
 }
 
 class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
+  List<Map<String, dynamic>> leaveRequests = [];
   late TextEditingController leaveTypeController;
   late TextEditingController fromDateController;
   late TextEditingController toDateController;
@@ -26,6 +29,72 @@ class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
     fromDateController = TextEditingController();
     toDateController = TextEditingController();
     reasonController = TextEditingController();
+    fetchLeaveRequests();
+  }
+  Future<void> fetchLeaveRequests() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      if (token == null) {
+        print("Token not found");
+        return;
+      }
+
+      Dio dio = Dio();
+      dio.options.headers["Authorization"] = "Bearer $token";
+
+      final response = await dio.get("https://backend.jobizoindia.com/api/leave-request"); // replace
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data['data'];
+        setState(() {
+          leaveRequests = List<Map<String, dynamic>>.from(data.reversed);
+        });
+      }
+    } catch (e) {
+      print("Error fetching leave requests: $e");
+    }
+  }
+  Future<void> PostLeaveRequest() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      if (token == null) {
+        print("⚠️ Token not found");
+        return;
+      }
+      Dio dio = Dio();
+      dio.options.headers["authorization"] = "Bearer $token";
+      final formData = {
+        "leave_type": leaveTypeController.text.trim(),
+        "from_date": fromDateController.text.trim(),
+        "to_date": toDateController.text.trim(),
+        "reason": reasonController.text.trim(),
+      };
+      final response = await dio.post(
+        'https://backend.jobizoindia.com/api/leave-request',
+        data: formData,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await fetchLeaveRequests();
+        print("✅ Leave request submitted: ${response.data}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Leave request submitted")),
+        );
+        Navigator.pop(context);
+      } else {
+        print("❌ Failed: ${response.statusCode}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to submit request")),
+        );
+      }
+    } catch (e) {
+      print("❌ Error submitting leave request: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Something went wrong")),
+      );
+    }
   }
 
   @override
@@ -62,7 +131,7 @@ class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  // handle submit logic
+                  PostLeaveRequest();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.gold,
@@ -82,23 +151,35 @@ class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
               ),
             ),
             const SizedBox(height: 30),
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.gold,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildStatusRow('Status', 'Approved'),
-                  const SizedBox(height: 8),
-                  buildInfoRow('Approved By', 'John Smith'),
-                  const SizedBox(height: 8),
-                  buildInfoRow('Approved Date', '2024-02-20'),
-                ],
-              ),
-            ),
+            leaveRequests.isEmpty
+                ? Center(child: Text("No leave requests submitted yet"))
+                : ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: leaveRequests.length,
+              itemBuilder: (context, index) {
+                final leave = leaveRequests[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: AppColors.gold,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildStatusRow('Status', leave['status'] ?? 'N/A'),
+                      const SizedBox(height: 8),
+                      buildInfoRow('Approved By', leave['approved_by'] ?? 'Pending'),
+                      const SizedBox(height: 8),
+                      buildInfoRow(
+                          'Approved Date', leave['approved_date'] ?? 'Pending'),
+                    ],
+                  ),
+                );
+              },
+            )
           ],
         ),
       ),
@@ -202,7 +283,6 @@ class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
     );
   }
 
-
   InputDecoration buildInputDecoration({
     String? hintText,
     Widget? suffixIcon,
@@ -226,8 +306,6 @@ class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
       suffixIcon: suffixIcon,
     );
   }
-
-
 
   /// 1) White background + gold selection on your calendar:
   Future<void> _selectDate(TextEditingController controller) async {
@@ -256,5 +334,4 @@ class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
       controller.text = DateFormat('dd-MM-yyyy').format(picked);
     }
   }
-
 }

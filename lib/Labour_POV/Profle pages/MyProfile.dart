@@ -17,6 +17,7 @@ class MyProfilePage extends StatefulWidget {
 class _MyProfilePageState extends State<MyProfilePage> {
   Map<String, dynamic>? userData;
   bool isLoading = true;
+  String? profileImageUrl;
 
   @override
   void initState() {
@@ -97,8 +98,12 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   CircleAvatar(
                     radius: 40,
                     backgroundColor: AppColors.gold,
-                    child:
-                        const Icon(Icons.person, size: 60, color: Colors.white),
+                    backgroundImage: userData?['image'] != null && userData!['image'].toString().isNotEmpty
+                        ? NetworkImage("https://backend.jobizoindia.com/storage/${userData!['image']}")
+                        : null,
+                    child: userData?['image'] == null || userData!['image'].toString().isEmpty
+                        ? const Icon(Icons.person, size: 60, color: Colors.white)
+                        : null,
                   ),
                   const SizedBox(width: 16),
                   Expanded(

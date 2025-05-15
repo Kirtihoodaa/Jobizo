@@ -1,5 +1,10 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../Design contraints/FontSizes.dart';
 
 class Ceditprofile extends StatefulWidget {
@@ -11,12 +16,57 @@ class Ceditprofile extends StatefulWidget {
 
 class _CeditprofileState extends State<Ceditprofile> {
   final _formKey = GlobalKey<FormState>();
+  XFile? pickedImage;
+  final ImagePicker _picker = ImagePicker();
 
-  final _nameCtrl     = TextEditingController(text: 'Murali Monohar');
-  final _emailCtrl    = TextEditingController(text: 'muralimanohar@email.com');
-  final _phoneCtrl    = TextEditingController(text: '+91 8856554432');
-  final _dobCtrl      = TextEditingController(text: '1990-01-15');
-  final _locationCtrl = TextEditingController(text: 'Mumbai');
+
+Future<void>_updateProfile() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    if(token == null){
+      print("⚠️ Token not found");
+      return;
+    };
+    Dio dio = Dio();
+    dio.options.headers["Authorization"] = "Bearer $token";
+    FormData formData = FormData.fromMap({
+      "name": _nameCtrl.text.trim(),
+      "email": _emailCtrl.text.trim(),
+      "phone": _phoneCtrl.text.trim(),
+      "dob": _dobCtrl.text.trim(),
+      "address": _locationCtrl.text.trim(),
+      if (pickedImage != null)
+        "image": await MultipartFile.fromFile(
+          pickedImage!.path,
+          filename: pickedImage!.name,
+        ),
+    });
+
+    final response = await dio.post('https://backend.jobizoindia.com/api/profile',
+    data: formData);
+    if(response.statusCode == 200 || response.statusCode == 201){
+      print("✅ Profile updated successfully: ${response.data}");
+      if (!mounted) return;
+      Navigator.pop(context, 'refresh');
+    }else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to update profile.")),
+      );
+    }
+  } catch (e) {
+    print("❌ Error updating profile: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Something went wrong.")),
+    );
+  }
+}
+  final _nameCtrl     = TextEditingController();
+  final _emailCtrl    = TextEditingController();
+  final _phoneCtrl    = TextEditingController();
+  final _dobCtrl      = TextEditingController();
+  final _locationCtrl = TextEditingController();
 
   @override
   void dispose() {
@@ -29,9 +79,19 @@ class _CeditprofileState extends State<Ceditprofile> {
   }
 
   Future<void> _pickDate() async {
+    DateTime initialDate;
+
+    try {
+      initialDate = _dobCtrl.text.isNotEmpty
+          ? DateTime.parse(_dobCtrl.text)
+          : DateTime(1990, 1, 1);
+    } catch (e) {
+      initialDate = DateTime(1990, 1, 1);
+    }
+
     final picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.parse(_dobCtrl.text),
+      initialDate: initialDate,
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
       builder: (context, child) {
@@ -39,9 +99,9 @@ class _CeditprofileState extends State<Ceditprofile> {
           data: Theme.of(context).copyWith(
             dialogBackgroundColor: Colors.white,
             colorScheme: ColorScheme.light(
-              primary: AppColors.gold,    // header & selected day
-              onPrimary: Colors.white,    // text color on selected day
-              onSurface: Colors.black,    // default text color
+              primary: AppColors.gold,
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(foregroundColor: AppColors.gold),
@@ -51,15 +111,18 @@ class _CeditprofileState extends State<Ceditprofile> {
         );
       },
     );
+
     if (picked != null) {
-      _dobCtrl.text = picked.toIso8601String().split('T').first;
+      setState(() {
+        _dobCtrl.text = picked.toIso8601String().split('T').first;
+      });
     }
   }
 
 
   void _saveProfile() {
     if (_formKey.currentState!.validate()) {
-      // TODO: save logic
+      _updateProfile();
       Navigator.pop(context);
     }
   }
@@ -80,7 +143,7 @@ class _CeditprofileState extends State<Ceditprofile> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppColors.green),
+        borderSide: BorderSide(color: AppColors.gold),
       ),
       suffixIcon: suffix,
     );
@@ -148,17 +211,23 @@ class _CeditprofileState extends State<Ceditprofile> {
                         ],
                       ),
                       child: CircleAvatar(
-                        radius: 60,
-                        backgroundImage:
-                        NetworkImage('https://i.imgur.com/BoN9kdC.png'),
+                        radius: 50,
+                        backgroundColor: AppColors.gold,
+                        backgroundImage: pickedImage != null
+                            ? FileImage(File(pickedImage!.path))
+                            : NetworkImage('https://i.imgur.com/BoN9kdC.png') as ImageProvider,
                       ),
                     ),
                     Positioned(
                       right: -4,
                       bottom: -4,
                       child: GestureDetector(
-                        onTap: () {
-                          // TODO: pick image
+                        onTap: () async {
+                          final XFile? picked = await _picker.pickImage(
+                              source: ImageSource.gallery);
+                          if (picked != null) {
+                            setState(() => pickedImage = picked);
+                          }
                         },
                         child: Container(
                           decoration: BoxDecoration(
@@ -169,6 +238,7 @@ class _CeditprofileState extends State<Ceditprofile> {
                           child: const Icon(Icons.camera_alt,
                               color: Colors.white, size: 20),
                         ),
+
                       ),
                     ),
                   ],
@@ -209,7 +279,7 @@ class _CeditprofileState extends State<Ceditprofile> {
                 TextFormField(
                   controller: _phoneCtrl,
                   keyboardType: TextInputType.phone,
-                  decoration: _fieldDecoration(hint: '+91 ...'),
+                  decoration: _fieldDecoration(hint: '+91 .....'),
                   validator: (v) =>
                   v == null || v.isEmpty ? 'Required' : null,
                 ),

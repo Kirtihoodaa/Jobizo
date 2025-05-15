@@ -3,17 +3,16 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Design contraints/FontSizes.dart';
+import '../../Design contraints/app color.dart';
 import '../CustomMenu.dart';
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
-  final String profileImageUrl;
   final VoidCallback? onMenuTap;
   final VoidCallback? onNotificationTap;
   final VoidCallback? onProfileTap;
 
   const CustomAppBar({
     Key? key,
-    required this.profileImageUrl,
     this.onMenuTap,
     this.onNotificationTap,
     this.onProfileTap,
@@ -29,6 +28,7 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
 class CustomAppBarState extends State<CustomAppBar> {
   String name = "Loading...";
   String location = "Please wait...";
+  String profileImage = "";
 
   @override
   void initState() {
@@ -40,11 +40,13 @@ class CustomAppBarState extends State<CustomAppBar> {
     final prefs = await SharedPreferences.getInstance();
     final savedName = prefs.getString('user_name');
     final savedLocation = prefs.getString('user_location');
+    final savedImage = prefs.getString('user_profile_image');
 
-    if (savedName != null && savedLocation != null) {
+    if (savedName != null && savedLocation != null&& savedImage!= null) {
       setState(() {
         name = savedName;
         location = savedLocation;
+        profileImage = savedImage;
       });
     } else {
       await _fetchAndStoreProfile();
@@ -70,13 +72,17 @@ class CustomAppBarState extends State<CustomAppBar> {
         final user = response.data['user'];
         final userName = user['name'] ?? "No Name";
         final userLocation = user['address'] ?? "No Location";
+        final imagePath = user['image'] ?? " ";
 
         await prefs.setString('user_name', userName);
         await prefs.setString('user_location', userLocation);
+        await prefs.setString('user_profile_image', imagePath);
+
 
         setState(() {
           name = userName;
           location = userLocation;
+          profileImage= imagePath;
         });
       } else {
         print("Failed to fetch profile");
@@ -114,9 +120,9 @@ class CustomAppBarState extends State<CustomAppBar> {
                   onTap: widget.onProfileTap,
                   child: CircleAvatar(
                     radius: 20,
-                    backgroundColor: Colors.white,
-                    backgroundImage: widget.profileImageUrl.isNotEmpty
-                        ? NetworkImage(widget.profileImageUrl)
+                    backgroundColor: AppColors.gold,
+                    backgroundImage: profileImage.isNotEmpty
+                        ? NetworkImage("https://backend.jobizoindia.com/storage/$profileImage")
                         : const AssetImage('Assets/Labour_image/user profile.png') as ImageProvider,
                   ),
                 ),

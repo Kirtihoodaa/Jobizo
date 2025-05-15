@@ -50,7 +50,6 @@ class _HistoryPageState extends State<HistoryPage> {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: CustomAppBar(
-        profileImageUrl: '',
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

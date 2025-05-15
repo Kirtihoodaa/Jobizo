@@ -48,7 +48,6 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: CustomAppBar(
-        profileImageUrl: '',
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
