@@ -60,9 +60,6 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: Customerappbar(
-        name: 'Deep',
-        location: 'chand',
-        profileImageUrl: '',
       ),
       body: SafeArea(
         child: SingleChildScrollView(

@@ -4,6 +4,7 @@ import 'package:jobizo/Labour_POV/Home%20Screens/Feedback.dart';
 import 'package:jobizo/Labour_POV/Home%20Screens/HelpandSupport.dart';
 import 'package:jobizo/Labour_POV/Profle%20pages/MyProfile.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Login/login.dart';
 import '../logout.dart';
 import '../Customer_POV/HomePages/Dashboard.dart';
@@ -11,7 +12,10 @@ import '../Customer_POV/SettingsPages/CustomerProfile.dart';
 import 'Customerfeedback.dart';
 
 class CustomMenuCustomer {
-  static void show(BuildContext context) {
+  static Future<void> show(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final name = prefs.getString('user_name') ?? "Guest";
+    final image = prefs.getString('user_profile_image') ?? "";
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -46,23 +50,26 @@ class CustomMenuCustomer {
                           child: Column(
                             children: [
                               CircleAvatar(
-                                  backgroundColor: Colors.white,
-                                  radius: 28,
-                                  child: Image.asset(
-                                      "Assets/Labour_image/person.png")),
+                                backgroundColor: Colors.white,
+                                radius: 28,
+                                backgroundImage: image.isNotEmpty
+                                    ? NetworkImage("https://backend.jobizoindia.com/storage/$image")
+                                    : const AssetImage("Assets/Labour_image/person.png")
+                                as ImageProvider,
+                              ),
                               SizedBox(height: 8),
                               Text(
-                                'Deepak',
+                                name,
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 18),
                               ),
-                              Text(
-                                'Joined March 2025',
-                                style:
-                                TextStyle(color: Colors.white, fontSize: 12),
-                              ),
+                              // Text(
+                              //   'Joined March 2025',
+                              //   style:
+                              //   TextStyle(color: Colors.white, fontSize: 12),
+                              // ),
                             ],
                           ),
                         ),

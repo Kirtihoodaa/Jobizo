@@ -45,7 +45,6 @@ class _CustomerrequestState extends State<Customerrequest> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: Customerappbar(
-         name: 'Deep', location: 'Chand', profileImageUrl: '',
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(10.0),

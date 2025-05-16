@@ -64,11 +64,11 @@ class CustomMenu {
                                     fontWeight: FontWeight.bold,
                                     fontSize: 18),
                               ),
-                              Text(
-                                'Joined March 2025',
-                                style:
-                                    TextStyle(color: Colors.white, fontSize: 12),
-                              ),
+                              // Text(
+                              //   'Joined March 2025',
+                              //   style:
+                              //       TextStyle(color: Colors.white, fontSize: 12),
+                              // ),
                             ],
                           ),
                         ),

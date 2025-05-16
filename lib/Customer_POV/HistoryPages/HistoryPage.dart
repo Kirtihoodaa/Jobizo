@@ -47,9 +47,6 @@ class _HistotypageeState extends State<Histotypagee> {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: Customerappbar(
-        name: 'Deep',
-        location: 'Chd',
-        profileImageUrl: '',
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),

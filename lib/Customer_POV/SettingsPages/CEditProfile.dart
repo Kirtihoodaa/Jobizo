@@ -15,58 +15,130 @@ class Ceditprofile extends StatefulWidget {
 }
 
 class _CeditprofileState extends State<Ceditprofile> {
+  bool isLoading = true;
   final _formKey = GlobalKey<FormState>();
+  String? cachedProfileImage;
   XFile? pickedImage;
   final ImagePicker _picker = ImagePicker();
 
-
-Future<void>_updateProfile() async {
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
-    if(token == null){
-      print("⚠️ Token not found");
-      return;
-    };
-    Dio dio = Dio();
-    dio.options.headers["Authorization"] = "Bearer $token";
-    FormData formData = FormData.fromMap({
-      "name": _nameCtrl.text.trim(),
-      "email": _emailCtrl.text.trim(),
-      "phone": _phoneCtrl.text.trim(),
-      "dob": _dobCtrl.text.trim(),
-      "address": _locationCtrl.text.trim(),
-      if (pickedImage != null)
-        "image": await MultipartFile.fromFile(
-          pickedImage!.path,
-          filename: pickedImage!.name,
-        ),
-    });
-
-    final response = await dio.post('https://backend.jobizoindia.com/api/profile',
-    data: formData);
-    if(response.statusCode == 200 || response.statusCode == 201){
-      print("✅ Profile updated successfully: ${response.data}");
-      if (!mounted) return;
-      Navigator.pop(context, 'refresh');
-    }else {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to update profile.")),
-      );
-    }
-  } catch (e) {
-    print("❌ Error updating profile: $e");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Something went wrong.")),
-    );
-  }
-}
   final _nameCtrl     = TextEditingController();
   final _emailCtrl    = TextEditingController();
   final _phoneCtrl    = TextEditingController();
   final _dobCtrl      = TextEditingController();
   final _locationCtrl = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    _loadCachedProfileImage();
+    fetchProfileData();
+
+  }
+  void _loadCachedProfileImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      cachedProfileImage = prefs.getString('user_profile_image');
+    });
+  }
+
+  Future<void> fetchProfileData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      if (token == null) {
+        print("❌ No token found");
+        return;
+      }
+
+      final dio = Dio();
+      dio.options.headers["Authorization"] = "Bearer $token";
+
+      final response =
+      await dio.get('https://backend.jobizoindia.com/api/profile');
+
+      print("Full response: ${response.data}");
+
+      final user = response.data['user'];
+      if (user == null || user['email'] == null) {
+        print("❌ 'email' is missing in response");
+        return;
+      }
+
+      setState(() {
+        _emailCtrl.text = user['email'];
+        isLoading = false;
+      });
+    } catch (e) {
+      print("❌ Exception: $e");
+      setState(() => isLoading = false);
+    }
+  }
+  Future<void> _updateProfile() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      if (token == null) {
+        print("⚠️ Token not found");
+        return;
+      }
+
+      Dio dio = Dio();
+      dio.options.headers["Authorization"] = "Bearer $token";
+
+      FormData formData = FormData.fromMap({
+        "name": _nameCtrl.text.trim(),
+        "email": _emailCtrl.text.trim(),
+        "phone": _phoneCtrl.text.trim(),
+        "dob": _dobCtrl.text.trim(),
+        "address": _locationCtrl.text.trim(),
+        if (pickedImage != null)
+          "image": await MultipartFile.fromFile(
+            pickedImage!.path,
+            filename: pickedImage!.name,
+          ),
+      });
+
+      final response = await dio.post(
+        'https://backend.jobizoindia.com/api/profile',
+        data: formData,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final updatedData = response.data['data'] ?? response.data['user'];
+
+        if (updatedData != null) {
+          // ✅ Save updated values to SharedPreferences
+          await prefs.setString('user_name', updatedData['name'] ?? '');
+          await prefs.setString('user_location', updatedData['address'] ?? '');
+          await prefs.setString('user_profile_image', updatedData['image'] ?? '');
+
+          print("✅ Profile updated successfully: $updatedData");
+          if (!mounted) return;
+          Navigator.pop(context, 'refresh');
+        } else {
+          print("⚠️ Response missing 'data' or 'user' field");
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Unexpected response from server.")),
+          );
+        }
+      } else {
+        print("❌ Profile update failed with status ${response.statusCode}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Failed to update profile.")),
+        );
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print("❌ Error Body: ${e.response?.data}");
+        print("❌ Status Code: ${e.response?.statusCode}");
+      } else {
+        print("❌ Dio error without response: ${e.message}");
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Something went wrong. Please try again.")),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -119,14 +191,6 @@ Future<void>_updateProfile() async {
     }
   }
 
-
-  void _saveProfile() {
-    if (_formKey.currentState!.validate()) {
-      _updateProfile();
-      Navigator.pop(context);
-    }
-  }
-
   InputDecoration _fieldDecoration({required String hint, Widget? suffix}) {
     return InputDecoration(
       hintText: hint,
@@ -173,7 +237,7 @@ Future<void>_updateProfile() async {
           Padding(
             padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
             child: ElevatedButton(
-              onPressed: _saveProfile,
+              onPressed: _updateProfile,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.gold,
                 shape: RoundedRectangleBorder(
@@ -213,9 +277,9 @@ Future<void>_updateProfile() async {
                       child: CircleAvatar(
                         radius: 50,
                         backgroundColor: AppColors.gold,
-                        backgroundImage: pickedImage != null
-                            ? FileImage(File(pickedImage!.path))
-                            : NetworkImage('https://i.imgur.com/BoN9kdC.png') as ImageProvider,
+                        backgroundImage: cachedProfileImage != null && cachedProfileImage!.isNotEmpty
+                            ? NetworkImage("https://backend.jobizoindia.com/storage/$cachedProfileImage")
+                            : const AssetImage('Assets/Labour_image/user profile.png') as ImageProvider,
                       ),
                     ),
                     Positioned(
@@ -264,11 +328,9 @@ Future<void>_updateProfile() async {
               _buildLabeledField(
                 'Email',
                 TextFormField(
-                  controller: _emailCtrl,
+                  controller: _emailCtrl, readOnly: true,
                   keyboardType: TextInputType.emailAddress,
                   decoration: _fieldDecoration(hint: 'Enter email'),
-                  validator: (v) =>
-                  v != null && v.contains('@') ? null : 'Invalid email',
                 ),
               ),
               const SizedBox(height: 16),

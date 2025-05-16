@@ -1,4 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../Design contraints/FontSizes.dart';
 import '../../Design contraints/app color.dart';
 import '../../Login/login.dart';
@@ -18,18 +20,51 @@ class Customersetting extends StatefulWidget {
 }
 
 class _CustomersettingState extends State<Customersetting> {
+  final GlobalKey<CustomerappbarState> appBarKey =
+      GlobalKey<CustomerappbarState>();
+
   bool _biometric = false;
   bool _pushNotif = true;
   bool _emailNotif = true;
+  Map<String, dynamic>? userData;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProfileData(); // ✅ This was missing
+  }
+
+  Future<void> fetchProfileData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      if (token == null) {
+        print('No auth token found');
+        // setState(() => isLoading = false);
+        // return;
+      }
+      final dio = Dio();
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      final response =
+          await dio.get('https://backend.jobizoindia.com/api/profile');
+      setState(() {
+        userData = response.data['user'];
+        // isLoading = false;
+      });
+    } catch (e) {
+      print("Error: $e");
+      setState(() {
+        // isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: Customerappbar(
-        name: 'Deepak',
-        location: 'Chandigarh',
-        profileImageUrl: '',
+        key: appBarKey,
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.only(bottom: 16),
@@ -45,8 +80,16 @@ class _CustomersettingState extends State<Customersetting> {
                   CircleAvatar(
                     radius: 40,
                     backgroundColor: AppColors.gold,
-                    backgroundImage:
-                        NetworkImage('https://i.imgur.com/BoN9kdC.png'),
+                    backgroundImage: userData?['image'] != null &&
+                            userData!['image'].toString().isNotEmpty
+                        ? NetworkImage(
+                            "https://backend.jobizoindia.com/storage/${userData!['image']}")
+                        : null,
+                    child: userData?['image'] == null ||
+                            userData!['image'].toString().isEmpty
+                        ? const Icon(Icons.person,
+                            size: 60, color: Colors.white)
+                        : null,
                   ),
                   SizedBox(width: 16),
                   Expanded(
@@ -54,7 +97,7 @@ class _CustomersettingState extends State<Customersetting> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Deepak',
+                          userData?['name'] ?? '',
                           style: TextStyle(
                               fontSize: secondary(),
                               fontWeight: FontWeight.w600,
@@ -62,7 +105,7 @@ class _CustomersettingState extends State<Customersetting> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'd@email.com',
+                          userData?['email'] ?? '',
                           style: TextStyle(
                             fontSize: tertiary(),
                             color: Colors.grey[700],
@@ -78,11 +121,16 @@ class _CustomersettingState extends State<Customersetting> {
                                 horizontal: 20, vertical: 8),
                             elevation: 0,
                           ),
-                          onPressed: () {
-                            Navigator.push(
+                          onPressed: () async {
+                            final result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => Ceditprofile()));
+                            if (result == 'refresh') {
+                              appBarKey.currentState
+                                  ?.refreshUserInfo();
+                              fetchProfileData();
+                            }
                           },
                           child: Text(
                             'Edit Profile',
