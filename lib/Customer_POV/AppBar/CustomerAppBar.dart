@@ -1,31 +1,99 @@
 import 'dart:ui';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jobizo/hamburgerCustomer/CustomMenuCustomer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Design contraints/FontSizes.dart';
 import '../../Labour_POV/CustomMenu.dart';
 
-class Customerappbar extends StatelessWidget implements PreferredSizeWidget {
-  final String name;
-  final String location;
-  final String profileImageUrl;
+class Customerappbar extends StatefulWidget implements PreferredSizeWidget {
   final VoidCallback? onMenuTap;
   final VoidCallback? onNotificationTap;
   final VoidCallback? onProfileTap;
 
   const Customerappbar({
     Key? key,
-    required this.name,
-    required this.location,
-    required this.profileImageUrl,
     this.onMenuTap,
     this.onNotificationTap,
     this.onProfileTap,
   }) : super(key: key);
 
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
+  @override
+  State<Customerappbar> createState() => CustomerappbarState();
+}
+class CustomerappbarState extends State<Customerappbar> {
+  String name = "Loading...";
+  String location = "Please wait...";
+  String profileImage = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+  }
+  Future<void> _loadProfileData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedName = prefs.getString('user_name');
+    final savedLocation = prefs.getString('user_location');
+    final savedImage = prefs.getString('user_profile_image');
+
+    if (savedName != null && savedLocation != null&& savedImage!= null) {
+      setState(() {
+        name = savedName;
+        location = savedLocation;
+        profileImage = savedImage;
+      });
+    } else {
+      await _fetchAndStoreProfile();
+    }
+  }
+  Future<void> _fetchAndStoreProfile() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      if (token == null) {
+        print("Token not found");
+        return;
+      }
+
+      Dio dio = Dio();
+      dio.options.headers["Authorization"] = "Bearer $token";
+
+      final response = await dio.get("https://backend.jobizoindia.com/api/profile");
+
+      if (response.statusCode == 200) {
+        final user = response.data['user'];
+        final userName = user['name'] ?? "No Name";
+        final userLocation = user['address'] ?? "No Location";
+        final imagePath = user['image'] ?? " ";
+
+        await prefs.setString('user_name', userName);
+        await prefs.setString('user_location', userLocation);
+        await prefs.setString('user_profile_image', imagePath);
+
+
+        setState(() {
+          name = userName;
+          location = userLocation;
+          profileImage= imagePath;
+        });
+      } else {
+        print("Failed to fetch profile");
+      }
+    } catch (e) {
+      print("Error fetching profile: $e");
+    }
+  }
+  void refreshUserInfo() {
+    _fetchAndStoreProfile();
+  }
   @override
   Widget build(BuildContext context) {
     return AppBar(
@@ -43,17 +111,16 @@ class Customerappbar extends StatelessWidget implements PreferredSizeWidget {
               children: [
                 IconButton(
                   icon: const Icon(Icons.menu, color: Colors.white),
-                  onPressed: onMenuTap ?? () {CustomMenuCustomer.show(context);},
+                  onPressed: widget.onMenuTap ?? () {CustomMenuCustomer.show(context);},
                 ),
                 GestureDetector(
-                  onTap: onProfileTap,
+                  onTap: widget.onProfileTap,
                   child: CircleAvatar(
                     radius: 20,
                     backgroundColor: Colors.white,
-                    backgroundImage: profileImageUrl.isNotEmpty
-                        ? NetworkImage(profileImageUrl)
-                        : const AssetImage('Assets/Labour_image/user profile.png')
-                    as ImageProvider,
+                    backgroundImage: profileImage.isNotEmpty
+                        ? NetworkImage("https://backend.jobizoindia.com/storage/$profileImage")
+                        : const AssetImage('Assets/Labour_image/user profile.png') as ImageProvider,
                     onBackgroundImageError: (_, __) =>
                     const Icon(Icons.error, color: Colors.red),
                   ),
@@ -83,7 +150,7 @@ class Customerappbar extends StatelessWidget implements PreferredSizeWidget {
             Row(
               children: [
                 GestureDetector(
-                  onTap: onNotificationTap,
+                  onTap: widget.onNotificationTap,
                   child: Stack(
                     children: [
                       CircleAvatar(
@@ -103,7 +170,7 @@ class Customerappbar extends StatelessWidget implements PreferredSizeWidget {
                 ),
                 const SizedBox(width: 8),
                 GestureDetector(
-                  onTap: onProfileTap,
+                  onTap: widget.onProfileTap,
                   child: CircleAvatar(
                       radius: 20,
                       backgroundColor: Colors.white,
@@ -116,6 +183,4 @@ class Customerappbar extends StatelessWidget implements PreferredSizeWidget {
       ),
     );
   }
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
