@@ -195,6 +195,7 @@ class _CustomerrequestState extends State<Customerrequest> {
         name: 'Deep',
         location: 'Chand',
         profileImageUrl: '',
+
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(10.0),
