@@ -1,209 +1,205 @@
+import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path/path.dart' as path;
+
 import 'package:jobizo/Design%20contraints/app%20color.dart';
-import '../../Design contraints/FontSizes.dart';
+import 'package:jobizo/Design%20contraints/FontSizes.dart';
+import '../../SnackBar/Snackbar.dart';
 import '../AppBar/commonAppBar.dart';
 
 class AddCompanyDetails extends StatefulWidget {
-  const AddCompanyDetails({super.key});
+  const AddCompanyDetails({Key? key}) : super(key: key);
 
   @override
   State<AddCompanyDetails> createState() => _AddCompanyDetailsState();
 }
 
 class _AddCompanyDetailsState extends State<AddCompanyDetails> {
-  String? _selectedCategory;
+  bool _isSubmitting = false;
+
+  // Text controllers
+  final _companyNameCtrl   = TextEditingController();
+  final _regNumberCtrl     = TextEditingController();
+  final _yearCtrl          = TextEditingController();
+  final _gstNumberCtrl     = TextEditingController();
+  final _streetCtrl        = TextEditingController();
+  final _cityCtrl          = TextEditingController();
+  final _stateCtrl         = TextEditingController();
+  final _countryCtrl       = TextEditingController();
+  final _pinCtrl           = TextEditingController();
+  final _directorNameCtrl  = TextEditingController();
+  final _dinCtrl           = TextEditingController();
+  final _directorEmailCtrl = TextEditingController();
+
+  // Dropdown / checkboxes
+  String? _companyType;
+  final List<String> _companyTypes = [
+    'Private Limited Company',
+    'Public Limited Company',
+  ];
+
+  final List<String> _projectCategoriesList = [
+    'IT Services & Consulting',
+    'Appartment Building',
+    'Cloud Solutions',
+    'Digital Transformation',
+    'Cybersecurity',
+  ];
+  final Set<String> _selectedCategories = {};
+
+  // Stored file-paths
+  String? _gstCertificatePath;
+  String? _idProofPath;
+  String? _companyRegDocPath;
+  String? _panCardPath;
+  String? _otherDocsPath;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bgColor,
-      appBar: Commonappbar(title: 'View Company Details'),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Company Details
-            _sectionContainer(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _sectionTitle('Company Details'),
-                  _textField('Company Name', 'TechVision Solutions Ltd.'),
-                  _textField('Registration Number', 'REG123456789'),
-                  _textField('Year of Establishment', '2024'),
-                  _dropdownField(
-                    'Company Type',
-                    ['Private Limited Company', 'Public Limited Company'],
-                  ),
-                ],
-              ),
-            ),
-
-            // GST Information
-            _sectionContainer(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _sectionTitle('GST Information'),
-                  _textField('GST Number', '22AAAAA0000A1Z5'),
-                  _sectionTitle('GST Certificate'),
-                  _uploadButton('Upload Certificate'),
-                ],
-              ),
-            ),
-
-            // Address Information
-            _sectionContainer(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _sectionTitle('Address Information'),
-                  _textField('Street Address', '123 Innovation Park'),
-                  Row(
-                    children: [
-                      Expanded(child: _textField('City', 'San Francisco')),
-                      const SizedBox(width: 8),
-                      Expanded(child: _textField('State', 'California')),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Expanded(child: _textField('Country', 'United States')),
-                      const SizedBox(width: 8),
-                      Expanded(child: _textField('PIN Code', '94105')),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // Director Information
-            _sectionContainer(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _sectionTitle('Director Information'),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: OutlinedButton(
-                      onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: AppColors.gold),
-                        foregroundColor: AppColors.gold,
-                      ),
-                      child: Text(
-                        '+ Add Director',
-                        style: TextStyle(
-                          fontSize: tertiary(),
-                          color: AppColors.gold,
-                          fontWeight: FontWeight.bold
-                        ),
-                      ),
-                    ),
-
-                  ),
-                  _textField('Director Name', 'Sarah Anderson'),
-                  _textField('DIN Number', '00123456'),
-                  _textField('Contact Email', 'sarah.anderson@techvision.com'),
-                  Text("ID Proof", style:
-                    TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: secondary(),
-                    ),),
-                  SizedBox(height: 8),
-                  _uploadIDButton('Upload ID Proof'),
-                ],
-              ),
-            ),
-
-            // Project Categories
-            _sectionContainer(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _sectionTitle('Project Categories'),
-                  _categoryCheckbox('IT Services & Consulting'),
-                  _categoryCheckbox('Appartment Building'),
-                  _categoryCheckbox('Cloud Solutions'),
-                  _categoryCheckbox('Digital Transformation'),
-                  _categoryCheckbox('Cybersecurity'),
-                ],
-              ),
-            ),
-
-            // Document Upload
-            _sectionContainer(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _sectionTitle('Document Upload'),
-                  SizedBox(height: 15),
-                  Text("Company Registration", style:
-                  TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: secondary(),
-                  ),
-                  ),
-                  _uploadDocumentButton('Company Registration'),
-                  SizedBox(height: 8,),
-
-                  Text("PAN Card", style:
-                  TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: secondary(),
-                  ),
-                  ),
-                  _uploadDocumentButton('PAN Card'),
-                  SizedBox(height: 8,),
-
-                  Text("Other Documents", style:
-                  TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: secondary(),
-                  ),
-                  ),
-                  _uploadDocumentButton('Other Documents'),
-                  SizedBox(height: 5),
-
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 20),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.gold,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
-                ),
-                child: Text(
-                  'Submit Company Profile',
-                  style: TextStyle(
-                    fontSize: secondary(),
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 50)
-          ],
-        ),
-      ),
-    );
+  void initState() {
+    super.initState();
+    _companyType = _companyTypes.first;
+    _loadSavedFiles();
   }
 
-  /// White rounded container for each form section
+  Future<void> _loadSavedFiles() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _gstCertificatePath    = prefs.getString('gst_certificate');
+      _idProofPath           = prefs.getString('id_proof');
+      _companyRegDocPath     = prefs.getString('company_registration_doc');
+      _panCardPath           = prefs.getString('pan_card');
+      _otherDocsPath         = prefs.getString('other_documents');
+    });
+  }
+
+  @override
+  void dispose() {
+    _companyNameCtrl.dispose();
+    _regNumberCtrl.dispose();
+    _yearCtrl.dispose();
+    _gstNumberCtrl.dispose();
+    _streetCtrl.dispose();
+    _cityCtrl.dispose();
+    _stateCtrl.dispose();
+    _countryCtrl.dispose();
+    _pinCtrl.dispose();
+    _directorNameCtrl.dispose();
+    _dinCtrl.dispose();
+    _directorEmailCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickAndSave(String prefKey, ValueChanged<String> onSaved) async {
+    final result = await FilePicker.platform.pickFiles();
+    if (result != null && result.files.single.path != null) {
+      final filePath = result.files.single.path!;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(prefKey, filePath);
+      onSaved(filePath);
+    }
+  }
+
+  Future<void> _submitCompanyProfile() async {
+    // 1) Validation
+    if (_companyNameCtrl.text.trim().isEmpty ||
+        _regNumberCtrl.text.trim().isEmpty ||
+        _yearCtrl.text.trim().isEmpty ||
+        _companyType == null ||
+        _gstNumberCtrl.text.trim().isEmpty ||
+        _streetCtrl.text.trim().isEmpty ||
+        _cityCtrl.text.trim().isEmpty ||
+        _stateCtrl.text.trim().isEmpty ||
+        _countryCtrl.text.trim().isEmpty ||
+        _pinCtrl.text.trim().isEmpty ||
+        _directorNameCtrl.text.trim().isEmpty ||
+        _dinCtrl.text.trim().isEmpty ||
+        _directorEmailCtrl.text.trim().isEmpty ||
+        _selectedCategories.isEmpty) {
+      SnackbarHelper.showWarning(context, 'Please fill all fields');
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      // 2) Get token
+      final prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('auth_token') ?? '';
+      if (token.isEmpty) {
+        SnackbarHelper.showError(context, 'Not authenticated. Please login.');
+        setState(() => _isSubmitting = false);
+        return;
+      }
+      if (!token.startsWith('Bearer ')) token = 'Bearer $token';
+
+      // 3) Build multipart form data
+      final formDataMap = <String, dynamic>{
+        'company_name': _companyNameCtrl.text.trim(),
+        'registration_number': _regNumberCtrl.text.trim(),
+        'year_of_establishment': _yearCtrl.text.trim(),
+        'company_type': _companyType!,
+        'gst_number': _gstNumberCtrl.text.trim(),
+        'street_address': _streetCtrl.text.trim(),
+        'city': _cityCtrl.text.trim(),
+        'state': _stateCtrl.text.trim(),
+        'country': _countryCtrl.text.trim(),
+        'pin_code': _pinCtrl.text.trim(),
+        'director_name': _directorNameCtrl.text.trim(),
+        'din_number': _dinCtrl.text.trim(),
+        'email': _directorEmailCtrl.text.trim(),
+        'project_categories': _selectedCategories.join(', '),
+      };
+
+      Future<void> attachFile(String key, String? filePath) async {
+        if (filePath != null) {
+          formDataMap[key] = await MultipartFile.fromFile(
+            filePath,
+            filename: path.basename(filePath),
+          );
+        }
+      }
+
+      await attachFile('gst_certificate',      _gstCertificatePath);
+      await attachFile('id_proof',             _idProofPath);
+      await attachFile('company_registration_doc', _companyRegDocPath);
+      await attachFile('pan_card',             _panCardPath);
+      await attachFile('other_documents',      _otherDocsPath);
+
+      final formData = FormData.fromMap(formDataMap);
+
+      // 4) Send request
+      final dio = Dio(BaseOptions(headers: {'Authorization': token}));
+      final response = await dio.post(
+        'https://backend.jobizoindia.com/api/company-details',
+        data: formData,
+        options: Options(validateStatus: (s) => s != null && s < 500),
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      if ((response.statusCode == 200 || response.statusCode == 201) && data['status'] == true) {
+        SnackbarHelper.showSuccess(context, data['message'] ?? 'Profile submitted.');
+        Navigator.of(context).pop();
+      } else {
+        SnackbarHelper.showError(
+          context,
+          data['message'] ?? 'Submission failed (${response.statusCode}).',
+        );
+      }
+    } on DioError catch (e) {
+      final msg = e.response?.data['message'] ?? e.message;
+      SnackbarHelper.showError(context, msg);
+    } finally {
+      setState(() => _isSubmitting = false);
+    }
+  }
+
   Widget _sectionContainer({required Widget child}) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
       child: child,
     );
   }
@@ -213,171 +209,233 @@ class _AddCompanyDetailsState extends State<AddCompanyDetails> {
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Text(
         title,
-        style: TextStyle(
-          fontSize: primary(),
-          fontWeight: FontWeight.bold,
-          color: AppColors.green,
-        ),
+        style: TextStyle(fontSize: primary(), fontWeight: FontWeight.bold, color: AppColors.green),
       ),
     );
   }
 
-  /// Label above and TextField with hint and gold focus border
-  Widget _textField(String label, String hint) {
+  Widget _textField(String label, TextEditingController ctrl, String hint) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: secondary(),
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(label, style: TextStyle(fontSize: secondary(), fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        TextField(
+          controller: ctrl,
+          decoration: InputDecoration(
+            hintText: hint,
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey),
+              borderRadius: BorderRadius.circular(8),
             ),
-          ),
-          const SizedBox(height: 4),
-          TextFormField(
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: TextStyle(fontSize: secondary()),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: AppColors.gold),
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.gold),
+              borderRadius: BorderRadius.circular(8),
             ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
           ),
-        ],
-      ),
+        ),
+      ]),
     );
   }
 
-  Widget _dropdownField(String label, List<String> items) {
+  Widget _dropdownField(String label, List<String> items, String? value, ValueChanged<String?> onChanged) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: secondary(),
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(label, style: TextStyle(fontSize: secondary(), fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        DropdownButtonFormField<String>(
+          value: value,
+          items: items
+              .map((e) => DropdownMenuItem(value: e, child: Text(e, style: TextStyle(fontSize: secondary()))))
+              .toList(),
+          onChanged: onChanged,
+          decoration: InputDecoration(
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey),
+              borderRadius: BorderRadius.circular(8),
             ),
-          ),
-          const SizedBox(height: 4),
-          DropdownButtonFormField<String>(
-            value: items.first,
-            items: items
-                .map((v) => DropdownMenuItem(
-              value: v,
-              child: Text(v, style: TextStyle(fontSize: secondary())),
-            ))
-                .toList(),
-            onChanged: (_) {},
-            decoration: InputDecoration(
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: AppColors.gold),
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.gold),
+              borderRadius: BorderRadius.circular(8),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _uploadButton(String label) {
-    return Center(
-      child: Padding(
-        padding:  EdgeInsets.only(bottom: 12.0),
-        child: ElevatedButton.icon(
-          onPressed: () {},
-          icon:  Icon(Icons.upload, size: 22,),
-          label: Text(label, style: TextStyle(fontSize: tertiary())),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.gold,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
           ),
         ),
-      ),
+      ]),
     );
   }
-
-
-  Widget _uploadIDButton(String label) {
-    return Center(
-      child: Padding(
-        padding:  EdgeInsets.only(bottom: 12.0),
-        child: ElevatedButton.icon(
-          onPressed: () {},
-          icon:  Icon(Icons.drive_folder_upload_rounded, size: 22,),
-          label: Text(label, style: TextStyle(fontSize: tertiary())),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.gold,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _uploadDocumentButton(String label) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 12.0),
-        child: ElevatedButton.icon(
-          onPressed: () {},
-          icon: const Icon(
-            Icons.upload_file_rounded,
-            size: 22,
-            color: Colors.black,
-          ),
-          label: Text(
-            label,
-            style: TextStyle(fontSize: tertiary()),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.grey,
-            foregroundColor: Colors.black,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(40),
-            ),
-            minimumSize:  Size(300, 48),
-          ),
-        ),
-      ),
-    );
-  }
-
 
   Widget _categoryCheckbox(String title) {
     return CheckboxListTile(
-      value: _selectedCategory == title,
+      value: _selectedCategories.contains(title),
       onChanged: (v) {
         setState(() {
-          _selectedCategory = v! ? title : null;
+          if (v == true) _selectedCategories.add(title);
+          else _selectedCategories.remove(title);
         });
       },
       activeColor: AppColors.gold,
       title: Text(title, style: TextStyle(fontSize: tertiary())),
       controlAffinity: ListTileControlAffinity.leading,
+    );
+  }
+
+  Widget _uploadButton(String label, VoidCallback onTap, {bool uploaded = false}) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 12.0),
+        child: ElevatedButton.icon(
+          onPressed: onTap,
+          icon: Icon(uploaded ? Icons.check_circle : Icons.upload, size: 22, color: Colors.white),
+          label: Text(uploaded ? 'Uploaded' : label, style: TextStyle(fontSize: tertiary(), color: Colors.white)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.gold,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _uploadDocumentButton(String label, VoidCallback onTap, {bool uploaded = false}) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 12.0),
+        child: ElevatedButton.icon(
+          onPressed: onTap,
+          icon: Icon(uploaded ? Icons.check_circle : Icons.upload_file_rounded,
+              size: 22, color: uploaded ? Colors.white : Colors.black),
+          label: Text(label,
+              style: TextStyle(fontSize: tertiary(), color: uploaded ? Colors.white : Colors.black)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: uploaded ? AppColors.gold : AppColors.grey,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+            minimumSize: const Size(300, 48),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.bgColor,
+      appBar: Commonappbar(title: 'View Company Details'),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          // Company Details
+          _sectionContainer(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            _sectionTitle('Company Details'),
+            _textField('Company Name', _companyNameCtrl, 'TechVision Solutions Ltd.'),
+            _textField('Registration Number', _regNumberCtrl, 'REG123456789'),
+            _textField('Year of Establishment', _yearCtrl, '2024'),
+            _dropdownField('Company Type', _companyTypes, _companyType, (v) => setState(() => _companyType = v)),
+          ])),
+
+          // GST Information
+          _sectionContainer(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            _sectionTitle('GST Information'),
+            _textField('GST Number', _gstNumberCtrl, '22AAAAA0000A1Z5'),
+            _sectionTitle('GST Certificate'),
+            _uploadButton(
+              'Upload Certificate',
+                  () => _pickAndSave('gst_certificate', (p) => setState(() => _gstCertificatePath = p)),
+              uploaded: _gstCertificatePath != null,
+            ),
+          ])),
+
+          // Address Information
+          _sectionContainer(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            _sectionTitle('Address Information'),
+            _textField('Street Address', _streetCtrl, '123 Innovation Park'),
+            Row(children: [
+              Expanded(child: _textField('City', _cityCtrl, 'Delhi')),
+              const SizedBox(width: 8),
+              Expanded(child: _textField('State', _stateCtrl, 'Delhi')),
+            ]),
+            Row(children: [
+              Expanded(child: _textField('Country', _countryCtrl, 'India')),
+              const SizedBox(width: 8),
+              Expanded(child: _textField('PIN Code', _pinCtrl, '110001')),
+            ]),
+          ])),
+
+          // Director Information
+          _sectionContainer(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            _sectionTitle('Director Information'),
+            Align(
+              alignment: Alignment.centerRight,
+              child: OutlinedButton(
+                onPressed: () {},
+                style: OutlinedButton.styleFrom(side: BorderSide(color: AppColors.gold)),
+                child: Text('+ Add Director', style: TextStyle(fontSize: tertiary())),
+              ),
+            ),
+            _textField('Director Name', _directorNameCtrl, 'Sarah Anderson'),
+            _textField('DIN Number', _dinCtrl, '00123456'),
+            _textField('Contact Email', _directorEmailCtrl, 'sarah.anderson@techvision.com'),
+            Text('ID Proof', style: TextStyle(fontWeight: FontWeight.bold, fontSize: secondary())),
+            _uploadButton(
+              'Upload ID Proof',
+                  () => _pickAndSave('id_proof', (p) => setState(() => _idProofPath = p)),
+              uploaded: _idProofPath != null,
+            ),
+          ])),
+
+          // Project Categories
+          _sectionContainer(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            _sectionTitle('Project Categories'),
+            ..._projectCategoriesList.map(_categoryCheckbox),
+          ])),
+
+          // Document Upload
+          _sectionContainer(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            _sectionTitle('Document Upload'),
+            Text('Company Registration', style: TextStyle(fontWeight: FontWeight.bold, fontSize: secondary())),
+            _uploadDocumentButton(
+              'Company Registration',
+                  () => _pickAndSave('company_registration_doc', (p) => setState(() => _companyRegDocPath = p)),
+              uploaded: _companyRegDocPath != null,
+            ),
+            Text('PAN Card', style: TextStyle(fontWeight: FontWeight.bold, fontSize: secondary())),
+            _uploadDocumentButton(
+              'PAN Card',
+                  () => _pickAndSave('pan_card', (p) => setState(() => _panCardPath = p)),
+              uploaded: _panCardPath != null,
+            ),
+            Text('Other Documents', style: TextStyle(fontWeight: FontWeight.bold, fontSize: secondary())),
+            _uploadDocumentButton(
+              'Other Documents',
+                  () => _pickAndSave('other_documents', (p) => setState(() => _otherDocsPath = p)),
+              uploaded: _otherDocsPath != null,
+            ),
+          ])),
+
+          const SizedBox(height: 20),
+          Center(
+            child: ElevatedButton(
+              onPressed: _isSubmitting ? null : _submitCompanyProfile,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.gold,
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+              ),
+              child: _isSubmitting
+                  ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+              )
+                  : Text('Submit Company Profile', style: TextStyle(fontSize: tertiary(), color: Colors.white)),
+            ),
+          ),
+          const SizedBox(height: 50),
+        ]),
+      ),
     );
   }
 }
