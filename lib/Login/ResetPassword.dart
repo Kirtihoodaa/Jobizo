@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:jobizo/Login/login.dart';
 import '../Design contraints/gradients.dart';
 
@@ -123,10 +126,9 @@ class _ResetPasswordState extends State<ResetPassword> {
               child: Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginPage()),
-                    );
+                    Get.to(() => const LoginPage(),
+                        transition: Transition.cupertino,
+                        duration: const Duration(milliseconds: 400));
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFFFAC015),

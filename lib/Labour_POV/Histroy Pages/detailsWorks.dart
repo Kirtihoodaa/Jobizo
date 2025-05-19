@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:jobizo/Design contraints/app color.dart';
 import 'package:jobizo/Design contraints/FontSizes.dart';
 import '../NavBar.dart';
@@ -20,7 +22,7 @@ class _WorkDetailsState extends State<WorkDetails> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: Get.back,
         ),
         centerTitle: true,
         title: Text(

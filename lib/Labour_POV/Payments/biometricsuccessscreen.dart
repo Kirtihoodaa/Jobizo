@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 
+import '../All_app_bars/normal_app_bar.dart';
+
 class BiometricSuccessScreen extends StatelessWidget {
   final String requestType; // e.g. "Advance" or "Salary"
 
@@ -11,25 +13,7 @@ class BiometricSuccessScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
-      appBar: AppBar(
-        backgroundColor: Colors.amber,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: Text(
-          'Request $requestType',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: secondary(),
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-      ),
+      appBar: CustomBackAppBar(title: 'Request $requestType'),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),

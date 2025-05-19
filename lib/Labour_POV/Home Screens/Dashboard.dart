@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 import 'package:jobizo/Labour_POV/Home%20Screens/upcoming.dart';
 import '../../Design contraints/FontSizes.dart';
@@ -27,8 +29,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
-      appBar: CustomAppBar(
-      ),
+      appBar: CustomAppBar(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(10),
         child: Column(
@@ -39,10 +40,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _buildEarnings(),
             GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => UpcomingAssignmentScreen()));
+                  Get.to(
+                    () => const UpcomingAssignmentScreen(),
+                    transition: Transition.cupertino,
+                    duration: const Duration(milliseconds: 400),
+                  );
                 },
                 child: _buildUpcomingAssignments()),
             _buildAttendanceOverview(),

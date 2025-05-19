@@ -7,6 +7,7 @@ import 'package:jobizo/hamburgerCustomer/CustomMenuCustomer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Design contraints/FontSizes.dart';
+import '../../Design contraints/app color.dart';
 import '../../Labour_POV/CustomMenu.dart';
 
 class Customerappbar extends StatefulWidget implements PreferredSizeWidget {
@@ -27,6 +28,7 @@ class Customerappbar extends StatefulWidget implements PreferredSizeWidget {
   @override
   State<Customerappbar> createState() => CustomerappbarState();
 }
+
 class CustomerappbarState extends State<Customerappbar> {
   String name = "Loading...";
   String location = "Please wait...";
@@ -37,22 +39,24 @@ class CustomerappbarState extends State<Customerappbar> {
     super.initState();
     _loadProfileData();
   }
+
   Future<void> _loadProfileData() async {
     final prefs = await SharedPreferences.getInstance();
     final savedName = prefs.getString('user_name');
     final savedLocation = prefs.getString('user_location');
     final savedImage = prefs.getString('user_profile_image');
 
-    if (savedName != null && savedLocation != null&& savedImage!= null) {
+    if (savedName != null && savedLocation != null && savedImage != null) {
       setState(() {
         name = savedName;
         location = savedLocation;
         profileImage = savedImage;
       });
-    } else {
-      await _fetchAndStoreProfile();
+    } if (savedImage == null || savedImage.isEmpty) {
+      await _fetchAndStoreProfile(); // fetch only if image is missing
     }
   }
+
   Future<void> _fetchAndStoreProfile() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -66,23 +70,23 @@ class CustomerappbarState extends State<Customerappbar> {
       Dio dio = Dio();
       dio.options.headers["Authorization"] = "Bearer $token";
 
-      final response = await dio.get("https://backend.jobizoindia.com/api/profile");
+      final response =
+          await dio.get("https://backend.jobizoindia.com/api/profile");
 
       if (response.statusCode == 200) {
         final user = response.data['user'];
         final userName = user['name'] ?? "No Name";
         final userLocation = user['address'] ?? "No Location";
-        final imagePath = user['image'] ?? " ";
+        final imagePath = user['image'] ?? "";
 
         await prefs.setString('user_name', userName);
         await prefs.setString('user_location', userLocation);
         await prefs.setString('user_profile_image', imagePath);
 
-
         setState(() {
           name = userName;
           location = userLocation;
-          profileImage= imagePath;
+          profileImage = imagePath;
         });
       } else {
         print("Failed to fetch profile");
@@ -91,9 +95,11 @@ class CustomerappbarState extends State<Customerappbar> {
       print("Error fetching profile: $e");
     }
   }
+
   void refreshUserInfo() {
     _fetchAndStoreProfile();
   }
+
   @override
   Widget build(BuildContext context) {
     return AppBar(
@@ -111,20 +117,27 @@ class CustomerappbarState extends State<Customerappbar> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.menu, color: Colors.white),
-                  onPressed: widget.onMenuTap ?? () {CustomMenuCustomer.show(context);},
+                  onPressed: widget.onMenuTap ??
+                      () {
+                        CustomMenuCustomer.show(context);
+                      },
                 ),
                 GestureDetector(
-                  onTap: widget.onProfileTap,
-                  child: CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Colors.white,
-                    backgroundImage: profileImage.isNotEmpty
-                        ? NetworkImage("https://backend.jobizoindia.com/storage/$profileImage")
-                        : const AssetImage('Assets/Labour_image/user profile.png') as ImageProvider,
-                    onBackgroundImageError: (_, __) =>
-                    const Icon(Icons.error, color: Colors.red),
-                  ),
-                ),
+                    onTap: widget.onProfileTap,
+                    child: CircleAvatar(
+                      radius: 21,
+                      backgroundColor: Colors.white,
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundColor: AppColors.gold,
+                        backgroundImage: (profileImage.isNotEmpty)
+                            ? NetworkImage("https://backend.jobizoindia.com/storage/${profileImage.trim()}")
+                            : null,
+                        child: (profileImage.isEmpty)
+                            ? const Icon(Icons.person, size: 35, color: Colors.white)
+                            : null,
+                      ),
+                    )),
                 const SizedBox(width: 5),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,7 +152,7 @@ class CustomerappbarState extends State<Customerappbar> {
                     Text(
                       location,
                       style:
-                      TextStyle(color: Colors.white, fontSize: secondary()),
+                          TextStyle(color: Colors.white, fontSize: secondary()),
                     ),
                   ],
                 ),
@@ -151,23 +164,15 @@ class CustomerappbarState extends State<Customerappbar> {
               children: [
                 GestureDetector(
                   onTap: widget.onNotificationTap,
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.white,
-                        child: CircleAvatar(
-                          radius: 18,
+                  child:  CircleAvatar(
+                          radius: 20,
                           backgroundColor: const Color(0xFFFAC015),
                           child: Image.asset(
                             "Assets/Labour_image/notification icon.png",
                             height: 25,
                           ),
                         ),
-                      ),
-                    ],
                   ),
-                ),
                 const SizedBox(width: 8),
                 GestureDetector(
                   onTap: widget.onProfileTap,

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import '../../Design contraints/FontSizes.dart';
 import '../../Design contraints/app color.dart';
 import '../All_app_bars/app_bar.dart';
@@ -13,44 +15,41 @@ class HistoryPage extends StatefulWidget {
 }
 
 class _HistoryPageState extends State<HistoryPage> {
-
   int _selectedFilter = 0;
 
   final List<Map<String, String>> _filters = [
-    {'label': 'All Jobs','count': '24'},
+    {'label': 'All Jobs', 'count': '24'},
     {'label': 'Ongoing', 'count': '8'},
-    {'label': 'Completed','count': '12'},
-    {'label': 'Cancelled','count': '4'},
+    {'label': 'Completed', 'count': '12'},
+    {'label': 'Cancelled', 'count': '4'},
   ];
 
   final List<Map<String, String>> _apps = [
     {
-      'name':       'Sarah Martinez',
-      'role':       'Electrician',
-      'company':    'RAA Construction Co.',
-      'location':   'Boston, MA',
-      'startDate':  '15-04-2025',
-      'duration':   '3 Months',
-      'status':     'Pending',
+      'name': 'Sarah Martinez',
+      'role': 'Electrician',
+      'company': 'RAA Construction Co.',
+      'location': 'Boston, MA',
+      'startDate': '15-04-2025',
+      'duration': '3 Months',
+      'status': 'Pending',
     },
     {
-      'name':       'Sarah Martinez',
-      'role':       'Electrician',
-      'company':    'VIP Construction Co.',
-      'location':   'Boston, MA',
-      'startDate':  '15-04-2025',
-      'duration':   '3 Months',
-      'status':     'Accepted',
+      'name': 'Sarah Martinez',
+      'role': 'Electrician',
+      'company': 'VIP Construction Co.',
+      'location': 'Boston, MA',
+      'startDate': '15-04-2025',
+      'duration': '3 Months',
+      'status': 'Accepted',
     },
-
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
-      appBar: CustomAppBar(
-      ),
+      appBar: CustomAppBar(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -130,8 +129,8 @@ class _HistoryPageState extends State<HistoryPage> {
                 final statusColor = status == 'Pending'
                     ? AppColors.gold
                     : status == 'Accepted'
-                    ? Colors.lightGreen[700]
-                    : Colors.brown;
+                        ? Colors.lightGreen[700]
+                        : Colors.brown;
                 return Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -165,8 +164,7 @@ class _HistoryPageState extends State<HistoryPage> {
                                   style: TextStyle(
                                       fontSize: secondary(),
                                       fontWeight: FontWeight.w600,
-                                      color:AppColors.green
-                                  ),
+                                      color: AppColors.green),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
@@ -206,8 +204,7 @@ class _HistoryPageState extends State<HistoryPage> {
                         style: TextStyle(
                             fontSize: secondary(),
                             fontWeight: FontWeight.w600,
-                            color:AppColors.green
-                        ),
+                            color: AppColors.green),
                       ),
 
                       const SizedBox(height: 8),
@@ -259,8 +256,9 @@ class _HistoryPageState extends State<HistoryPage> {
                             elevation: 0,
                           ),
                           onPressed: () {
-                           Navigator.push(context,
-                           MaterialPageRoute(builder: (context)=> WorkDetails()));
+                            Get.to(() => WorkDetails(),
+                                transition: Transition.cupertino,
+                                duration: const Duration(milliseconds: 400));
                           },
                           child: Text(
                             'View Details',

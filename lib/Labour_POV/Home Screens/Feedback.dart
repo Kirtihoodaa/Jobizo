@@ -152,8 +152,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: isSelected ? Colors.black : AppColors.gold,
-                          width: isSelected ? 2.5 : 1,
+                          color: isSelected ? AppColors.gold : AppColors.green,
+                          width: isSelected ? 3 : 2,
                         ),
                       ),
                       child: Column(

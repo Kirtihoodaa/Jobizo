@@ -1,6 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -42,12 +45,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     final role = widget.selectedRole?.toString().toLowerCase();
 
     // ✅ Field validation
-    if (name.isEmpty ||
-        mobile.isEmpty ||
-        email.isEmpty ||
-        role == null) {
-      SnackbarHelper.showWarning(
-          context, "All fields are required.");
+    if (name.isEmpty || mobile.isEmpty || email.isEmpty || role == null) {
+      SnackbarHelper.showWarning(context, "All fields are required.");
       return;
     }
 
@@ -58,8 +57,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     }
 
     if (!email.contains("@") || !email.contains(".")) {
-      SnackbarHelper.showWarning(
-          context, "Enter a valid email address.");
+      SnackbarHelper.showWarning(context, "Enter a valid email address.");
       return;
     }
 
@@ -79,12 +77,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('auth_token', response.data['token']);
         SnackbarHelper.showSuccess(context, "Registration Successful");
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => SucessRegister(role: role ?? "unknown"),
-          ),
-        );
+        Get.to(() => SucessRegister(role: role ?? "unknown"),
+            transition: Transition.cupertino,
+            duration: const Duration(milliseconds: 400));
       } else {
         SnackbarHelper.showError(
             context, response.data['message'] ?? 'Registration failed');
@@ -240,10 +235,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton.icon(
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => RoleScreen()),
-                      ),
+                      onPressed: () => Get.to(() => const RoleScreen(),
+                          transition: Transition.cupertino,
+                          duration: const Duration(milliseconds: 400)),
                       icon: const Icon(Icons.arrow_back, color: Colors.white),
                       label: const Text(
                         "Back",

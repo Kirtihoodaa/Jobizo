@@ -1,13 +1,15 @@
 import 'dart:io';
 
-import 'package:dio/dio.dart';
+import 'package:dio/dio.dart'as dio;
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:jobizo/Design%20contraints/app%20color.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Design contraints/FontSizes.dart';
+import '../../Design contraints/app color.dart';
+import '../../SnackBar/Snackbar.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({Key? key}) : super(key: key);
@@ -17,10 +19,13 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
+  final _formKey = GlobalKey<FormState>();
+
   bool isLoading = true;
   String? profileImagePath;
   XFile? pickedImage;
   final ImagePicker _picker = ImagePicker();
+
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
@@ -31,19 +36,29 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController experienceController = TextEditingController();
 
   DateTime? selectedDate;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProfileData();
+  }
+
   Future<void> updateProfile() async {
+    if (!_formKey.currentState!.validate()) return;
+
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
+
       if (token == null) {
-        print("⚠️ Token not found");
+        SnackbarHelper.showError(context, "Authentication token not found.");
         return;
       }
 
-      Dio dio = Dio();
-      dio.options.headers["Authorization"] = "Bearer $token";
+      dio.Dio dioClient = dio.Dio();
+      dioClient.options.headers["Authorization"] = "Bearer $token";
 
-      final formData = FormData.fromMap({
+      final formData = dio.FormData.fromMap({
         "name": nameController.text.trim(),
         "email": emailController.text.trim(),
         "phone": phoneController.text.trim(),
@@ -53,70 +68,67 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         "experience": experienceController.text.trim(),
         "skills": skillsController.text.trim(),
         if (pickedImage != null)
-          "image": await MultipartFile.fromFile(
+          "image": await dio.MultipartFile.fromFile(
             pickedImage!.path,
             filename: pickedImage!.name,
           ),
       });
 
-      final response = await dio.post(
+      final response = await dioClient.post(
         'https://backend.jobizoindia.com/api/profile',
         data: formData,
       );
 
-      if (response.statusCode == 200) {
-        print("✅ Profile updated successfully: ${response.data}");
-        Navigator.pop(context, 'refresh');
+      if (response.statusCode == 200 && response.data['status'] == true) {
+        SnackbarHelper.showSuccess(context, "Profile updated successfully.");
+        fetchProfileData();
+        Get.back(result: 'refresh');
       } else {
-        print("❌ Failed to update: ${response.statusCode}");
+        final errorMsg = response.data['message'] ?? "Failed to update profile.";
+        SnackbarHelper.showError(context, errorMsg);
       }
+    } on dio.DioException catch (dioError) {
+      final message = dioError.response?.data['message'] ?? "Network error occurred.";
+      SnackbarHelper.showError(context, "Error: $message");
     } catch (e) {
-      print("❌ Error: $e");
+      SnackbarHelper.showError(context, "Something went wrong. Please try again.");
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    fetchProfileData();
   }
 
   Future<void> fetchProfileData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
-      profileImagePath = prefs.getString('user_profile_image'); // ✅ Assign to class variable
-      if (token == null) {
-        print("❌ No token found");
-        return;
-      }
+      profileImagePath = prefs.getString('user_profile_image');
 
-      final dio = Dio();
-      dio.options.headers["Authorization"] = "Bearer $token";
+      if (token == null) return;
 
-      final response =
-          await dio.get('https://backend.jobizoindia.com/api/profile');
+      final dioClient = dio.Dio();
+      dioClient.options.headers["Authorization"] = "Bearer $token";
 
-      print("Full response: ${response.data}");
+      final response = await dioClient.get('https://backend.jobizoindia.com/api/profile');
 
       final user = response.data['user'];
-      if (user == null || user['email'] == null) {
-        print("❌ 'email' is missing in response");
-        return;
-      }
+      if (user == null || user['email'] == null) return;
 
       setState(() {
-        emailController.text = user['email'];
+        emailController.text = user['email'] ?? '';
+        nameController.text = user['name'] ?? '';
+        phoneController.text = user['phone'] ?? '';
+        dobController.text = user['dob'] ?? '';
+        bioController.text = user['bio'] ?? '';
+        locationController.text = user['address'] ?? '';
+        skillsController.text = user['skills'] ?? '';
+        experienceController.text = user['experience'] ?? '';
         isLoading = false;
       });
     } catch (e) {
-      print("❌ Exception: $e");
       setState(() => isLoading = false);
     }
   }
 
   Future<void> pickDate() async {
-    DateTime initialDate = selectedDate ?? DateTime(1990, 1, 15);
+    DateTime initialDate = selectedDate ?? DateTime(2000, 1, 01);
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -127,14 +139,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           data: Theme.of(context).copyWith(
             dialogBackgroundColor: Colors.white,
             colorScheme: ColorScheme.light(
-              primary: const Color(0xFFFAC015), // Your accent color
-              onPrimary: Colors.white, // Text color on header
-              onSurface: Colors.black, // Text color
+              primary: const Color(0xFFFAC015),
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
             ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFFFAC015), // Button text color
-              ),
+              style: TextButton.styleFrom(foregroundColor: const Color(0xFFFAC015)),
             ),
           ),
           child: child!,
@@ -159,7 +169,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         centerTitle: true,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Get.back(),
         ),
         title: Text(
           'Edit Profile',
@@ -173,9 +183,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 10),
             child: TextButton(
-              onPressed: () {
-                updateProfile();
-              },
+              onPressed: updateProfile,
               style: TextButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: const Color(0xFFFAC015),
@@ -195,84 +203,81 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           )
         ],
       ),
-      body: SingleChildScrollView(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator(color: AppColors.gold,))
+          : SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Stack(
-                alignment: Alignment.bottomRight,
-                children: [
-                  Material(
-                    elevation: 10,
-                    shape: const CircleBorder(),
-                    shadowColor: Colors.grey,
-                    child: CircleAvatar(
-                      radius: 50,
-                      backgroundColor: AppColors.gold,
-                      backgroundImage: pickedImage != null
-                          ? FileImage(File(pickedImage!.path))
-                          : (profileImagePath != null && profileImagePath!.isNotEmpty)
-                          ? NetworkImage("https://backend.jobizoindia.com/storage/$profileImagePath")
-                          : null,
-                      child: (pickedImage == null && (profileImagePath == null || profileImagePath!.isEmpty))
-                          ? const Icon(Icons.person, size: 60, color: Colors.white)
-                          : null,
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 4,
-                    child: GestureDetector(
-                      onTap: () async {
-                        final XFile? image = await _picker.pickImage(
-                            source: ImageSource.gallery);
-                        if (image != null) {
-                          setState(() {
-                            pickedImage =
-                                image; // store in your global variable
-                          });
-                        }
-                      },
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    Material(
+                      elevation: 10,
+                      shape: const CircleBorder(),
+                      shadowColor: Colors.grey,
                       child: CircleAvatar(
-                        backgroundColor: const Color(0xFFFAC015),
-                        radius: 16,
-                        child: const Icon(Icons.camera_alt,
-                            size: 20, color: Colors.white),
+                        radius: 50,
+                        backgroundColor: AppColors.gold,
+                        backgroundImage: pickedImage != null
+                            ? FileImage(File(pickedImage!.path))
+                            : (profileImagePath != null && profileImagePath!.isNotEmpty)
+                            ? NetworkImage("https://backend.jobizoindia.com/storage/$profileImagePath")
+                            : null,
+                        child: (pickedImage == null && (profileImagePath == null || profileImagePath!.isEmpty))
+                            ? const Icon(Icons.person, size: 60, color: Colors.white)
+                            : null,
                       ),
                     ),
-                  ),
-                ],
+                    Positioned(
+                      bottom: 0,
+                      right: 4,
+                      child: GestureDetector(
+                        onTap: () async {
+                          final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+                          if (image != null) {
+                            setState(() {
+                              pickedImage = image;
+                            });
+                          }
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: const Color(0xFFFAC015),
+                          radius: 16,
+                          child: const Icon(Icons.camera_alt, size: 20, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-            buildTextField('Full Name', nameController,
-                hint: 'Enter your full name'),
-            buildTextField('Email', emailController, readOnly: true),
-            buildTextField('Phone Number', phoneController,
-                hint: 'Enter your phone number'),
-            buildDatePickerField('Date of Birth', dobController, pickDate),
-            buildTextField('Bio', bioController,
-                maxLines: 3, hint: 'Enter your bio'),
-            buildTextField('Location', locationController,
-                hint: 'Enter your location'),
-            buildTextField('Skills', skillsController, hint: 'eg. Plumber'),
-            buildTextField('Experience', experienceController,
-                hint: 'eg. 4 Yrs'),
-          ],
+              const SizedBox(height: 24),
+              buildTextField('Full Name', nameController, hint: 'Enter your full name'),
+              buildTextField('Email', emailController, readOnly: true),
+              buildTextField('Phone Number', phoneController, hint: 'Enter your phone number'),
+              buildDatePickerField('Date of Birth', dobController, pickDate),
+              buildTextField('Bio', bioController, maxLines: 3, hint: 'Enter your bio'),
+              buildTextField('Location', locationController, hint: 'Enter your location'),
+              buildTextField('Skills', skillsController, hint: 'eg. Plumber'),
+              buildTextField('Experience', experienceController, hint: 'eg. 4 Yrs'),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget buildTextField(
-    String label,
-    TextEditingController controller, {
-    int maxLines = 1,
-    String? hint,
-    bool readOnly = false,
-  }) {
+      String label,
+      TextEditingController controller, {
+        int maxLines = 1,
+        String? hint,
+        bool readOnly = false,
+      }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -287,10 +292,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
           const SizedBox(height: 6),
-          TextField(
+          TextFormField(
             controller: controller,
             maxLines: maxLines,
             readOnly: readOnly,
+            validator: (value) {
+              if (!readOnly && (value == null || value.trim().isEmpty)) {
+                return "This field is required";
+              }
+              return null;
+            },
             decoration: InputDecoration(
               hintText: hint ?? '',
               contentPadding: const EdgeInsets.all(12),
@@ -308,6 +319,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   width: 2,
                 ),
               ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.red.shade600, width: 1.5),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.red.shade600, width: 2),
+              ),
             ),
           ),
         ],
@@ -316,10 +335,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget buildDatePickerField(
-    String label,
-    TextEditingController controller,
-    VoidCallback onTap,
-  ) {
+      String label,
+      TextEditingController controller,
+      VoidCallback onTap,
+      ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -334,26 +353,34 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
           const SizedBox(height: 6),
-          TextField(
+          TextFormField(
             controller: controller,
             readOnly: true,
             onTap: onTap,
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return "Please select your date of birth";
+              }
+              return null;
+            },
             decoration: InputDecoration(
               suffixIcon: const Icon(Icons.calendar_today),
               contentPadding: const EdgeInsets.all(12),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: Colors.grey.shade400,
-                  width: 1,
-                ),
+                borderSide: BorderSide(color: Colors.grey.shade400, width: 1),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(
-                  color: Color(0xFFFAC015),
-                  width: 2,
-                ),
+                borderSide: const BorderSide(color: Color(0xFFFAC015), width: 2),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.red.shade600, width: 1.5),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.red.shade600, width: 2),
               ),
             ),
           ),

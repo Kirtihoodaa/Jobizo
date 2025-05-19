@@ -1,5 +1,7 @@
 // CustomMenu.dart
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:jobizo/Labour_POV/Home%20Screens/Feedback.dart';
 import 'package:jobizo/Labour_POV/Home%20Screens/HelpandSupport.dart';
 import 'package:jobizo/Labour_POV/Profle%20pages/MyProfile.dart';
@@ -146,14 +148,8 @@ class CustomMenuCustomer {
                     color: AppColors.brown,
                     child: TextButton.icon(
                       onPressed: () {
-                        showLogoutDialog(context, () {
-                          // Place your logout logic here
-                          // For example:
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (context) => LoginPage()),
-                                (route) => false,
-                          );
+                        showLogoutDialog(() {
+                          Get.offAll(() => const LoginPage()); // Clear navigation stack and go to login
                         });
                       },
                       icon: Icon(Icons.logout, color: Colors.white),

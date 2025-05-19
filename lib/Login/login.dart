@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 import '../Design contraints/gradients.dart';
@@ -37,8 +39,7 @@ class _LoginPageState extends State<LoginPage> {
     final password = passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
-      SnackbarHelper.showWarning(
-          context, "Please enter Email and Password");
+      SnackbarHelper.showWarning(context, "Please enter Email and Password");
       return;
     }
 
@@ -63,22 +64,18 @@ class _LoginPageState extends State<LoginPage> {
 // Save user role
         if (roles.contains('labour')) {
           await prefs.setString('userRole', 'labour');
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const Homepage()),
-          );
+          Get.to(() => const Homepage(),
+              transition: Transition.cupertino,
+              duration: const Duration(milliseconds: 400));
         } else if (roles.contains('customer')) {
           await prefs.setString('userRole', 'customer');
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const Homepagess()),
-          );
+          Get.to(() => const Homepagess(),
+              transition: Transition.cupertino,
+              duration: const Duration(milliseconds: 400));
         } else {
           // fallback or admin
           await prefs.setString('userRole', 'unknown');
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Unknown role.')),
-          );
+          SnackbarHelper.showError(context, "Unknown user role");
         }
       } else {
         SnackbarHelper.showError(
@@ -224,7 +221,8 @@ class _LoginPageState extends State<LoginPage> {
                               _buildInputFields(),
                               SizedBox(height: 15.h),
                               _isLoading
-                                  ? const CircularProgressIndicator(color: AppColors.green)
+                                  ? const CircularProgressIndicator(
+                                      color: AppColors.green)
                                   : ElevatedButton.icon(
                                       onPressed: _login,
                                       icon: const Icon(Icons.login,
@@ -248,11 +246,11 @@ class _LoginPageState extends State<LoginPage> {
                                       ),
                                     ),
                               TextButton(
-                                onPressed: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) => const Forgotpassword()),
-                                ),
+                                onPressed: () => Get.to(
+                                    () => const Forgotpassword(),
+                                    transition: Transition.cupertino,
+                                    duration:
+                                        const Duration(milliseconds: 400)),
                                 child: Text(
                                   "Forgot Password?",
                                   style: TextStyle(
@@ -267,11 +265,10 @@ class _LoginPageState extends State<LoginPage> {
                                 style: TextStyle(color: Colors.white),
                               ),
                               TextButton(
-                                onPressed: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) => const SplashScreen2()),
-                                ),
+                                onPressed: () => Get.to(() => SplashScreen2(),
+                                    transition: Transition.cupertino,
+                                    duration:
+                                        const Duration(milliseconds: 400)),
                                 child: const Text(
                                   "Register Here",
                                   style: TextStyle(

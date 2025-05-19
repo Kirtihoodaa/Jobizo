@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:jobizo/SnackBar/Snackbar.dart';
 import '../Customer_POV/HomePages/HomePagess.dart';
 import '../Customer_POV/SettingsPages/CustomerProfile.dart';
 import '../Design contraints/gradients.dart';
@@ -22,16 +25,11 @@ class _SucessRegisterState extends State<SucessRegister> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        showLogoutDialog(context, () {
-          // ✅ Perform your logout action here, for example:
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => LoginPage()),
-            (route) => false,
-          );
+        showLogoutDialog(() {
+          Get.offAll(() => const LoginPage()); // ✅ Logout and clear navigation
         });
 
-        return false; // Prevent the default back navigation
+        return false; // 🚫 Prevent back navigation
       },
       child: Scaffold(
         body: Stack(
@@ -103,19 +101,18 @@ class _SucessRegisterState extends State<SucessRegister> {
                                     ElevatedButton(
                                       onPressed: () {
                                         if (widget.role == 'labour') {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(builder: (context) => EditProfileScreen()),
-                                          );
+                                          Get.to(() => EditProfileScreen(),
+                                              transition: Transition.cupertino,
+                                              duration: const Duration(
+                                                  milliseconds: 400));
                                         } else if (widget.role == 'customer') {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(builder: (context) => Customerprofile()),
-                                          );
+                                          Get.to(() => Customerprofile(),
+                                              transition: Transition.cupertino,
+                                              duration: const Duration(
+                                                  milliseconds: 400));
                                         } else {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text("Unknown role: ${widget.role}")),
-                                          );
+                                          SnackbarHelper.showWarning(context,
+                                              "Unknown role: ${widget.role}");
                                         }
                                       },
                                       style: ElevatedButton.styleFrom(
@@ -159,19 +156,17 @@ class _SucessRegisterState extends State<SucessRegister> {
                       ElevatedButton.icon(
                         onPressed: () {
                           if (widget.role == 'labour') {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => Homepage()),
-                            );
+                            Get.to(() => Homepage(),
+                                transition: Transition.cupertino,
+                                duration: const Duration(milliseconds: 400));
+
                           } else if (widget.role == 'customer') {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => Homepagess()),
-                            );
+                            Get.to(() => Homepagess(),
+                                transition: Transition.cupertino,
+                                duration: const Duration(milliseconds: 400));
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Unknown role: ${widget.role}")),
-                            );
+                            SnackbarHelper.showWarning(context,
+                                "Unknown role: ${widget.role}");
                           }
                         },
                         label: const Text(

@@ -64,7 +64,7 @@ class _AllSitesScreenState extends State<AllSitesScreen> {
       backgroundColor: AppColors.bgColor,
       appBar: Commonappbar(title: 'All Sites'),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator( color:AppColors.green))
+          ? const Center(child: CircularProgressIndicator( color:AppColors.gold))
           : (_error != null)
           ? Center(child: Text(_error!))
           : SingleChildScrollView(

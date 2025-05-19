@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../Design contraints/app color.dart';
 import '../../Design contraints/FontSizes.dart';
@@ -31,6 +33,7 @@ class _SettingsPageState extends State<SettingsPage> {
     super.initState();
     fetchProfileData(); // ✅ This was missing
   }
+
   Future<void> fetchProfileData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -77,11 +80,15 @@ class _SettingsPageState extends State<SettingsPage> {
                   CircleAvatar(
                     radius: 40,
                     backgroundColor: AppColors.gold,
-                    backgroundImage: userData?['image'] != null && userData!['image'].toString().isNotEmpty
-                        ? NetworkImage("https://backend.jobizoindia.com/storage/${userData!['image']}")
+                    backgroundImage: userData?['image'] != null &&
+                            userData!['image'].toString().isNotEmpty
+                        ? NetworkImage(
+                            "https://backend.jobizoindia.com/storage/${userData!['image']}")
                         : null,
-                    child: userData?['image'] == null || userData!['image'].toString().isEmpty
-                        ? const Icon(Icons.person, size: 60, color: Colors.white)
+                    child: userData?['image'] == null ||
+                            userData!['image'].toString().isEmpty
+                        ? const Icon(Icons.person,
+                            size: 60, color: Colors.white)
                         : null,
                   ),
                   const SizedBox(width: 16),
@@ -118,15 +125,15 @@ class _SettingsPageState extends State<SettingsPage> {
                       elevation: 0,
                     ),
                     onPressed: () async {
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const EditProfileScreen()),
+                      final result = await Get.to(
+                        () => const EditProfileScreen(),
+                        transition: Transition.cupertino,
+                        duration: const Duration(milliseconds: 400),
                       );
 
                       if (result == 'refresh') {
                         appBarKey.currentState
-                            ?.refreshUserInfo(); // ✅ Now it will work
+                            ?.refreshUserInfo(); // ✅ Refresh logic
                       }
                     },
                     child: Text(
@@ -163,8 +170,11 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               trailing: Icon(Icons.chevron_right),
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => MyProfilePage()));
+                Get.to(
+                  () => MyProfilePage(),
+                  transition: Transition.cupertino,
+                  duration: const Duration(milliseconds: 400),
+                );
               },
             ),
             Divider(),
@@ -211,8 +221,11 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               trailing: Icon(Icons.chevron_right),
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Changepassword()));
+                Get.to(
+                  () => Changepassword(),
+                  transition: Transition.cupertino,
+                  duration: const Duration(milliseconds: 400),
+                );
               },
             ),
             Divider(),
@@ -302,15 +315,8 @@ class _SettingsPageState extends State<SettingsPage> {
                             borderRadius: BorderRadius.circular(20),
                           )),
                       onPressed: () {
-                        showLogoutDialog(context, () {
-                          // Place your logout logic here
-                          // For example:
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LoginPage()),
-                            (route) => false,
-                          );
+                        showLogoutDialog(() {
+                          Get.offAll(() => const LoginPage()); // Clear stack & go to login
                         });
                       },
                       child: Text(
@@ -330,10 +336,11 @@ class _SettingsPageState extends State<SettingsPage> {
                             borderRadius: BorderRadius.circular(20),
                           )),
                       onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => DeleteAccount()));
+                        Get.to(
+                              () => DeleteAccount(),
+                          transition: Transition.cupertino,
+                          duration: const Duration(milliseconds: 400),
+                        );
                       },
                       child: Text(
                         "Delete Account",

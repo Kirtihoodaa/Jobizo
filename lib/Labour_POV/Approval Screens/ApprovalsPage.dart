@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:jobizo/Design contraints/app color.dart';
 import 'package:jobizo/Design contraints/FontSizes.dart';
 import 'package:jobizo/Labour_POV/Approval%20Screens/before_accept_job.dart';
@@ -255,10 +258,11 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
                             elevation: 0,
                           ),
                           onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => BeforeAcceptJob()));
+                            Get.to(
+                              () => BeforeAcceptJob(),
+                              transition: Transition.cupertino,
+                              duration: const Duration(milliseconds: 400),
+                            );
                           },
                           child: Text(
                             'View Details',

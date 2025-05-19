@@ -100,7 +100,7 @@ class _SitedetailsState extends State<Sitedetails> {
       return Scaffold(
         backgroundColor: AppColors.bgColor,
         appBar: Commonappbar(title: 'Site Details'),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const Center(child: CircularProgressIndicator(color: AppColors.gold,)),
       );
     }
 

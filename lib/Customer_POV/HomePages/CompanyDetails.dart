@@ -119,7 +119,7 @@ class _CompanydetailsState extends State<Companydetails> {
       return Scaffold(
         backgroundColor: AppColors.bgColor,
         appBar: Commonappbar(title: 'Company Details'),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const Center(child: CircularProgressIndicator(color: AppColors.gold,)),
       );
     }
 

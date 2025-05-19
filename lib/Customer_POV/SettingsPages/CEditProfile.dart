@@ -21,18 +21,18 @@ class _CeditprofileState extends State<Ceditprofile> {
   XFile? pickedImage;
   final ImagePicker _picker = ImagePicker();
 
-  final _nameCtrl     = TextEditingController();
-  final _emailCtrl    = TextEditingController();
-  final _phoneCtrl    = TextEditingController();
-  final _dobCtrl      = TextEditingController();
+  final _nameCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
+  final _dobCtrl = TextEditingController();
   final _locationCtrl = TextEditingController();
   @override
   void initState() {
     super.initState();
     _loadCachedProfileImage();
     fetchProfileData();
-
   }
+
   void _loadCachedProfileImage() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -53,7 +53,7 @@ class _CeditprofileState extends State<Ceditprofile> {
       dio.options.headers["Authorization"] = "Bearer $token";
 
       final response =
-      await dio.get('https://backend.jobizoindia.com/api/profile');
+          await dio.get('https://backend.jobizoindia.com/api/profile');
 
       print("Full response: ${response.data}");
 
@@ -65,6 +65,10 @@ class _CeditprofileState extends State<Ceditprofile> {
 
       setState(() {
         _emailCtrl.text = user['email'];
+        _nameCtrl.text = user['name'] ?? '';
+        _phoneCtrl.text = user['phone'] ?? '';
+        _dobCtrl.text = user['dob'] ?? '';
+        _locationCtrl.text = user['address'] ?? '';
         isLoading = false;
       });
     } catch (e) {
@@ -72,6 +76,7 @@ class _CeditprofileState extends State<Ceditprofile> {
       setState(() => isLoading = false);
     }
   }
+
   Future<void> _updateProfile() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -109,7 +114,8 @@ class _CeditprofileState extends State<Ceditprofile> {
           // ✅ Save updated values to SharedPreferences
           await prefs.setString('user_name', updatedData['name'] ?? '');
           await prefs.setString('user_location', updatedData['address'] ?? '');
-          await prefs.setString('user_profile_image', updatedData['image'] ?? '');
+          await prefs.setString(
+              'user_profile_image', updatedData['image'] ?? '');
 
           print("✅ Profile updated successfully: $updatedData");
           if (!mounted) return;
@@ -135,20 +141,21 @@ class _CeditprofileState extends State<Ceditprofile> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Something went wrong. Please try again.")),
+        const SnackBar(
+            content: Text("Something went wrong. Please try again.")),
       );
     }
   }
 
-  @override
-  void dispose() {
-    _nameCtrl.dispose();
-    _emailCtrl.dispose();
-    _phoneCtrl.dispose();
-    _dobCtrl.dispose();
-    _locationCtrl.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _nameCtrl.dispose();
+  //   _emailCtrl.dispose();
+  //   _phoneCtrl.dispose();
+  //   _dobCtrl.dispose();
+  //   _locationCtrl.dispose();
+  //   super.dispose();
+  // }
 
   Future<void> _pickDate() async {
     DateTime initialDate;
@@ -277,9 +284,15 @@ class _CeditprofileState extends State<Ceditprofile> {
                       child: CircleAvatar(
                         radius: 50,
                         backgroundColor: AppColors.gold,
-                        backgroundImage: cachedProfileImage != null && cachedProfileImage!.isNotEmpty
-                            ? NetworkImage("https://backend.jobizoindia.com/storage/$cachedProfileImage")
-                            : const AssetImage('Assets/Labour_image/user profile.png') as ImageProvider,
+                        backgroundImage: (cachedProfileImage != null &&
+                                cachedProfileImage!.trim().isNotEmpty)
+                            ? NetworkImage(
+                                "https://backend.jobizoindia.com/storage/${cachedProfileImage!.trim()}")
+                            : null, // No image if invalid
+                        child: (cachedProfileImage == null ||
+                                cachedProfileImage!.trim().isEmpty)
+                            ? Icon(Icons.person, size: 70, color: Colors.white)
+                            : null,
                       ),
                     ),
                     Positioned(
@@ -302,7 +315,6 @@ class _CeditprofileState extends State<Ceditprofile> {
                           child: const Icon(Icons.camera_alt,
                               color: Colors.white, size: 20),
                         ),
-
                       ),
                     ),
                   ],
@@ -316,10 +328,8 @@ class _CeditprofileState extends State<Ceditprofile> {
                 'Full Name',
                 TextFormField(
                   controller: _nameCtrl,
-                  decoration:
-                  _fieldDecoration(hint: 'Enter full name'),
-                  validator: (v) =>
-                  v == null || v.isEmpty ? 'Required' : null,
+                  decoration: _fieldDecoration(hint: 'Enter full name'),
+                  validator: (v) => v == null || v.isEmpty ? 'Required' : null,
                 ),
               ),
               const SizedBox(height: 16),
@@ -328,7 +338,8 @@ class _CeditprofileState extends State<Ceditprofile> {
               _buildLabeledField(
                 'Email',
                 TextFormField(
-                  controller: _emailCtrl, readOnly: true,
+                  controller: _emailCtrl,
+                  readOnly: true,
                   keyboardType: TextInputType.emailAddress,
                   decoration: _fieldDecoration(hint: 'Enter email'),
                 ),
@@ -342,8 +353,7 @@ class _CeditprofileState extends State<Ceditprofile> {
                   controller: _phoneCtrl,
                   keyboardType: TextInputType.phone,
                   decoration: _fieldDecoration(hint: '+91 .....'),
-                  validator: (v) =>
-                  v == null || v.isEmpty ? 'Required' : null,
+                  validator: (v) => v == null || v.isEmpty ? 'Required' : null,
                 ),
               ),
               const SizedBox(height: 16),
@@ -357,13 +367,11 @@ class _CeditprofileState extends State<Ceditprofile> {
                   decoration: _fieldDecoration(
                     hint: 'YYYY-MM-DD',
                     suffix: IconButton(
-                      icon:
-                      const Icon(Icons.calendar_today_outlined),
+                      icon: const Icon(Icons.calendar_today_outlined),
                       onPressed: _pickDate,
                     ),
                   ),
-                  validator: (v) =>
-                  v == null || v.isEmpty ? 'Required' : null,
+                  validator: (v) => v == null || v.isEmpty ? 'Required' : null,
                 ),
               ),
               const SizedBox(height: 16),
@@ -373,10 +381,8 @@ class _CeditprofileState extends State<Ceditprofile> {
                 'Location',
                 TextFormField(
                   controller: _locationCtrl,
-                  decoration:
-                  _fieldDecoration(hint: 'Enter location'),
-                  validator: (v) =>
-                  v == null || v.isEmpty ? 'Required' : null,
+                  decoration: _fieldDecoration(hint: 'Enter location'),
+                  validator: (v) => v == null || v.isEmpty ? 'Required' : null,
                 ),
               ),
 
@@ -393,8 +399,8 @@ class _CeditprofileState extends State<Ceditprofile> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
-            style: TextStyle(
-                fontSize: tertiary(), fontWeight: FontWeight.w500)),
+            style:
+                TextStyle(fontSize: tertiary(), fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         SizedBox(height: 48, child: field),
       ],
