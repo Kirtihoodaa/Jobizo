@@ -20,6 +20,7 @@ class Customerappbar extends StatefulWidget implements PreferredSizeWidget {
     this.onMenuTap,
     this.onNotificationTap,
     this.onProfileTap,
+    required String profileImageUrl,
   }) : super(key: key);
 
   @override
