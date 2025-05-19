@@ -16,6 +16,7 @@ import 'package:jobizo/Design%20contraints/app%20color.dart';
 import 'package:pie_chart/pie_chart.dart';
 
 import '../AppBar/CustomerAppBar.dart';
+import 'Labour_types/labour_avi.dart';
 
 class DashboardScreenC extends StatefulWidget {
   const DashboardScreenC({Key? key}) : super(key: key);
@@ -237,8 +238,7 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => LabourListScreen(
-              category: title,
+            builder: (context) => Requiredlabour(
             ),
           ),
         );
