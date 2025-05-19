@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../Design contraints/FontSizes.dart';
+import '../All_app_bars/normal_app_bar.dart';
 import 'EditProfile.dart';
 
 class MyProfilePage extends StatefulWidget {
@@ -57,34 +58,26 @@ class _MyProfilePageState extends State<MyProfilePage> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        appBar: CustomBackAppBar(
+          title: 'My Profile',
+        ),
+        backgroundColor: Colors.white,
+        body: Center(
+            child: CircularProgressIndicator(
+          color: AppColors.gold,
+        )),
       );
     }
 
     if (userData == null) {
       return const Scaffold(
+        backgroundColor: Colors.white,
         body: Center(child: Text("Failed to load profile")),
       );
     }
-
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: AppColors.gold,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          'My Profile',
-          style: TextStyle(
-              fontSize: primary(),
-              color: Colors.white,
-              fontWeight: FontWeight.bold),
-        ),
-      ),
+      appBar: CustomBackAppBar(title: "My Profile"),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -98,11 +91,15 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   CircleAvatar(
                     radius: 40,
                     backgroundColor: AppColors.gold,
-                    backgroundImage: userData?['image'] != null && userData!['image'].toString().isNotEmpty
-                        ? NetworkImage("https://backend.jobizoindia.com/storage/${userData!['image']}")
+                    backgroundImage: userData?['image'] != null &&
+                            userData!['image'].toString().isNotEmpty
+                        ? NetworkImage(
+                            "https://backend.jobizoindia.com/storage/${userData!['image']}")
                         : null,
-                    child: userData?['image'] == null || userData!['image'].toString().isEmpty
-                        ? const Icon(Icons.person, size: 60, color: Colors.white)
+                    child: userData?['image'] == null ||
+                            userData!['image'].toString().isEmpty
+                        ? const Icon(Icons.person,
+                            size: 60, color: Colors.white)
                         : null,
                   ),
                   const SizedBox(width: 16),
@@ -189,9 +186,13 @@ class _MyProfilePageState extends State<MyProfilePage> {
             _sectionTitle('Bio'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: Text(
-                userData!['bio'] ?? 'No bio added.',
-                style: TextStyle(fontSize: tertiary(), color: Colors.grey[800]),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  userData!['bio'] ?? 'No bio added.',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(fontSize: tertiary(), color: Colors.black),
+                ),
               ),
             ),
 
@@ -205,9 +206,15 @@ class _MyProfilePageState extends State<MyProfilePage> {
   Widget _sectionTitle(String title) => Padding(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
         child: Align(
-          child: Text(title,
-              style: TextStyle(
-                  fontSize: secondary(), fontWeight: FontWeight.w600)),
+          alignment: Alignment.centerLeft,
+          child: Text(
+            title,
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontSize: secondary(),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       );
 

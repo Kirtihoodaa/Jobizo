@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../Design contraints/FontSizes.dart';
 import '../../Design contraints/app color.dart';
@@ -308,13 +310,8 @@ class _CustomersettingState extends State<Customersetting> {
                             borderRadius: BorderRadius.circular(20),
                           )),
                       onPressed: () {
-                        showLogoutDialog(context, () {
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LoginPage()),
-                            (route) => false,
-                          );
+                        showLogoutDialog(() {
+                          Get.offAll(() => const LoginPage());
                         });
                       },
                       child: Text(

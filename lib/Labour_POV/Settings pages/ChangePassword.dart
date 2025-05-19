@@ -4,6 +4,7 @@ import 'package:jobizo/Design contraints/app color.dart';
 import 'package:jobizo/Design contraints/FontSizes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../SnackBar/Snackbar.dart';
+import '../All_app_bars/normal_app_bar.dart';
 
 class Changepassword extends StatefulWidget {
   const Changepassword({Key? key}) : super(key: key);
@@ -79,23 +80,7 @@ class _ChangepasswordState extends State<Changepassword> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: AppColors.gold,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          'Change Password',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: primary(),
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
+      appBar: CustomBackAppBar(title: 'Change Password'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Column(

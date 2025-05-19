@@ -5,7 +5,6 @@ import 'package:jobizo/Design%20contraints/app%20color.dart';
 import '../All_app_bars/normal_app_bar.dart';
 import 'biometricsuccessscreen.dart';
 
-
 class RequestSalary extends StatefulWidget {
   const RequestSalary({super.key});
 
@@ -118,6 +117,7 @@ class _RequestSalaryState extends State<RequestSalary> {
               ),
               child: DropdownButtonFormField<String>(
                 decoration: const InputDecoration(border: InputBorder.none),
+                dropdownColor: Colors.white,
                 hint: const Text('Select Payment Method'),
                 value: selectedPaymentMethod,
                 items: ['UPI', 'Bank Transfer', 'Wallet']
@@ -226,7 +226,7 @@ class _RequestSalaryState extends State<RequestSalary> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: const BorderSide(
-                color: Colors.black,
+                color: AppColors.gold,
                 width: 2.0,
               ),
             ),

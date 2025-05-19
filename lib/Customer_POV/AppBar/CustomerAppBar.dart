@@ -7,6 +7,7 @@ import 'package:jobizo/hamburgerCustomer/CustomMenuCustomer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Design contraints/FontSizes.dart';
+import '../../Design contraints/app color.dart';
 import '../../Labour_POV/CustomMenu.dart';
 
 class Customerappbar extends StatefulWidget implements PreferredSizeWidget {
@@ -52,8 +53,8 @@ class CustomerappbarState extends State<Customerappbar> {
         location = savedLocation;
         profileImage = savedImage;
       });
-    } else {
-      await _fetchAndStoreProfile();
+    } if (savedImage == null || savedImage.isEmpty) {
+      await _fetchAndStoreProfile(); // fetch only if image is missing
     }
   }
 
@@ -77,7 +78,7 @@ class CustomerappbarState extends State<Customerappbar> {
         final user = response.data['user'];
         final userName = user['name'] ?? "No Name";
         final userLocation = user['address'] ?? "No Location";
-        final imagePath = user['image'] ?? " ";
+        final imagePath = user['image'] ?? "";
 
         await prefs.setString('user_name', userName);
         await prefs.setString('user_location', userLocation);
@@ -123,20 +124,21 @@ class CustomerappbarState extends State<Customerappbar> {
                       },
                 ),
                 GestureDetector(
-                  onTap: widget.onProfileTap,
-                  child: CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Colors.white,
-                    backgroundImage: profileImage.isNotEmpty
-                        ? NetworkImage(
-                            "https://backend.jobizoindia.com/storage/$profileImage")
-                        : const AssetImage(
-                                'Assets/Labour_image/user profile.png')
-                            as ImageProvider,
-                    onBackgroundImageError: (_, __) =>
-                        const Icon(Icons.error, color: Colors.red),
-                  ),
-                ),
+                    onTap: widget.onProfileTap,
+                    child: CircleAvatar(
+                      radius: 21,
+                      backgroundColor: Colors.white,
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundColor: AppColors.gold,
+                        backgroundImage: (profileImage.isNotEmpty)
+                            ? NetworkImage("https://backend.jobizoindia.com/storage/${profileImage.trim()}")
+                            : null,
+                        child: (profileImage.isEmpty)
+                            ? const Icon(Icons.person, size: 35, color: Colors.white)
+                            : null,
+                      ),
+                    )),
                 const SizedBox(width: 5),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,23 +165,15 @@ class CustomerappbarState extends State<Customerappbar> {
               children: [
                 GestureDetector(
                   onTap: widget.onNotificationTap,
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.white,
-                        child: CircleAvatar(
-                          radius: 18,
+                  child:  CircleAvatar(
+                          radius: 20,
                           backgroundColor: const Color(0xFFFAC015),
                           child: Image.asset(
                             "Assets/Labour_image/notification icon.png",
                             height: 25,
                           ),
                         ),
-                      ),
-                    ],
                   ),
-                ),
                 const SizedBox(width: 8),
                 GestureDetector(
                   onTap: widget.onProfileTap,

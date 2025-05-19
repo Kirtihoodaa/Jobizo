@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:jobizo/splash/splash_screen2.dart';
 
 import '../Design contraints/gradients.dart';
@@ -68,6 +71,7 @@ class _RoleScreenState extends State<RoleScreen> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: DropdownButton<String>(
+                                  dropdownColor: Colors.white,
                                   value: selectedRole,
                                   hint: const Text("Select a role"),
                                   isExpanded: true,
@@ -93,11 +97,10 @@ class _RoleScreenState extends State<RoleScreen> {
                                 children: [
                                   ElevatedButton(
                                     onPressed: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  SplashScreen2()));
+                                      Get.to(() => const SplashScreen2(),
+                                          transition: Transition.cupertino,
+                                          duration: const Duration(
+                                              milliseconds: 400));
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFF2C4305),
@@ -115,16 +118,17 @@ class _RoleScreenState extends State<RoleScreen> {
                                   ElevatedButton(
                                     onPressed: () {
                                       if (selectedRole != null) {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  RegistrationScreen(
-                                                    selectedRole: selectedRole!,
-                                                  )),
+                                        Get.to(
+                                          () => RegistrationScreen(
+                                              selectedRole: selectedRole!),
+                                          transition: Transition.cupertino,
+                                          duration:
+                                              const Duration(milliseconds: 400),
                                         );
                                       } else {
-                                        SnackbarHelper.showWarning(context, "Please select a role before proceeding");                                      }
+                                        SnackbarHelper.showWarning(context,
+                                            "Please select a role before proceeding");
+                                      }
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.white,

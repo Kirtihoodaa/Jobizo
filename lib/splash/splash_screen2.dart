@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:jobizo/Design%20contraints/gradients.dart';
 import 'package:jobizo/Login/login.dart';
 import 'package:jobizo/Register/RoleSelection.dart';
@@ -64,10 +66,9 @@ class _SplashScreen2State extends State<SplashScreen2> {
               text: 'Register',
               textColor: Colors.white,
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RoleScreen()),
-                );
+                Get.to(() => RoleScreen(),
+                    transition: Transition.cupertino,
+                    duration: const Duration(milliseconds: 400));
               },
             ),
             SizedBox(height: 60.h),
@@ -87,10 +88,9 @@ class _SplashScreen2State extends State<SplashScreen2> {
               text: 'Login',
               textColor: Colors.black,
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
-                );
+                Get.to(() => const LoginPage(),
+                    transition: Transition.cupertino,
+                    duration: const Duration(milliseconds: 400));
               },
             ),
           ],

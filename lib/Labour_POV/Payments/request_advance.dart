@@ -117,7 +117,9 @@ class _RequestAdvanceState extends State<RequestAdvance> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: DropdownButtonFormField<String>(
+
                 decoration: const InputDecoration(border: InputBorder.none),
+                dropdownColor: Colors.white,
                 hint: const Text('Select Payment Method'),
                 value: selectedPaymentMethod,
                 items: ['UPI', 'Bank Transfer', 'Wallet']
@@ -225,7 +227,7 @@ class _RequestAdvanceState extends State<RequestAdvance> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: const BorderSide(
-                color: Colors.black,
+                color: AppColors.gold,
                 width: 2.0,
               ),
             ),

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:jobizo/splash/splash_screen2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -63,9 +66,10 @@ class _SplashScreen1State extends State<SplashScreen1>
         nextScreen = const SplashScreen2();
       }
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => nextScreen),
+      Get.off(
+            () => nextScreen,
+        transition: Transition.cupertino,
+        duration: const Duration(milliseconds: 400),
       );
     });
   }

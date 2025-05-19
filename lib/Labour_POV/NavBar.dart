@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import '../../Design contraints/FontSizes.dart';
 import '../../Design contraints/app color.dart';
 import 'Approval Screens/ApprovalsPage.dart';
@@ -31,28 +34,32 @@ class _NavBarLabourState extends State<NavBarLabour> {
 
     setState(() => _selectedIndex = index);
 
-    Widget page;
+    Widget Function()? pageBuilder;
+
     switch (index) {
       case 0:
-        page = Homepage();
+        pageBuilder = () => Homepage();
         break;
       case 1:
-        page = ApprovalsPage();
+        pageBuilder = () => ApprovalsPage();
         break;
       case 2:
-        page = HistoryPage();
+        pageBuilder = () => HistoryPage();
         break;
       case 3:
-        page = SettingsPage();
+        pageBuilder = () => SettingsPage();
         break;
       default:
         return;
     }
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => page),
-    );
+    if (pageBuilder != null) {
+      Get.off(
+        pageBuilder(),
+        transition: Transition.cupertino,
+        duration: Duration(milliseconds: 1000),
+      );
+    }
   }
 
   @override

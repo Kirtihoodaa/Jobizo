@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 import 'package:jobizo/Labour_POV/Payments/request_advance.dart';
@@ -46,10 +48,9 @@ class _PaymentState extends State<Payment> {
                     onTap: () {
                       setState(() {
                         selectedAction = "salary";
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => RequestSalary()));
+                        Get.to(() => RequestSalary(),
+                            transition: Transition.cupertino,
+                            duration: const Duration(milliseconds: 400));
                       });
                     },
                   ),
@@ -60,10 +61,9 @@ class _PaymentState extends State<Payment> {
                     onTap: () {
                       setState(() {
                         selectedAction = "advance";
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => RequestAdvance()));
+                        Get.to(() => RequestAdvance(),
+                            transition: Transition.cupertino,
+                            duration: const Duration(milliseconds: 400));
                       });
                     },
                   ),

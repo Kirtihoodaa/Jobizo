@@ -4,61 +4,54 @@ import 'Design contraints/FontSizes.dart';
 import 'Login/login.dart'; // Import your login screen
 
 
-void showLogoutDialog(BuildContext context, VoidCallback onConfirm) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        backgroundColor: Colors.white, // White background
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        content: Text(
+import 'package:get/get.dart';
+
+void showLogoutDialog(VoidCallback onConfirm) {
+  Get.defaultDialog(
+    title: '',
+    content: Column(
+      children: [
+        Text(
           "Are you sure you want to logout?",
           style: TextStyle(fontSize: secondary(), color: Colors.black),
         ),
-        actions: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFA1A1A1),
-                ),
-                onPressed: () {
-                  Navigator.pop(context); // just close dialog
-                },
-                child: Text(
-                  "Cancel",
-                  style: TextStyle(fontSize: secondary(), color: Colors.white),
-                ),
+        const SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFA1A1A1),
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF4B1E03),
-                ),
-                onPressed: () async {
-                  Navigator.pop(context); // Close dialog
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.clear();
-                  if (onConfirm != null) {
-                    onConfirm();
-                  }
-
-                  // ✅ Navigate to login screen & remove history
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginPage()),
-                        (route) => false,
-                  );
-                },
-                child: Text(
-                  "Logout",
-                  style: TextStyle(fontSize: secondary(), color: Colors.white),
-                ),
+              onPressed: () {
+                Get.back(); // close dialog
+              },
+              child: Text(
+                "Cancel",
+                style: TextStyle(fontSize: secondary(), color: Colors.white),
               ),
-            ],
-          ),
-        ],
-      );
-    },
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF4B1E03),
+              ),
+              onPressed: () async {
+                Get.back(); // close dialog
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.clear();
+                onConfirm(); // callback if any
+                Get.offAll(() => const LoginPage()); // navigate to login
+              },
+              child: Text(
+                "Logout",
+                style: TextStyle(fontSize: secondary(), color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+    radius: 12,
+    backgroundColor: Colors.white,
   );
 }

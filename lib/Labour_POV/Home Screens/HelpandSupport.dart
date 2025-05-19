@@ -98,7 +98,7 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
       backgroundColor: Colors.white,
       appBar: const CustomBackAppBar(title: 'Help & Support'),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppColors.gold,))
           : ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: _faqItems.length,

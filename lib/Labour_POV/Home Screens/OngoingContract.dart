@@ -1,24 +1,87 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:jobizo/Design contraints/app color.dart';
 import 'package:jobizo/Design contraints/FontSizes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class OngoingContractPage extends StatelessWidget {
+class OngoingContractPage extends StatefulWidget {
   const OngoingContractPage({super.key});
 
   @override
+  State<OngoingContractPage> createState() => _OngoingContractPageState();
+}
+
+class _OngoingContractPageState extends State<OngoingContractPage> {
+  List<_ContractData> items = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchOngoingContracts();
+  }
+  Future<void> fetchOngoingContracts() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token'); // 🔐 get token
+      print(token);
+      if (token == null || token.isEmpty) {
+        print("❌ No auth token found.");
+        setState(() => isLoading = false);
+        return;
+      }
+      final dio = Dio();
+      final response = await dio.get('https://backend.jobizoindia.com/api/labour-request');
+
+      if (response.statusCode == 200 && response.data['status'] == true) {
+        print("✔️ Response fetched successfully");
+
+        final List dataList = response.data['data'] ?? [];
+        final List<_ContractData> contracts = [];
+
+        for (var item in dataList) {
+          // Safely extract departments
+          String roles = "";
+          if (item['departments'] is List) {
+            final List deptList = item['departments'];
+            roles = deptList
+                .map((d) => d['department']?['name'] ?? '')
+                .where((name) => name.toString().isNotEmpty)
+                .join(', ');
+          }
+
+          contracts.add(
+            _ContractData(
+              company: item['project_name'] ?? 'N/A',
+              siteName: item['work_address'] ?? 'N/A',
+              siteNo: item['id'].toString(),
+              jobType: roles.isNotEmpty ? roles : 'N/A',
+              location: item['work_address'] ?? 'N/A',
+              employeeName: item['site_manager_name'] ?? 'N/A',
+              employeeId: item['user_id'].toString(),
+              hours: '8:00 AM - 5:00 PM',
+              startDate: item['start_date'] ?? '',
+              duration: "${item['duration_days'] ?? 0} days",
+            ),
+          );
+        }
+
+        setState(() {
+          items = contracts;
+          isLoading = false;
+        });
+      } else {
+        print("❌ Unexpected response: ${response.data}");
+        setState(() => isLoading = false);
+      }
+    } catch (e, stacktrace) {
+      print("❌ Error fetching contracts: $e");
+      print(stacktrace);
+      setState(() => isLoading = false);
+    }
+  }
+  @override
   Widget build(BuildContext context) {
-    final items = List.filled(2, _ContractData(
-      company: 'Skyline Construction Co.',
-      siteName: 'DownTown Project',
-      siteNo: '1001',
-      jobType: 'Construction',
-      location: '123 Construction Ave, Downtown',
-      employeeName: 'Sarah Martinez',
-      employeeId: '00154',
-      hours: '8:00 AM - 5:00 PM',
-      startDate: 'Apr 18, 2025',
-      duration: '3 months',
-    ));
 
     return Scaffold(
       backgroundColor: AppColors.bgColor,
@@ -36,17 +99,21 @@ class OngoingContractPage extends StatelessWidget {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: items
-              .map((data) => Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: _ContractCard(data: data),
-          ))
-              .toList(),
+        body: isLoading
+            ? Center(child: CircularProgressIndicator(color: AppColors.gold,))
+            : items.isEmpty
+            ? Center(child: Text("No ongoing contracts found."))
+            : SingleChildScrollView(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            children: items
+                .map((data) => Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: _ContractCard(data: data),
+            ))
+                .toList(),
+          ),
         ),
-      ),
     );
   }
 }
@@ -106,15 +173,13 @@ class _ContractCard extends StatelessWidget {
                 child: Text(
                   'Current Assignment',
                   style: TextStyle(
-                    fontSize: secondary(),
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.green
-                  ),
+                      fontSize: secondary(),
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.green),
                 ),
               ),
               Container(
-                padding:
-                 EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Color(0xFF2563EB),
                   borderRadius: BorderRadius.circular(20),
@@ -139,7 +204,8 @@ class _ContractCard extends StatelessWidget {
               CircleAvatar(
                 radius: 25,
                 backgroundColor: Colors.grey.shade200,
-                child: Icon(Icons.location_city, size: 35,color: AppColors.green),
+                child:
+                    Icon(Icons.location_city, size: 35, color: AppColors.green),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -149,10 +215,9 @@ class _ContractCard extends StatelessWidget {
                     Text(
                       data.company,
                       style: TextStyle(
-                        fontSize: secondary(),
-                        fontWeight: FontWeight.w600,
-                          color: AppColors.green
-                      ),
+                          fontSize: secondary(),
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.green),
                     ),
                     const SizedBox(height: 8),
                     Text('Site: ${data.siteName}'),
@@ -175,10 +240,9 @@ class _ContractCard extends StatelessWidget {
           Text(
             data.employeeName,
             style: TextStyle(
-              fontSize: secondary(),
-              fontWeight: FontWeight.w600,
-                color: AppColors.green
-            ),
+                fontSize: secondary(),
+                fontWeight: FontWeight.w600,
+                color: AppColors.green),
           ),
           const SizedBox(height: 8),
 

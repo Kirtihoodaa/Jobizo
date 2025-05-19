@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Labour_POV/LeaveRequest/leave_request.dart';
-
 import '../All_app_bars/app_bar.dart';
-
 import '../NavBar.dart';
 import '../Payments/Payment.dart';
 import 'Dashboard.dart';
@@ -25,32 +25,32 @@ class _HomepageState extends State<Homepage> {
     {
       "label": "Dashboard",
       "image": "Assets/Labour_image/dashboard icon.png",
-      "navigateTo": DashboardScreen(),
+      "navigateTo": () => DashboardScreen(),
     },
     {
       "label": "Payment",
       "image": "Assets/Labour_image/payment icon.png",
-      "navigateTo": Payment(),
+      "navigateTo": () => Payment(),
     },
     {
       "label": "Leave\nRequest",
       "image": "Assets/Labour_image/Leave req icon.png",
-      "navigateTo": LeaveRequestDetailsPage(),
+      "navigateTo": () => LeaveRequestDetailsPage(),
     },
     {
       "label": "Ongoing\nContract",
       "image": "Assets/Labour_image/ongoing contract.png",
-      "navigateTo": OngoingContractPage(),
+      "navigateTo": () => OngoingContractPage(),
     },
     {
       "label": "labour\nIssue",
       "image": "Assets/Labour_image/labour issue.png",
-      "navigateTo": LabourIssuesScreen(),
+      "navigateTo": () => LabourIssuesScreen(),
     },
     {
       "label": "Emergency",
       "image": "Assets/Labour_image/emergency icon.png",
-      "navigateTo": EmergencyPage(),
+      "navigateTo": () => EmergencyPage(),
     },
   ];
 
@@ -122,9 +122,10 @@ class _HomepageState extends State<Homepage> {
                   children: options.map((item) {
                     return GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => item['navigateTo']),
+                        Get.to(
+                          item['navigateTo'],
+                          transition: Transition.cupertino,
+                          duration: Duration(milliseconds: 400),
                         );
                       },
                       child: Column(
