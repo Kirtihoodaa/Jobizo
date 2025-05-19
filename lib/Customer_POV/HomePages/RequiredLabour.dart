@@ -13,21 +13,12 @@ class Requiredlabour extends StatefulWidget {
 
 class _RequiredlabourState extends State<Requiredlabour> {
   List<Map<String, dynamic>> labourCategories = [
-    {"category": "Construction", "count": 32},
-    {"category": "Electrician", "count": 33},
-    {"category": "Plumber", "count": 60},
-    {"category": "Painter", "count": 45},
-    {"category": "Carpenter", "count": 44},
+    {"category": "Construction", "available": 32, "required": 50},
+    {"category": "Electrician", "available": 8, "required": 15},
+    {"category": "Plumbing", "available": 5, "required": 8},
+    {"category": "Painting", "available": 5, "required": 5},
+    {"category": "Carpenter", "available": 2, "required": 12},
   ];
-
-  int get totalLabours =>
-      labourCategories.fold(0, (sum, item) => sum + (item['count'] as int));
-
-  // @override
-  // void initState() {
-  //   super.initState();
-
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -39,26 +30,30 @@ class _RequiredlabourState extends State<Requiredlabour> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _TotalLaboursCard(total: totalLabours),
+            const _TotalLaboursCard(),
             const SizedBox(height: 20),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Labour Category",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: secondary(),
-                    color: AppColors.green),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Labour Category",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: secondary(),
+                        color: AppColors.green)),
+                Text("Available/Required",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: tertiary(),
+                        color: AppColors.gold)),
+              ],
             ),
             const SizedBox(height: 12),
             ...labourCategories.map(
               (item) => _CategoryItem(
                 title: item['category'],
-                count: item['count'],
-                onTap: () {
-                  // TODO: Navigate to category details
-                },
+                available: item['available'],
+                required: item['required'],
+                onTap: () {},
               ),
             ),
           ],
@@ -69,9 +64,7 @@ class _RequiredlabourState extends State<Requiredlabour> {
 }
 
 class _TotalLaboursCard extends StatelessWidget {
-  final int total;
-
-  const _TotalLaboursCard({required this.total});
+  const _TotalLaboursCard();
 
   @override
   Widget build(BuildContext context) {
@@ -84,16 +77,16 @@ class _TotalLaboursCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: const [
           Text(
-            "All Labours",
+            "Total Required Labours",
             style: TextStyle(
                 color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
-            "-$total-",
-            style: const TextStyle(
+            "-127-",
+            style: TextStyle(
               color: Colors.white,
               fontSize: 32,
               fontWeight: FontWeight.bold,
@@ -107,67 +100,53 @@ class _TotalLaboursCard extends StatelessWidget {
 
 class _CategoryItem extends StatelessWidget {
   final String title;
-  final int count;
+  final int available;
+  final int required;
   final VoidCallback onTap;
 
   const _CategoryItem({
     required this.title,
-    required this.count,
+    required this.available,
+    required this.required,
     required this.onTap,
   });
 
   @override
-  @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.topLeft,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        width: MediaQuery.of(context).size.width,
-        height: 62,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: const [
-            BoxShadow(
-              color: Color.fromRGBO(0, 0, 0, 0.1),
-              offset: Offset(0, 0),
-              blurRadius: 10,
-              spreadRadius: 0,
-            ),
-          ],
-        ),
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      width: MediaQuery.of(context).size.width,
+      height: 62,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(
+            color: Color.fromRGBO(0, 0, 0, 0.1),
+            offset: Offset(0, 0),
+            blurRadius: 10,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                "$title $count",
-                style: TextStyle(
-                    fontSize: tertiary(),
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.green),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: tertiary(),
+                fontWeight: FontWeight.bold,
               ),
             ),
-            Container(
-              margin: const EdgeInsets.only(right: 16),
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.gold,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-                child: Text(
-                  "View All",
-                  style: TextStyle(
-                      fontWeight: FontWeight.w500, color: Colors.white),
-                ),
-              ),
+            Text(
+              "$available/$required",
+              style: TextStyle(
+                  fontSize: tertiary(),
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.green),
             ),
           ],
         ),
