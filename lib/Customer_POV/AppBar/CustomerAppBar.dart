@@ -19,6 +19,7 @@ class Customerappbar extends StatefulWidget implements PreferredSizeWidget {
     this.onMenuTap,
     this.onNotificationTap,
     this.onProfileTap,
+    required String profileImageUrl,
   }) : super(key: key);
 
   @override
@@ -27,6 +28,7 @@ class Customerappbar extends StatefulWidget implements PreferredSizeWidget {
   @override
   State<Customerappbar> createState() => CustomerappbarState();
 }
+
 class CustomerappbarState extends State<Customerappbar> {
   String name = "Loading...";
   String location = "Please wait...";
@@ -37,13 +39,14 @@ class CustomerappbarState extends State<Customerappbar> {
     super.initState();
     _loadProfileData();
   }
+
   Future<void> _loadProfileData() async {
     final prefs = await SharedPreferences.getInstance();
     final savedName = prefs.getString('user_name');
     final savedLocation = prefs.getString('user_location');
     final savedImage = prefs.getString('user_profile_image');
 
-    if (savedName != null && savedLocation != null&& savedImage!= null) {
+    if (savedName != null && savedLocation != null && savedImage != null) {
       setState(() {
         name = savedName;
         location = savedLocation;
@@ -53,6 +56,7 @@ class CustomerappbarState extends State<Customerappbar> {
       await _fetchAndStoreProfile();
     }
   }
+
   Future<void> _fetchAndStoreProfile() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -66,7 +70,8 @@ class CustomerappbarState extends State<Customerappbar> {
       Dio dio = Dio();
       dio.options.headers["Authorization"] = "Bearer $token";
 
-      final response = await dio.get("https://backend.jobizoindia.com/api/profile");
+      final response =
+          await dio.get("https://backend.jobizoindia.com/api/profile");
 
       if (response.statusCode == 200) {
         final user = response.data['user'];
@@ -78,11 +83,10 @@ class CustomerappbarState extends State<Customerappbar> {
         await prefs.setString('user_location', userLocation);
         await prefs.setString('user_profile_image', imagePath);
 
-
         setState(() {
           name = userName;
           location = userLocation;
-          profileImage= imagePath;
+          profileImage = imagePath;
         });
       } else {
         print("Failed to fetch profile");
@@ -91,9 +95,11 @@ class CustomerappbarState extends State<Customerappbar> {
       print("Error fetching profile: $e");
     }
   }
+
   void refreshUserInfo() {
     _fetchAndStoreProfile();
   }
+
   @override
   Widget build(BuildContext context) {
     return AppBar(
@@ -111,7 +117,10 @@ class CustomerappbarState extends State<Customerappbar> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.menu, color: Colors.white),
-                  onPressed: widget.onMenuTap ?? () {CustomMenuCustomer.show(context);},
+                  onPressed: widget.onMenuTap ??
+                      () {
+                        CustomMenuCustomer.show(context);
+                      },
                 ),
                 GestureDetector(
                   onTap: widget.onProfileTap,
@@ -119,10 +128,13 @@ class CustomerappbarState extends State<Customerappbar> {
                     radius: 20,
                     backgroundColor: Colors.white,
                     backgroundImage: profileImage.isNotEmpty
-                        ? NetworkImage("https://backend.jobizoindia.com/storage/$profileImage")
-                        : const AssetImage('Assets/Labour_image/user profile.png') as ImageProvider,
+                        ? NetworkImage(
+                            "https://backend.jobizoindia.com/storage/$profileImage")
+                        : const AssetImage(
+                                'Assets/Labour_image/user profile.png')
+                            as ImageProvider,
                     onBackgroundImageError: (_, __) =>
-                    const Icon(Icons.error, color: Colors.red),
+                        const Icon(Icons.error, color: Colors.red),
                   ),
                 ),
                 const SizedBox(width: 5),
@@ -139,7 +151,7 @@ class CustomerappbarState extends State<Customerappbar> {
                     Text(
                       location,
                       style:
-                      TextStyle(color: Colors.white, fontSize: secondary()),
+                          TextStyle(color: Colors.white, fontSize: secondary()),
                     ),
                   ],
                 ),

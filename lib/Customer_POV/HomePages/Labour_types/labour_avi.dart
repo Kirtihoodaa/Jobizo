@@ -1,4 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jobizo/Customer_POV/AppBar/commonAppBar.dart';
 import 'package:jobizo/Customer_POV/HomePages/Labour_types/Details_labour.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
@@ -12,55 +14,114 @@ class AllLaboursScreen extends StatefulWidget {
 }
 
 class _AllLaboursScreenState extends State<AllLaboursScreen> {
-  List<Map<String, dynamic>> labourCategories = [
-    {"category": "Construction", "count": 32},
-    {"category": "Electrician", "count": 33},
-    {"category": "Plumber", "count": 60},
-    {"category": "Painter", "count": 45},
-    {"category": "Carpenter", "count": 44},
-  ];
+  bool _loading = true;
+  String? _error;
+  int _totalLabours = 0;
+  List<LabourCategory> _categories = [];
 
-  int get totalLabours =>
-      labourCategories.fold(0, (sum, item) => sum + (item['count'] as int));
+  @override
+  void initState() {
+    super.initState();
+    _fetchCategories();
+  }
 
-  // @override
-  // void initState() {
-  //   super.initState();
+  Future<void> _fetchCategories() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
 
-  // }
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('auth_token') ?? '';
+      if (!token.startsWith('Bearer ')) token = 'Bearer $token';
+
+      final dio = Dio(BaseOptions(headers: {'Authorization': token}));
+      final resp = await dio.get(
+        'https://backend.jobizoindia.com/api/labour-category',
+        options: Options(validateStatus: (s) => s != null && s < 500),
+      );
+
+      final body = resp.data as Map<String, dynamic>;
+      if (resp.statusCode == 200 && body['status'] == true) {
+        final data = body['data'] as List<dynamic>;
+        setState(() {
+          _totalLabours = body['total_labours'] as int;
+          _categories = data.map((e) {
+            return LabourCategory(
+              id: e['id'] as int,
+              name: (e['name'] as String).capitalize(),
+              count: e['labour_count'] as int,
+            );
+          }).toList();
+        });
+      } else {
+        throw body['message'] ?? 'Failed to load';
+      }
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+      });
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return Scaffold(
+        backgroundColor: AppColors.bgColor,
+        appBar: Commonappbar(title: 'All Labours'),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_error != null) {
+      return Scaffold(
+        backgroundColor: AppColors.bgColor,
+        appBar: Commonappbar(title: 'All Labours'),
+        body: Center(child: Text(_error!)),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: Commonappbar(title: "All Labours"),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _TotalLaboursCard(total: totalLabours),
+            _TotalLaboursCard(total: _totalLabours),
             const SizedBox(height: 20),
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 "Labour Category",
                 style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: secondary(),
-                    color: AppColors.green),
+                  fontWeight: FontWeight.bold,
+                  fontSize: secondary(),
+                  color: AppColors.green,
+                ),
               ),
             ),
             const SizedBox(height: 12),
-            ...labourCategories.map(
-              (item) => _CategoryItem(
-                title: item['category'],
-                count: item['count'],
+            for (var cat in _categories)
+              _CategoryItem(
+                title: cat.name,
+                count: cat.count,
                 onTap: () {
-                  // TODO: Navigate to category details
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => LabourListScreen(
+                        categoryId: cat.id,
+                        categoryName: cat.name,
+                      ),
+                    ),
+                  );
                 },
               ),
-            ),
           ],
         ),
       ),
@@ -68,9 +129,19 @@ class _AllLaboursScreenState extends State<AllLaboursScreen> {
   }
 }
 
+class LabourCategory {
+  final int id;
+  final String name;
+  final int count;
+  LabourCategory({
+    required this.id,
+    required this.name,
+    required this.count,
+  });
+}
+
 class _TotalLaboursCard extends StatelessWidget {
   final int total;
-
   const _TotalLaboursCard({required this.total});
 
   @override
@@ -88,11 +159,14 @@ class _TotalLaboursCard extends StatelessWidget {
           Text(
             "All Labours",
             style: TextStyle(
-                color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800),
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
-            "-$total-",
+            "- $total -",
             style: const TextStyle(
               color: Colors.white,
               fontSize: 32,
@@ -117,68 +191,61 @@ class _CategoryItem extends StatelessWidget {
   });
 
   @override
-  @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.topLeft,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        width: MediaQuery.of(context).size.width,
-        height: 62,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: const [
-            BoxShadow(
-              color: Color.fromRGBO(0, 0, 0, 0.1),
-              offset: Offset(0, 0),
-              blurRadius: 10,
-              spreadRadius: 0,
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                "$title $count",
-                style: TextStyle(
-                    fontSize: tertiary(),
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.green),
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      width: double.infinity,
+      height: 62,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(
+            color: Color.fromRGBO(0, 0, 0, 0.1),
+            blurRadius: 10,
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              "$title ($count)",
+              style: TextStyle(
+                fontSize: tertiary(),
+                fontWeight: FontWeight.bold,
+                color: AppColors.green,
               ),
             ),
-            Container(
-              margin: const EdgeInsets.only(right: 16),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LabourListScreen(category: title),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.gold,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-                child: Text(
-                  "View All",
-                  style: TextStyle(
-                      fontWeight: FontWeight.w500, color: Colors.white),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: ElevatedButton(
+              onPressed: onTap,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.gold,
+                padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
                 ),
               ),
+              child: const Text(
+                "View All",
+                style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+}
+
+/// Simple extension to capitalize the first letter
+extension on String {
+  String capitalize() =>
+      length > 0 ? substring(0, 1).toUpperCase() + substring(1) : this;
 }
