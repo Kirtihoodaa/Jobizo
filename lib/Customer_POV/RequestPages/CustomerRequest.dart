@@ -191,7 +191,7 @@ class _CustomerrequestState extends State<Customerrequest> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: Customerappbar(
+      appBar: Customerappbar(profileImageUrl: '',
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(10.0),

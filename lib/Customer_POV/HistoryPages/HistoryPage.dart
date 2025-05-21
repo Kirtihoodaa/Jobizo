@@ -46,7 +46,7 @@ class _HistotypageeState extends State<Histotypagee> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
-      appBar: Customerappbar(
+      appBar: Customerappbar(profileImageUrl: '',
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),

@@ -81,7 +81,7 @@ class _HomepagessState extends State<Homepagess> {
       },
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: Customerappbar(
+        appBar: Customerappbar(profileImageUrl: '',
           // onMenuTap: () => CustomMenu.show(context),
         ),
         body: SingleChildScrollView(
