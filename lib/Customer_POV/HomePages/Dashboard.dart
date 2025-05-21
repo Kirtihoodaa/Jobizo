@@ -60,7 +60,7 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: Customerappbar(
+      appBar: Customerappbar(profileImageUrl: '',
       ),
       body: SafeArea(
         child: SingleChildScrollView(

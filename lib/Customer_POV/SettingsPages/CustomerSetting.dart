@@ -66,7 +66,7 @@ class _CustomersettingState extends State<Customersetting> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: Customerappbar(
-        key: appBarKey,
+        key: appBarKey, profileImageUrl: '',
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.only(bottom: 16),
