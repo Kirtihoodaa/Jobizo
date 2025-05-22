@@ -1,274 +1,317 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jobizo/Customer_POV/AppBar/commonAppBar.dart';
-import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
+import 'package:jobizo/Design%20contraints/FontSizes.dart';
 
 class Requestdetails extends StatefulWidget {
-  const Requestdetails({super.key});
+  final int requestId;
+
+  const Requestdetails({Key? key, required this.requestId}) : super(key: key);
 
   @override
   State<Requestdetails> createState() => _RequestdetailsState();
 }
 
 class _RequestdetailsState extends State<Requestdetails> {
+  bool _loading = true;
+  String? _error;
+  late _Detail _detail;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDetail();
+  }
+
+  Future<void> _fetchDetail() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('auth_token') ?? '';
+      if (!token.startsWith('Bearer ')) token = 'Bearer $token';
+
+      final dio = Dio(BaseOptions(headers: {'Authorization': token}));
+      final resp = await dio.get(
+        'https://backend.jobizoindia.com/api/labour-request/${widget.requestId}',
+        options: Options(validateStatus: (s) => s != null && s < 500),
+      );
+
+      if (resp.statusCode == 200 && resp.data['status'] == true) {
+        _detail = _Detail.fromJson(resp.data['data']);
+      } else {
+        throw resp.data['message'] ??
+            'Failed to load (code ${resp.statusCode})';
+      }
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return Scaffold(
+        backgroundColor: AppColors.bgColor,
+        appBar: Commonappbar(title: "Request Details"),
+        body: const Center(child: CircularProgressIndicator(color: AppColors.green,)),
+      );
+    }
+
+    if (_error != null) {
+      return Scaffold(
+        backgroundColor: AppColors.bgColor,
+        appBar: Commonappbar(title: "Request Details"),
+        body: Center(child: Text(_error!)),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: Commonappbar(title: "Request Details"),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.only(top: 30, bottom: 50, right: 20, left: 20),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Title + Status
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Title + Status
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Construction",
-                        style: TextStyle(
-                          fontSize: secondary(),
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.green,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppColors.gold,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'Pending',
-                          style: TextStyle(
-                            fontSize: tertiary(),
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Workers Required
                   Text(
-                    "Workers Required",
+                    _detail.projectName ?? "—",
                     style: TextStyle(
                       fontSize: secondary(),
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.green,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 16,
-                    runSpacing: 8,
-                    children: [
-                      Text(
-                        "Painting 25",
-                        style: TextStyle(
-                          fontSize: tertiary(),
-                          fontWeight: FontWeight.w400,
-                        ),
+                  Container(
+                    padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: _detail.status.toLowerCase() == 'pending'
+                          ? AppColors.gold
+                          : AppColors.brown,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      _detail.status.capitalize!,
+                      style: TextStyle(
+                        fontSize: tertiary(),
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
                       ),
-                      Text(
-                        "Carpenter 25",
-                        style: TextStyle(
-                          fontSize: tertiary(),
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      Text(
-                        "Construction 25",
-                        style: TextStyle(
-                          fontSize: tertiary(),
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      Text(
-                        "Electrical 10",
-                        style: TextStyle(
-                          fontSize: tertiary(),
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Duration
-                  Text(
-                    "Duration",
-                    style: TextStyle(
-                      fontSize: secondary(),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "10 days",
-                    style: TextStyle(
-                      fontSize: tertiary(),
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Start & End Date
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Start Date",
-                              style: TextStyle(
-                                fontSize: tertiary(),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              "Apr 18, 2024",
-                              style: TextStyle(
-                                fontSize: tertiary(),
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "End Date",
-                              style: TextStyle(
-                                fontSize: tertiary(),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              "Apr 28, 2024",
-                              style: TextStyle(
-                                fontSize: tertiary(),
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 30),
-
-                  // Location
-                  Text(
-                    "Location",
-                    style: TextStyle(
-                      fontSize: secondary(),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    "Mumbai Construction Site, Maharashtra",
-                    style: TextStyle(
-                      fontSize: tertiary(),
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  SizedBox(height: 30),
-
-                  // Site Manager
-                  Text(
-                    "Site Manager Name",
-                    style: TextStyle(
-                      fontSize: secondary(),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    "Wilton",
-                    style: TextStyle(
-                      fontSize: tertiary(),
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  SizedBox(height: 30),
-
-                  // Phone Number
-                  Text(
-                    "Phone Number",
-                    style: TextStyle(
-                      fontSize: secondary(),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    "+91 8878990087",
-                    style: TextStyle(
-                      fontSize: tertiary(),
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  SizedBox(height: 30),
-
-                  // Email
-                  Text(
-                    "Email",
-                    style: TextStyle(
-                      fontSize: secondary(),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    "eg. ZIUahn@gmail.com",
-                    style: TextStyle(
-                      fontSize: tertiary(),
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  SizedBox(height: 30),
-
-                  // Work Description
-                  Text(
-                    "Work Description",
-                    style: TextStyle(
-                      fontSize: secondary(),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    "Construction work involves building foundation, structural work, and finishing for a new commercial complex. Workers needed for various tasks including masonry, carpentry, and general labor.",
-                    style: TextStyle(
-                      fontSize: tertiary(),
-                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: 16),
+
+              // Workers Required (flatten departments)
+              Text("Workers Required",
+                  style: TextStyle(
+                      fontSize: secondary(), fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 16,
+                runSpacing: 8,
+                children: _detail.departments
+                    .map((d) => Text(
+                  "${d.departmentName} ${d.numberOfLabour}",
+                  style: TextStyle(
+                      fontSize: tertiary(),
+                      fontWeight: FontWeight.w400),
+                ))
+                    .toList(),
+              ),
+              const SizedBox(height: 16),
+
+              // Duration
+              Text("Duration",
+                  style: TextStyle(
+                      fontSize: secondary(), fontWeight: FontWeight.w600)),
+              const SizedBox(height: 4),
+              Text("${_detail.durationDays} days",
+                  style: TextStyle(
+                      fontSize: tertiary(), fontWeight: FontWeight.w400)),
+              const SizedBox(height: 16),
+
+              // Start & End Date
+              Row(
+                children: [
+                  Expanded(
+                    child: _dateColumn("Start Date", _detail.startDate),
+                  ),
+                  Expanded(
+                    child: _dateColumn(
+                        "End Date",
+                        _detail
+                            .startDate
+                            .add(Duration(days: _detail.durationDays))),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+
+              // Location
+              Text("Location",
+                  style: TextStyle(
+                      fontSize: secondary(), fontWeight: FontWeight.w600)),
+              const SizedBox(height: 4),
+              Text(_detail.workAddress,
+                  style: TextStyle(
+                      fontSize: tertiary(), fontWeight: FontWeight.w400)),
+              const SizedBox(height: 30),
+
+              // Site Manager
+              Text("Site Manager Name",
+                  style: TextStyle(
+                      fontSize: secondary(), fontWeight: FontWeight.w600)),
+              const SizedBox(height: 4),
+              Text(_detail.siteManagerName,
+                  style: TextStyle(
+                      fontSize: tertiary(), fontWeight: FontWeight.w400)),
+              const SizedBox(height: 30),
+
+              // Phone Number
+              Text("Phone Number",
+                  style: TextStyle(
+                      fontSize: secondary(), fontWeight: FontWeight.w600)),
+              const SizedBox(height: 4),
+              Text(_detail.siteManagerPhone,
+                  style: TextStyle(
+                      fontSize: tertiary(), fontWeight: FontWeight.w400)),
+              const SizedBox(height: 30),
+
+              // Email
+              Text("Email",
+                  style: TextStyle(
+                      fontSize: secondary(), fontWeight: FontWeight.w600)),
+              const SizedBox(height: 4),
+              Text(_detail.siteManagerEmail,
+                  style: TextStyle(
+                      fontSize: tertiary(), fontWeight: FontWeight.w400)),
+              const SizedBox(height: 30),
+
+              // Work Description
+              Text("Work Description",
+                  style: TextStyle(
+                      fontSize: secondary(), fontWeight: FontWeight.w600)),
+              const SizedBox(height: 4),
+              Text(_detail.workDescription,
+                  style: TextStyle(
+                      fontSize: tertiary(), fontWeight: FontWeight.w400)),
+            ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _dateColumn(String label, DateTime date) {
+    final formatted =
+        "${_monthNames[date.month - 1]} ${date.day}, ${date.year}";
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style:
+            TextStyle(fontSize: tertiary(), fontWeight: FontWeight.w600)),
+        const SizedBox(height: 4),
+        Text(formatted,
+            style:
+            TextStyle(fontSize: tertiary(), fontWeight: FontWeight.w400)),
+      ],
+    );
+  }
+
+  static const List<String> _monthNames = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec'
+  ];
+}
+
+class _RequestDepartment {
+  final String departmentName;
+  final int numberOfLabour;
+  _RequestDepartment({
+    required this.departmentName,
+    required this.numberOfLabour,
+  });
+}
+
+class _Detail {
+  final int id;
+  final String? projectName;
+  final String siteManagerName;
+  final String siteManagerPhone;
+  final String siteManagerEmail;
+  final String workDescription;
+  final String workAddress;
+  final DateTime startDate;
+  final int durationDays;
+  final String status;
+  final List<_RequestDepartment> departments;
+
+  _Detail({
+    required this.id,
+    this.projectName,
+    required this.siteManagerName,
+    required this.siteManagerPhone,
+    required this.siteManagerEmail,
+    required this.workDescription,
+    required this.workAddress,
+    required this.startDate,
+    required this.durationDays,
+    required this.status,
+    required this.departments,
+  });
+
+  factory _Detail.fromJson(Map<String, dynamic> json) {
+    final deps = (json['departments'] as List<dynamic>)
+        .map((d) => _RequestDepartment(
+      departmentName: d['department']['name'] as String,
+      numberOfLabour: d['number_of_labour'] as int,
+    ))
+        .toList();
+
+    return _Detail(
+      id: json['id'] as int,
+      projectName: json['project_name'] as String?,
+      siteManagerName: json['site_manager_name'] as String,
+      siteManagerPhone: json['site_manager_phone'] as String,
+      siteManagerEmail: json['site_manager_email'] as String,
+      workDescription: json['work_description'] as String,
+      workAddress: json['work_address'] as String,
+      startDate: DateTime.parse(json['start_date'] as String),
+      durationDays: (json['duration_days'] as num).toInt(),
+      status: json['status'] as String,
+      departments: deps,
     );
   }
 }

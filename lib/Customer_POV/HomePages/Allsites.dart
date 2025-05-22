@@ -42,21 +42,30 @@ class _AllSitesScreenState extends State<AllSitesScreen> {
         options: Options(validateStatus: (s) => s != null && s < 500),
       );
 
-      if (resp.statusCode == 200 && resp.data['status'] == true) {
-        final List<dynamic> data = resp.data['data'];
-        siteList = data
-            .map((e) => Site.fromJson(e as Map<String, dynamic>))
-            .toList();
+      // 1) Debug
+      print("🛈 fetchSites resp.data = ${resp.data}");
+
+      // 2) Normalize to a List<dynamic>
+      List<dynamic> listData;
+      if (resp.data is List) {
+        listData = resp.data as List<dynamic>;
+      } else if (resp.data is Map && resp.data['data'] is List) {
+        listData = resp.data['data'] as List<dynamic>;
       } else {
-        throw resp.data['message'] ??
-            'Failed to load (code ${resp.statusCode})';
+        throw 'Unexpected response format';
       }
+
+      // 3) Map into your model
+      siteList = listData
+          .map((e) => Site.fromJson(e as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       _error = e.toString();
     } finally {
       setState(() => _isLoading = false);
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

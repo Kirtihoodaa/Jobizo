@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 import '../../Design contraints/FontSizes.dart';
 import '../../Design contraints/app color.dart';
@@ -18,10 +21,12 @@ class Commonappbar extends StatelessWidget implements PreferredSizeWidget {
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.white),
         onPressed: () {
-          if (Navigator.of(context).canPop()) {
-            Navigator.of(context).pop();
+          // Simply pop one route if possible
+          if (Get.key.currentState?.canPop() ?? false) {
+            Get.back();
           } else {
-            debugPrint('⚠️ No screen to pop. You may have used pushReplacement.');
+            // Fallback if there's nothing to pop
+            SystemNavigator.pop();
           }
         },
       ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:jobizo/Customer_POV/AppBar/commonAppBar.dart';
 import 'package:jobizo/Customer_POV/HomePages/Payement/DuePayement.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
@@ -185,12 +187,12 @@ class _PendingPaymentScreenState extends State<PendingPaymentScreen> {
               width: 120,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const DuePaymentsScreen(),
-                    ),
+                  Get.to(
+                        () => const DuePaymentsScreen(),
+                    transition: Transition.cupertino,
+                    duration: const Duration(milliseconds: 400),
                   );
+
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.gold,

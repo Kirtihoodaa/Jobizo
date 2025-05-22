@@ -66,7 +66,7 @@ class _CustomersettingState extends State<Customersetting> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: Customerappbar(
-        key: appBarKey,
+        key: appBarKey, profileImageUrl: '',
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.only(bottom: 16),
@@ -124,16 +124,17 @@ class _CustomersettingState extends State<Customersetting> {
                             elevation: 0,
                           ),
                           onPressed: () async {
-                            final result = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Ceditprofile()));
+                            final result = await Get.to(
+                                  () => Ceditprofile(),
+                              transition: Transition.cupertino,
+                              duration: const Duration(milliseconds: 400),
+                            );
                             if (result == 'refresh') {
-                              appBarKey.currentState
-                                  ?.refreshUserInfo();
+                              appBarKey.currentState?.refreshUserInfo();
                               fetchProfileData();
                             }
                           },
+
                           child: Text(
                             'Edit Profile',
                             style: TextStyle(
@@ -171,9 +172,13 @@ class _CustomersettingState extends State<Customersetting> {
               ),
               trailing: Icon(Icons.chevron_right),
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Customerprofile()));
+                Get.to(
+                      () => Customerprofile(),
+                  transition: Transition.cupertino,
+                  duration: const Duration(milliseconds: 400),
+                );
               },
+
             ),
             Divider(),
             ListTile(
@@ -219,9 +224,13 @@ class _CustomersettingState extends State<Customersetting> {
               ),
               trailing: Icon(Icons.chevron_right),
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => CChangepassword()));
+                Get.to(
+                      () => CChangepassword(),
+                  transition: Transition.cupertino,
+                  duration: const Duration(milliseconds: 400),
+                );
               },
+
             ),
             Divider(),
             ListTile(
@@ -331,11 +340,13 @@ class _CustomersettingState extends State<Customersetting> {
                             borderRadius: BorderRadius.circular(20),
                           )),
                       onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => CDeleteaccount()));
+                        Get.to(
+                              () => CDeleteaccount(),
+                          transition: Transition.cupertino,
+                          duration: const Duration(milliseconds: 400),
+                        );
                       },
+
                       child: Text(
                         "Delete Account",
                         style: TextStyle(

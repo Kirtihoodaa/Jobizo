@@ -1,5 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Design contraints/app color.dart';
@@ -313,11 +316,12 @@ class _CompanydetailsState extends State<Companydetails> {
             const SizedBox(height: 20),
             Center(
               child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) =>  AddCompanyDetails()));
-                },
+
+                onPressed: () => Get.to(
+                      () => AddCompanyDetails(),
+                  transition: Transition.cupertino,
+                  duration: const Duration(milliseconds: 400),
+                ),
                 icon: const Icon(Icons.edit_note, size: 25, color: Colors.white),
                 label: Text('Edit', style: TextStyle(fontSize: secondary(), color: Colors.white)),
                 style: ElevatedButton.styleFrom(

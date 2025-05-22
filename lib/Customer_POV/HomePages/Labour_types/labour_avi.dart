@@ -1,5 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jobizo/Customer_POV/AppBar/commonAppBar.dart';
 import 'package:jobizo/Customer_POV/HomePages/Labour_types/Details_labour.dart';
@@ -48,12 +51,16 @@ class _AllLaboursScreenState extends State<AllLaboursScreen> {
         setState(() {
           _totalLabours = body['total_labours'] as int;
           _categories = data.map((e) {
+            final raw = e['name'] as String;
             return LabourCategory(
               id: e['id'] as int,
-              name: (e['name'] as String).capitalize(),
+              name: raw.isNotEmpty
+                  ? raw[0].toUpperCase() + raw.substring(1)
+                  : '',
               count: e['labour_count'] as int,
             );
           }).toList();
+
         });
       } else {
         throw body['message'] ?? 'Failed to load';
@@ -73,7 +80,7 @@ class _AllLaboursScreenState extends State<AllLaboursScreen> {
       return Scaffold(
         backgroundColor: AppColors.bgColor,
         appBar: Commonappbar(title: 'All Labours'),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const Center(child: CircularProgressIndicator(color: AppColors.gold,)),
       );
     }
 
@@ -111,14 +118,13 @@ class _AllLaboursScreenState extends State<AllLaboursScreen> {
                 title: cat.name,
                 count: cat.count,
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => LabourListScreen(
-                        categoryId: cat.id,
-                        categoryName: cat.name,
-                      ),
+                  Get.to(
+                        () => LabourListScreen(
+                      categoryId: cat.id,
+                      categoryName: cat.name,
                     ),
+                    transition: Transition.cupertino,
+                    duration: const Duration(milliseconds: 400),
                   );
                 },
               ),

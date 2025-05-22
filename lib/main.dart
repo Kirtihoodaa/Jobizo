@@ -4,6 +4,9 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jobizo/Customer_POV/HomePages/Allsites.dart';
 import 'package:jobizo/splash/splash_screen1.dart';
+import 'package:get/get.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
+
 import 'Customer_POV/AppBar/CustomerAppBar.dart';
 import 'Customer_POV/CustomerNavBar.dart';
 import 'Customer_POV/HomePages/LabourLocalities.dart';

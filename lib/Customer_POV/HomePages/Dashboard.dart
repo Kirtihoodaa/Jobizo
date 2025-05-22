@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:jobizo/Customer_POV/HomePages/ActiveList.dart';
 import 'package:jobizo/Customer_POV/HomePages/AddComplaint.dart';
 import 'package:jobizo/Customer_POV/HomePages/AllotoedLabour.dart';
@@ -60,7 +63,7 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: Customerappbar(
+      appBar: Customerappbar(profileImageUrl: '',
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -119,33 +122,30 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
           childAspectRatio: 2,
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
-          children: stats
-              .map((item) => GestureDetector(
-                    onTap: () {
-                      if (item['screen'] != null) {
-                        Widget? screen = item['screen'] as Widget?;
-                        if (screen != null) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => screen,
-                            ),
-                          );
-                        }
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text('No page assigned for this card!')),
-                        );
-                      }
-                    },
-                    child: _statCard(
-                      item['title'] as String,
-                      item['value'] as String,
-                      item['desc'] as String,
-                    ),
-                  ))
-              .toList(),
+          children: stats.map((item) {
+            return GestureDetector(
+              onTap: () {
+                final screen = item['screen'] as Widget?;
+                if (screen != null) {
+                  Get.to(
+                        () => screen,
+                    transition: Transition.cupertino,
+                    duration: const Duration(milliseconds: 400),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('No page assigned for this card!')),
+                  );
+                }
+              },
+              child: _statCard(
+                item['title'] as String,
+                item['value'] as String,
+                item['desc']  as String,
+              ),
+            );
+          }).toList(),
+
         ),
       ),
     );
@@ -235,12 +235,10 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
   Widget _categoryCard(String title, String count, String imagePath) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Requiredlabour(
-            ),
-          ),
+        Get.to(
+              () => Requiredlabour(),
+          transition: Transition.cupertino,
+          duration: const Duration(milliseconds: 400),
         );
       },
       child: Container(
@@ -323,9 +321,10 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
         ),
         onPressed: () {
           if (destination != null) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => destination),
+            Get.to(
+                  () => destination,
+              transition: Transition.cupertino,
+              duration: const Duration(milliseconds: 400),
             );
           } else {
             // Optional: Show a snackbar if no destination is available
@@ -382,12 +381,12 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
       child: ElevatedButton(
         onPressed: () {
           if (targetPage != null) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => targetPage),
+            Get.to(
+                  () => targetPage!,
+              transition: Transition.cupertino,
+              duration: const Duration(milliseconds: 400),
             );
           } else {
-            // Optional: Add placeholder logic here if needed later
             print('$label page is not implemented yet.');
           }
         },

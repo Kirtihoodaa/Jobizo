@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:jobizo/Customer_POV/AppBar/commonAppBar.dart';
 import 'package:jobizo/Customer_POV/HomePages/Payement/AddCard.dart';
 import 'package:jobizo/Customer_POV/HomePages/Payement/payementSucces.dart';
@@ -103,12 +105,12 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                     const SizedBox(height: 12),
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AddCard(),
-                          ),
+                        Get.to(
+                              () => AddCard(),
+                          transition: Transition.cupertino,
+                          duration: const Duration(milliseconds: 400),
                         );
+
                       },
                       child: Row(
                         children: [
@@ -140,12 +142,12 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
         width: double.infinity,
         child: ElevatedButton(
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ProcessingScreen(),
-              ),
+            Get.to(
+                  () => ProcessingScreen(),
+              transition: Transition.cupertino,
+              duration: const Duration(milliseconds: 400),
             );
+
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.gold,

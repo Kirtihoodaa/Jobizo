@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:jobizo/Customer_POV/AppBar/commonAppBar.dart';
 import 'package:jobizo/Customer_POV/HomePages/LabourProfile.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
@@ -122,26 +125,18 @@ class _AssignedWorkerPageState extends State<AssignedWorkerPage> {
                     experience: worker["experience"],
                     rating: worker["rating"],
                     imagePath: worker["image"],
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => LabourProfilePage(
-                            name: worker["name"],
-                            role: worker["role"],
-                            //now hardcode given when api will be there it will be fetched from it.
-                            employeeId: "EMP-2024-0123",
-                            location: "123 Construction Ave, Downtown",
-                            phone: "9870999888",
-                            email: "site.manager@construction.com",
-                          ),
-                        ),
-                      );
-                    },
+                    onTap: () => Get.to(
+                          () => LabourProfilePage( labourId: 2,
+
+                      ),
+                      transition: Transition.cupertino,
+                      duration: const Duration(milliseconds: 400),
+                    ),
                   );
                 },
               ),
             ),
+
           ],
         ),
       ),

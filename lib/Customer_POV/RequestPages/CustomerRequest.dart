@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -28,6 +30,7 @@ class _CustomerrequestState extends State<Customerrequest> {
   final _siteEmailCtrl = TextEditingController();
 
   // 3) Work Details
+  final _projectnameCtrl = TextEditingController();
   final _workDescCtrl  = TextEditingController();
   final _workAddrCtrl  = TextEditingController();
   final _startDateCtrl = TextEditingController();
@@ -55,6 +58,7 @@ class _CustomerrequestState extends State<Customerrequest> {
     _siteNameCtrl.dispose();
     _sitePhoneCtrl.dispose();
     _siteEmailCtrl.dispose();
+    _projectnameCtrl.dispose();
     _workDescCtrl.dispose();
     _workAddrCtrl.dispose();
     _startDateCtrl.dispose();
@@ -97,6 +101,7 @@ class _CustomerrequestState extends State<Customerrequest> {
     final siteName    = _siteNameCtrl.text.trim();
     final sitePhone   = _sitePhoneCtrl.text.trim();
     final siteEmail   = _siteEmailCtrl.text.trim();
+    final projectname = _projectnameCtrl.text.trim();
     final workDesc    = _workDescCtrl.text.trim();
     final workAddr    = _workAddrCtrl.text.trim();
     final startDate   = _startDateCtrl.text.trim();
@@ -108,6 +113,7 @@ class _CustomerrequestState extends State<Customerrequest> {
     if (siteName.isEmpty ||
         sitePhone.isEmpty ||
         siteEmail.isEmpty ||
+        projectname.isEmpty ||
         workDesc.isEmpty ||
         workAddr.isEmpty ||
         startDate.isEmpty ||
@@ -154,6 +160,7 @@ class _CustomerrequestState extends State<Customerrequest> {
           'site_manager_name'  : siteName,
           'site_manager_phone' : sitePhone,
           'site_manager_email' : siteEmail,
+          'project_name'       : projectname,
           'work_description'   : workDesc,
           'work_address'       : workAddr,
           'start_date'         : startDate,
@@ -172,7 +179,8 @@ class _CustomerrequestState extends State<Customerrequest> {
         SnackbarHelper.showSuccess(
             context, data['message'] ?? 'Request created.'
         );
-        Navigator.of(context).pop();
+        Get.back();
+
       } else {
         SnackbarHelper.showError(
             context,
@@ -191,7 +199,7 @@ class _CustomerrequestState extends State<Customerrequest> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: Customerappbar(
+      appBar: Customerappbar(profileImageUrl: '',
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(10.0),
@@ -317,6 +325,7 @@ class _CustomerrequestState extends State<Customerrequest> {
                   fontSize: secondary(),
                 )),
             const SizedBox(height: 10),
+            _buildTextField("Project name", _projectnameCtrl,),
             _buildTextField("Work Description", _workDescCtrl, maxLines: 4),
             _buildTextField("Work Address", _workAddrCtrl),
 

@@ -1,43 +1,86 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jobizo/Customer_POV/AppBar/commonAppBar.dart';
-import 'package:jobizo/Design%20contraints/app%20color.dart';
-import 'package:jobizo/Design%20contraints/FontSizes.dart';
+import 'package:jobizo/Design contraints/app color.dart';
+import 'package:jobizo/Design contraints/FontSizes.dart';
 
-class WorkHistory {
-  final String company;
-  final String role;
-  final String duration;
-  final String description;
-
-  WorkHistory({
-    required this.company,
-    required this.role,
-    required this.duration,
-    required this.description,
-  });
-}
-
-class LabourProfilePage extends StatelessWidget {
-  final String name;
-  final String role;
-  final String employeeId;
-  final String location;
-  final String phone;
-  final String email;
+class LabourProfilePage extends StatefulWidget {
+  final int labourId;
 
   const LabourProfilePage({
     super.key,
-    required this.name,
-    required this.role,
-    required this.employeeId,
-    required this.location,
-    required this.phone,
-    required this.email,
+    required this.labourId,
   });
 
   @override
+  State<LabourProfilePage> createState() => _LabourProfilePageState();
+}
+
+class _LabourProfilePageState extends State<LabourProfilePage> {
+  bool _loading = true;
+  String? _error;
+  late Map<String, dynamic> _data;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProfile();
+  }
+
+  Future<void> _fetchProfile() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('auth_token') ?? '';
+      if (!token.startsWith('Bearer ')) token = 'Bearer $token';
+
+      final resp = await Dio(BaseOptions(headers: {'Authorization': token}))
+          .get(
+        'https://backend.jobizoindia.com/api/labour-detail/${widget.labourId}',
+        options: Options(validateStatus: (s) => s != null && s < 500),
+      );
+
+      final body = resp.data as Map<String, dynamic>;
+      if (resp.statusCode == 200 && body['status'] == true) {
+        _data = body['data'] as Map<String, dynamic>;
+      } else {
+        throw body['message'] ?? 'Failed to load';
+      }
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
+
+  String _safe(dynamic v) => v?.toString() ?? 'null';
+
+  @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> attendanceStatus = [
+    if (_loading) {
+      return Scaffold(
+        backgroundColor: AppColors.bgColor,
+        appBar: Commonappbar(title: "Labour Profile"),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (_error != null) {
+      return Scaffold(
+        backgroundColor: AppColors.bgColor,
+        appBar: Commonappbar(title: "Labour Profile"),
+        body: Center(child: Text(_error!)),
+      );
+    }
+
+    final user = _data['user'] as Map<String, dynamic>? ?? {};
+    final category = _data['category'] as Map<String, dynamic>? ?? {};
+
+    // attendanceStatus and workHistoryList remain static
+    final attendanceStatus = [
       {"day": "M", "status": "Present"},
       {"day": "T", "status": "Present"},
       {"day": "W", "status": "Leave"},
@@ -46,7 +89,7 @@ class LabourProfilePage extends StatelessWidget {
       {"day": "S", "status": "Absent"},
     ];
 
-    final List<WorkHistory> workHistoryList = [
+    final workHistoryList = [
       WorkHistory(
         company: 'BuildTech Solutions',
         role: 'Construction Engineer',
@@ -68,7 +111,7 @@ class LabourProfilePage extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // Profile Card
+            // — Profile Card —
             Container(
               padding: const EdgeInsets.symmetric(vertical: 20),
               decoration: BoxDecoration(
@@ -78,18 +121,25 @@ class LabourProfilePage extends StatelessWidget {
               alignment: Alignment.center,
               child: Column(
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 30,
-                    backgroundImage:
-                        AssetImage("Assets/Labour_image/labour_profile.png"),
+                    backgroundImage: user['image'] != null
+                        ? NetworkImage(
+                        "https://backend.jobizoindia.com/storage/${user['image']}")
+                        : const AssetImage(
+                        "Assets/Labour_image/labour_profile.png")
+                    as ImageProvider,
                   ),
                   const SizedBox(height: 10),
-                  Text(name,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: primary())),
+                  Text(
+                    _safe(user['name']),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: primary()),
+                  ),
                   const SizedBox(height: 4),
-                  Text(role, style: TextStyle(fontSize: tertiary())),
-                  Text("Employee ID : $employeeId",
+                  Text(_safe(_data['work_schedule']),
+                      style: TextStyle(fontSize: tertiary())),
+                  Text("Employee ID : ${_safe(_data['id'])}",
                       style: TextStyle(fontSize: tertiary())),
                 ],
               ),
@@ -97,12 +147,12 @@ class LabourProfilePage extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // Project
+            // — Project / Category —
             buildWhiteCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Riverside Tower Project",
+                  Text(_safe(category['name']),
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: AppColors.green,
@@ -112,14 +162,17 @@ class LabourProfilePage extends StatelessWidget {
                     children: [
                       const Icon(Icons.location_on, size: 16),
                       const SizedBox(width: 4),
-                      Text(location, style: TextStyle(fontSize: secondary())),
+                      Text(_safe(_data['preferred_work_location']),
+                          style: TextStyle(fontSize: secondary())),
                     ],
                   ),
                 ],
               ),
             ),
 
-            // Work Area Details
+            const SizedBox(height: 16),
+
+            // — Work Area Details —
             buildWhiteCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,50 +183,20 @@ class LabourProfilePage extends StatelessWidget {
                           fontSize: primary(),
                           color: AppColors.green)),
                   const SizedBox(height: 8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.asset(
-                      'Assets/Labour_image/map.png',
-                      height: 200,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
                   Row(
                     children: [
-                      Image.asset("Assets/Labour_image/zone.png"),
-                      const SizedBox(width: 9),
-                      Expanded(
-                        child: Text('Zone B - Structural Works',
-                            style: TextStyle(fontSize: secondary())),
-                      ),
-                      Text('INR 1000/Day',
-                          style: TextStyle(
-                              color: AppColors.green,
-                              fontWeight: FontWeight.bold,
-                              fontSize: primary())),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Image.asset("Assets/Labour_image/workers.png"),
-                      const SizedBox(width: 9),
-                      Text('Current Workers: 45/60',
+                      const Icon(Icons.schedule, size: 16),
+                      const SizedBox(width: 4),
+                      Text(_safe(_data['work_schedule']),
                           style: TextStyle(fontSize: secondary())),
-                      const Spacer(),
-                      Image.asset("Assets/Labour_image/month_alarm.png"),
-                      const SizedBox(width: 9),
-                      Text('3 Months', style: TextStyle(fontSize: secondary())),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Image.asset("Assets/Labour_image/clock.png"),
-                      const SizedBox(width: 9),
-                      Text('7:00 AM - 5:00 PM',
+                      const Icon(Icons.date_range, size: 16),
+                      const SizedBox(width: 4),
+                      Text(_safe(_data['starting_date']),
                           style: TextStyle(fontSize: secondary())),
                     ],
                   ),
@@ -181,7 +204,9 @@ class LabourProfilePage extends StatelessWidget {
               ),
             ),
 
-            // Contact Info
+            const SizedBox(height: 16),
+
+            // — Contact Info —
             buildWhiteCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,7 +221,8 @@ class LabourProfilePage extends StatelessWidget {
                     children: [
                       Icon(Icons.call, size: 16, color: AppColors.green),
                       const SizedBox(width: 6),
-                      Text(phone, style: TextStyle(fontSize: secondary())),
+                      Text(_safe(_data['emergency_phone']),
+                          style: TextStyle(fontSize: secondary())),
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -205,14 +231,17 @@ class LabourProfilePage extends StatelessWidget {
                       Icon(Icons.email_outlined,
                           size: 16, color: AppColors.green),
                       const SizedBox(width: 6),
-                      Text(email, style: TextStyle(fontSize: secondary())),
+                      Text(_safe(user['email']),
+                          style: TextStyle(fontSize: secondary())),
                     ],
                   ),
                 ],
               ),
             ),
 
-            // Attendance
+            const SizedBox(height: 16),
+
+            // — Attendance Overview (static) —
             buildWhiteCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,7 +291,9 @@ class LabourProfilePage extends StatelessWidget {
               ),
             ),
 
-            // Work History (dynamic)
+            const SizedBox(height: 16),
+
+            // — Previous Work History (static) —
             buildWhiteCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,37 +350,33 @@ class LabourProfilePage extends StatelessWidget {
     );
   }
 
-  Widget buildWhiteCard({required Widget child}) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: const [
-          BoxShadow(
-              color: Color.fromRGBO(0, 0, 0, 0.18),
-              blurRadius: 4,
-              offset: Offset(0, 0)),
-        ],
-      ),
-      child: child,
-    );
-  }
+  Widget buildWhiteCard({required Widget child}) => Container(
+    width: double.infinity,
+    margin: const EdgeInsets.symmetric(vertical: 8),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(8),
+      boxShadow: const [
+        BoxShadow(
+            color: Color.fromRGBO(0, 0, 0, 0.18),
+            blurRadius: 4,
+            offset: Offset(0, 0)),
+      ],
+    ),
+    child: child,
+  );
 
-  Widget dayCircle(String text, Color color) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      height: 35,
-      width: 35,
-      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
-      alignment: Alignment.center,
-      child: Text(text,
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold)),
-    );
-  }
+  Widget dayCircle(String text, Color color) => Container(
+    margin: const EdgeInsets.symmetric(horizontal: 4),
+    height: 35,
+    width: 35,
+    decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+    alignment: Alignment.center,
+    child: Text(text,
+        style: const TextStyle(
+            color: Colors.white, fontWeight: FontWeight.bold)),
+  );
 }
 
 class AttendanceBox extends StatelessWidget {
@@ -375,4 +402,18 @@ class AttendanceBox extends StatelessWidget {
       ],
     );
   }
+}
+
+class WorkHistory {
+  final String company;
+  final String role;
+  final String duration;
+  final String description;
+
+  WorkHistory({
+    required this.company,
+    required this.role,
+    required this.duration,
+    required this.description,
+  });
 }

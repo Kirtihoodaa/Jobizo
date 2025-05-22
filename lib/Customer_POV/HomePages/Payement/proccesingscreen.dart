@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'dart:async';
 
 import 'package:jobizo/Customer_POV/HomePages/Payement/payementSucces.dart';
@@ -23,10 +25,12 @@ class _ProcessingScreenState extends State<ProcessingScreen>
           ..repeat();
 
     Future.delayed(const Duration(seconds: 4), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const PaymentSuccessPage()),
+      Get.off(
+            () => const PaymentSuccessPage(),
+        transition: Transition.cupertino,
+        duration: const Duration(milliseconds: 400),
       );
+
     });
   }
 

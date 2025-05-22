@@ -78,7 +78,7 @@ class CustomMenuCustomer {
                         Align(
                           alignment: Alignment.topRight,
                           child: InkWell(
-                            onTap: () => Navigator.of(context).pop(),
+                            onTap: () => Get.back(),
                             child: Container(
                               padding: EdgeInsets.all(4),
                               decoration: BoxDecoration(
@@ -97,49 +97,42 @@ class CustomMenuCustomer {
                   SizedBox(height: 16),
 
                   // Menu items
-                  ListTile(
-                    leading: Icon(Icons.dashboard_customize),
-                    title: Text('Dashboard'),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const DashboardScreenC()),
-                      );
-                    },
+                ListTile(
+                  leading: Icon(Icons.dashboard_customize),
+                  title: Text('Dashboard'),
+                  onTap: () => Get.to(
+                        () => const DashboardScreenC(),
+                    transition: Transition.cupertino,
+                    duration: Duration(milliseconds: 400),
                   ),
+                ),
                   ListTile(
                     leading: Icon(Icons.person),
                     title: Text('Profile'),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => Customerprofile()),
-                      );
-                    },
+                    onTap: () => Get.to(
+                          () => Customerprofile(),
+                      transition: Transition.cupertino,
+                      duration: Duration(milliseconds: 400),
+                    ),
                   ),
                   ListTile(
                     leading: Icon(Icons.support_agent),
                     title: Text('Help & Support'),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const HelpSupportPage()),
-                      );
-                    },
+                    onTap: () => Get.to(
+                          () => const HelpSupportPage(),
+                      transition: Transition.cupertino,
+                      duration: Duration(milliseconds: 400),
+                    ),
                   ),
-                  ListTile(
-                    leading: Icon(Icons.feedback),
-                    title: Text('Feedback'),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const Customerfeedback()),
-                      );
-                    },
+                ListTile(
+                  leading: Icon(Icons.feedback),
+                  title: Text('Feedback'),
+                  onTap: () => Get.to(
+                        () => const Customerfeedback(),
+                    transition: Transition.cupertino,
+                    duration: Duration(milliseconds: 400),
                   ),
+                ),
 
                   // Logout button
                   Container(
