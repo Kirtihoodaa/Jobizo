@@ -150,11 +150,11 @@ class _HistoryPageState extends State<HistoryPage> {
                       // header: avatar, name/role, status badge
                       Row(
                         children: [
-                          CircleAvatar(
-                            radius: 24,
-                            backgroundImage: AssetImage('assets/avatar.png'),
-                          ),
-                          const SizedBox(width: 12),
+                          // CircleAvatar(
+                          //   radius: 24,
+                          //   backgroundImage: AssetImage('assets/avatar.png'),
+                          // ),
+                          // const SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,7 +256,7 @@ class _HistoryPageState extends State<HistoryPage> {
                             elevation: 0,
                           ),
                           onPressed: () {
-                            Get.to(() => WorkDetails(),
+                            Get.to(() => WorkDetails(jobData: {},),
                                 transition: Transition.cupertino,
                                 duration: const Duration(milliseconds: 400));
                           },
