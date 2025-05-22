@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:jobizo/Customer_POV/AppBar/commonAppBar.dart';
 import 'package:jobizo/Customer_POV/HomePages/WorkApplication.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
@@ -208,11 +210,13 @@ class WorkOpportunitiesPage extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => WorkApplicationForm()));
+                    Get.to(
+                          () => WorkApplicationForm(),
+                      transition: Transition.cupertino,
+                      duration: const Duration(milliseconds: 400),
+                    );
                   },
+
                   child: Text(
                     'Start Your Journey',
                     style:

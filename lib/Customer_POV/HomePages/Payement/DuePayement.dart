@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:jobizo/Customer_POV/AppBar/commonAppBar.dart';
 import 'package:jobizo/Customer_POV/HomePages/Payement/PayNow.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
@@ -296,13 +298,13 @@ class _DuePaymentsScreenState extends State<DuePaymentsScreen> {
       children: [
         ElevatedButton(
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const PaymentMethodScreen(),
-              ),
+            Get.to(
+                  () => const PaymentMethodScreen(),
+              transition: Transition.cupertino,
+              duration: const Duration(milliseconds: 400),
             );
           },
+
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.gold,
             shape: RoundedRectangleBorder(

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 
@@ -144,7 +146,7 @@ class PaymentSuccessPage extends StatelessWidget {
               const SizedBox(height: 60),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  Get.back();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFFFFC107),

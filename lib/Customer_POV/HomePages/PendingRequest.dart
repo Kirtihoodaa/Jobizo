@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:jobizo/Customer_POV/AppBar/commonAppBar.dart';
 import 'package:jobizo/Customer_POV/HistoryPages/RequestDetails.dart';
 import 'package:jobizo/Customer_POV/HomePages/ApplicationDetails.dart';
@@ -202,22 +205,20 @@ class PendingCard extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () {
                     if (item.type == "Construction") {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Requestdetails(),
-                        ),
+                      Get.to(
+                            () => Requestdetails(requestId: 2,),
+                        transition: Transition.cupertino,
+                        duration: const Duration(milliseconds: 400),
                       );
                     } else if (item.type == "Job Application") {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              ApplicationDetail(), // <-- Add this
-                        ),
+                      Get.to(
+                            () => ApplicationDetail(),
+                        transition: Transition.cupertino,
+                        duration: const Duration(milliseconds: 400),
                       );
                     }
                   },
+
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.gold,
                     shape: RoundedRectangleBorder(

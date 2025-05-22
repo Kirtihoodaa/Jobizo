@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Design contraints/FontSizes.dart';
@@ -60,7 +62,7 @@ class _CChangepasswordState extends State<CChangepassword> {
       final data = resp.data as Map<String, dynamic>;
       if (resp.statusCode == 200 && data['status'] == true) {
         SnackbarHelper.showSuccess(context, data['message'] ?? 'Password changed.');
-        Navigator.of(context).pop();  // ← go back on success
+        Get.back();
       } else {
         SnackbarHelper.showError(
           context,
@@ -88,7 +90,7 @@ class _CChangepasswordState extends State<CChangepassword> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Get.back(),
         ),
         title: Text(
           'Change Password',

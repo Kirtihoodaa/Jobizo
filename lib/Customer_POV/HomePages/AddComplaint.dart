@@ -1,9 +1,16 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:jobizo/Customer_POV/AppBar/commonAppBar.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
+import 'package:jobizo/Design%20contraints/FontSizes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../SnackBar/Snackbar.dart';
 
 class AddComplaintPage extends StatefulWidget {
   const AddComplaintPage({super.key});
@@ -13,20 +20,15 @@ class AddComplaintPage extends StatefulWidget {
 }
 
 class _AddComplaintPageState extends State<AddComplaintPage> {
-  final TextEditingController nameController = TextEditingController();
+  final TextEditingController nameController        = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
-  final TextEditingController _dobController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController _dobController         = TextEditingController();
+  final TextEditingController emailController       = TextEditingController();
+  final TextEditingController phoneController       = TextEditingController();
 
-  PlatformFile? selectedFile;
-  Color borderColor = Colors.grey; // Default border color
-
-  // FocusNode for detecting tap on container
-  final FocusNode _focusNode = FocusNode();
-
-  // GlobalKey to manage Form validation
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  PlatformFile? selectedFile;
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -35,64 +37,16 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
     _dobController.dispose();
     emailController.dispose();
     phoneController.dispose();
-    _focusNode.dispose();
     super.dispose();
   }
 
   Future<void> pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    final result = await FilePicker.platform.pickFiles();
     if (result != null) {
-      setState(() {
-        selectedFile = result.files.first;
-      });
+      setState(() => selectedFile = result.files.first);
     }
   }
 
-  Widget _buildDateField(BuildContext context) {
-    return TextFormField(
-      controller: _dobController,
-      readOnly: true,
-      decoration: InputDecoration(
-        hintText: 'Select Date',
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.gold, width: 2),
-        ),
-        suffixIcon: const Icon(Icons.calendar_today),
-      ),
-      onTap: () async {
-        DateTime? pickedDate = await showDatePicker(
-          context: context,
-          initialDate: DateTime(2001, 2, 5),
-          firstDate: DateTime(1900),
-          lastDate: DateTime.now(),
-          builder: (context, child) {
-            return Theme(
-              data: Theme.of(context).copyWith(
-                colorScheme: ColorScheme.light(
-                  primary: AppColors.gold,
-                  onSurface: Colors.black,
-                  surface: AppColors.bgColor,
-                ),
-              ),
-              child: child!,
-            );
-          },
-        );
-        if (pickedDate != null) {
-          _dobController.text =
-              '${pickedDate.day}/${pickedDate.month}/${pickedDate.year}';
-        }
-      },
-    );
-  }
-
-  // Phone number validator
   String? phoneValidator(String? value) {
     if (value == null || value.isEmpty) {
       return 'Phone number is required';
@@ -104,22 +58,121 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
     return null;
   }
 
+  Future<void> _submitComplaint() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    setState(() => _isSubmitting = true);
+    try {
+      // Get auth token
+      final prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('auth_token') ?? '';
+      if (!token.startsWith('Bearer ')) token = 'Bearer $token';
+
+      // Convert dd/MM/yyyy → yyyy-MM-dd
+      final incidentDate = DateFormat('dd/MM/yyyy').parse(_dobController.text);
+      final formattedDate = DateFormat('yyyy-MM-dd').format(incidentDate);
+
+      // Build Dio with auth header
+      final dio = Dio(BaseOptions(headers: {'Authorization': token}));
+
+      // Prepare multipart form
+      final form = FormData.fromMap({
+        'name':             nameController.text.trim(),
+        'description':      descriptionController.text.trim(),
+        'date_of_incident': formattedDate,
+        'contact_email':    emailController.text.trim(),
+        'phone':            phoneController.text.trim(),
+        if (selectedFile != null)
+          'attachment': await MultipartFile.fromFile(
+            selectedFile!.path!,
+            filename: selectedFile!.name,
+          ),
+      });
+
+      // POST to your complaints endpoint
+      final response = await dio.post(
+        'https://backend.jobizoindia.com/api/complaint',
+        data: form,
+      );
+
+      // Handle response
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final ticket = response.data['ticket_number'] ?? '–';
+        if (mounted) {
+          Navigator.of(context).pop();
+          SnackbarHelper.showSuccess(
+            context,
+            'Complaint filed! Ticket: $ticket',
+          );
+        }
+      } else {
+        SnackbarHelper.showError(
+          context,
+          'Failed to file complaint (${response.statusCode})',
+        );
+      }
+    } catch (e) {
+      SnackbarHelper.showError(context, 'Error: $e');
+    } finally {
+      setState(() => _isSubmitting = false);
+    }
+  }
+
+
+  Widget _buildDateField(BuildContext context) {
+    return TextFormField(
+      controller: _dobController,
+      readOnly: true,
+      decoration: InputDecoration(
+        hintText: 'Select Date',
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppColors.gold, width: 2),
+        ),
+        suffixIcon: const Icon(Icons.calendar_today),
+      ),
+      onTap: () async {
+        DateTime? picked = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(1900),
+          lastDate: DateTime.now(),
+          builder: (c, child) => Theme(
+            data: Theme.of(c).copyWith(
+              colorScheme: ColorScheme.light(
+                primary: AppColors.gold,
+                onSurface: Colors.black,
+              ),
+            ),
+            child: child!,
+          ),
+        );
+        if (picked != null) {
+          _dobController.text = DateFormat('dd/MM/yyyy').format(picked);
+        }
+      },
+      validator: (v) => v == null || v.isEmpty ? 'Date is required' : null,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: Commonappbar(title: 'Add Complaint'),
       body: Padding(
-        padding: const EdgeInsets.only(left: 15, right: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 15),
         child: Center(
           child: Form(
-            key: _formKey, // Attach the form key
+            key: _formKey,
             child: Container(
               width: MediaQuery.of(context).size.width,
-              height: 686,
-              padding: const EdgeInsets.all(24),
+              height: 700,
+              padding:  EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFFFFF),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: const [
                   BoxShadow(
@@ -133,112 +186,64 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Name field
-                    Text(
-                      'Name',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800),
-                    ),
+                    // Name
+                    Text('Name', style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.w800)),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: nameController,
                       decoration: InputDecoration(
                         hintText: 'Enter your name',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: AppColors.gold),
-                        ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(color: AppColors.gold),
                         ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Name is required';
-                        }
-                        return null;
-                      },
+                      validator: (v) => v == null || v.isEmpty ? 'Name is required' : null,
                     ),
                     const SizedBox(height: 16),
 
-                    // Description field
-                    const Text(
-                      'Description',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800),
-                    ),
+                    // Description
+                    const Text('Description', style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.w800)),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: descriptionController,
                       maxLines: 5,
                       decoration: InputDecoration(
                         hintText: 'Describe the issue in detail',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: AppColors.gold),
-                        ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(color: AppColors.gold),
                         ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Description is required';
-                        }
-                        return null;
-                      },
+                      validator: (v) => v == null || v.isEmpty ? 'Description is required' : null,
                     ),
                     const SizedBox(height: 16),
 
-                    // Date picker
-                    const Text(
-                      'Date of Incident',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800),
-                    ),
+                    // Date of Incident
+                    const Text('Date of Incident', style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.w800)),
                     const SizedBox(height: 8),
                     _buildDateField(context),
-
                     const SizedBox(height: 16),
 
-                    // Email field
-                    const Text(
-                      'Contact Email',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800),
-                    ),
+                    // Contact Email
+                    const Text('Contact Email', style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.w800)),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         hintText: 'your@email.com',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: AppColors.gold),
-                        ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(color: AppColors.gold),
                         ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Email is required';
-                        }
-                        if (!RegExp(
-                                r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$')
-                            .hasMatch(value)) {
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return 'Email is required';
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w]{2,4}').hasMatch(v)) {
                           return 'Invalid email address';
                         }
                         return null;
@@ -246,14 +251,8 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Phone field
-                    const Text(
-                      'Phone Number',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800),
-                    ),
+                    // Phone Number
+                    const Text('Phone Number', style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.w800)),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: phoneController,
@@ -262,94 +261,58 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
                       decoration: InputDecoration(
                         hintText: 'Enter phone number',
                         counterText: '',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: AppColors.gold),
-                        ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(color: AppColors.gold),
                         ),
                       ),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       validator: phoneValidator,
                     ),
                     const SizedBox(height: 16),
 
-                    // Attachments field
-                    const Text(
-                      'Attachments',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
+                    // Attachments
+                    const Text('Attachments', style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.w800)),
                     const SizedBox(height: 8),
-                    TextFormField(
-                      controller: TextEditingController(),
-                      readOnly: true,
-                      focusNode: _focusNode, // Assign the focusNode here
-                      decoration: InputDecoration(
-                        hintStyle: TextStyle(color: Colors.grey),
-                        contentPadding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 12),
-                        prefixIcon: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.cloud_upload, size: 32),
-                              SizedBox(height: 8),
-                              Text('Click to upload',
-                                  style: TextStyle(
-                                      fontSize: 14, color: Colors.grey)),
-                            ],
+                    GestureDetector(
+                      onTap: pickFile,
+                      child: Container(
+                        height: 60,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Center(
+                          child: Text(
+                            selectedFile?.name ?? 'Tap to upload a file',
+                            style: TextStyle(color: Colors.grey[600]),
                           ),
                         ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                              color: _focusNode.hasFocus
-                                  ? AppColors.gold
-                                  : Colors.black),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.black),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide:
-                              BorderSide(color: AppColors.gold, width: 2),
-                        ),
                       ),
-                      onTap: () async {
-                        await pickFile();
-                      },
                     ),
                     const SizedBox(height: 24),
 
                     // Submit button
                     Center(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState?.validate() ?? false) {
-                            // Process the form data if valid
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.gold,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _isSubmitting ? null : _submitComplaint,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.gold,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
                           ),
-                        ),
-                        child: const Text(
-                          'File a Complaint',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                          child: _isSubmitting
+                              ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                              : const Text('File a Complaint', style: TextStyle(color: Colors.white, fontSize: 16)),
                         ),
                       ),
                     ),

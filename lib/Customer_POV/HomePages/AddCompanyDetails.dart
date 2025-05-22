@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart' as p;
 import 'package:jobizo/Design contraints/app color.dart';
@@ -213,7 +215,7 @@ class _AddCompanyDetailsState extends State<AddCompanyDetails> {
           ..setString('gst_number', _gstNumberCtrl.text.trim())
           ..setStringList('project_categories', _selectedCategories.toList());
         SnackbarHelper.showSuccess(context, body['message'] ?? 'Company created successfully');
-        Navigator.of(context).pop();
+        Get.back();
       } else {
         SnackbarHelper.showError(context, body['message'] ?? 'Failed (${resp.statusCode})');
       }

@@ -45,7 +45,7 @@ class _ActivelistState extends State<Activelist> {
     Color darkBrown = AppColors.brown;
     return Scaffold(
       backgroundColor: AppColors.bgColor,
-      appBar: Commonappbar(title: 'Active List'),
+      appBar: Commonappbar(title: 'Active Labours'),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,7 +63,7 @@ class _ActivelistState extends State<Activelist> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Available Agents',
+                    'Available Labours',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 26,
@@ -122,7 +122,7 @@ class _ActivelistState extends State<Activelist> {
             CircleAvatar(
               radius: 30,
               backgroundColor: Colors.grey.shade200,
-              child: Icon(Icons.business, size: 32, color: AppColors.green),
+              backgroundImage: AssetImage('Assets/Customer_Images/List_icon.png'),
             ),
             SizedBox(width: 16),
 
@@ -131,17 +131,11 @@ class _ActivelistState extends State<Activelist> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Company name
-                  Text(
-                    agent['company']!,
-                    style: TextStyle(
-                      fontSize: secondary(),
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.green,
-                    ),
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Colors.grey.shade200,
+                    backgroundImage: AssetImage('Assets/Customer_Images/List_icon.png'),
                   ),
-                  SizedBox(height: 10),
-
                   // Name & ID
                   Row(
                     children: [
