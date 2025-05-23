@@ -98,6 +98,7 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
+      print('$token');
 
       Dio dio = Dio();
       if (token != null) dio.options.headers['Authorization'] = 'Bearer $token';
@@ -105,7 +106,9 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
       final response =
           await dio.get('https://backend.jobizoindia.com/api/labour-jobs');
       final List data = response.data['data'];
-
+      for (var json in data) {
+        print('⚠️ Found status: ${json['labour_status']}');
+      }
       // Reverse the list so that newest items come first
       final items = data
           .map((json) => ApprovalItem.fromJson(json))
@@ -362,8 +365,7 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
                                     // ✅ Navigate to WorkDetailsScreen
                                     Get.to(
                                       () => WorkDetails(
-                                          jobData: item
-                                              .raw), // <-- Replace with your actual screen
+                                           jobId: item.id), // <-- Replace with your actual screen
                                       transition: Transition.rightToLeft,
                                       duration:
                                           const Duration(milliseconds: 400),

@@ -6,7 +6,8 @@ import 'package:jobizo/Design%20contraints/app%20color.dart';
 import '../All_app_bars/normal_app_bar.dart';
 
 class UpcomingAssignmentScreen extends StatefulWidget {
-  const UpcomingAssignmentScreen({super.key});
+  final int jobId;
+  const UpcomingAssignmentScreen({super.key, required this.jobId});
 
   @override
   State<UpcomingAssignmentScreen> createState() =>
@@ -31,14 +32,19 @@ class _UpcomingAssignmentScreenState extends State<UpcomingAssignmentScreen> {
       Dio dio = Dio();
       dio.options.headers["Authorization"] = "Bearer $token";
 
-      final response = await dio
-          .get("https://backend.jobizoindia.com/api/labour/upcoming-contracts");
+      final response = await dio.get("https://backend.jobizoindia.com/api/labour/upcoming-contracts");
 
       if (response.statusCode == 200 && response.data['status'] == true) {
         final jobList = response.data['upcoming_jobs'];
+
         if (jobList != null && jobList.isNotEmpty) {
+          final match = jobList.firstWhere(
+                (job) => job['job_id'] == widget.jobId,
+            orElse: () => null,
+          );
+
           setState(() {
-            jobData = jobList[0];
+            jobData = match;
             isLoading = false;
           });
         } else {
@@ -59,7 +65,7 @@ class _UpcomingAssignmentScreenState extends State<UpcomingAssignmentScreen> {
       backgroundColor: const Color(0xFFF9F9F9),
       appBar: CustomBackAppBar(title: 'Upcoming Assignment'),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppColors.gold,))
           : jobData == null
               ? const Center(child: Text("No upcoming assignments"))
               : SingleChildScrollView(
