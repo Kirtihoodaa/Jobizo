@@ -1,5 +1,9 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../Design contraints/FontSizes.dart';
 import '../AppBar/commonAppBar.dart';
 
@@ -14,6 +18,70 @@ class _IndustrydetailsState extends State<Industrydetails> {
   bool _insuranceExpanded = false;
   bool _verifiedExpanded  = false;
 
+  List<Map<String, dynamic>> _recentWork = [];
+  bool _loadingRecent = true;
+  String? _recentError;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchRecentWork();
+  }
+
+  Future<void> _fetchRecentWork() async {
+    setState(() {
+      _loadingRecent = true;
+      _recentError = null;
+    });
+
+    try {
+      // Retrieve token
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token') ?? '';
+
+      // Configure Dio with auth header
+      final dio = Dio();
+      dio.options.headers['Authorization'] = 'Bearer $token';
+
+      final resp = await dio.get(
+        'https://backend.jobizoindia.com/api/work-gallery',
+        options: Options(validateStatus: (s) => s != null && s < 500),
+      );
+
+      dynamic raw = resp.data;
+      List<dynamic> list;
+
+      if (raw is String) {
+        // sometimes APIs return a JSON string
+        raw = jsonDecode(raw);
+      }
+
+      if (raw is List) {
+        list = raw;
+      } else if (raw is Map<String, dynamic> && raw['data'] is List) {
+        list = raw['data'] as List;
+      } else {
+        throw 'Unexpected response format';
+      }
+
+      setState(() {
+        _recentWork = list
+            .map((e) => Map<String, dynamic>.from(e as Map<String, dynamic>))
+            .toList();
+      });
+    } catch (e) {
+      setState(() {
+        _recentError = e.toString();
+        _recentWork = [];
+      });
+    } finally {
+      setState(() {
+        _loadingRecent = false;
+      });
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +91,6 @@ class _IndustrydetailsState extends State<Industrydetails> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // —— Header image with overlayed title + rating
             Padding(
               padding: const EdgeInsets.only(top: 30, bottom: 10),
               child: Stack(
@@ -319,61 +386,78 @@ class _IndustrydetailsState extends State<Industrydetails> {
               ),
             ),
             const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _buildRecentWork(
-                      'Assets/Customer_Images/villa.png',
-                      'Modern Villa',
-                      'Completed Dec 2023',
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildRecentWork(
-                      'Assets/Customer_Images/villa.png',
-                      'Office Complex',
-                      'Completed Nov 2023',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Work Gallery',
-                style: TextStyle(
-                  color: AppColors.green,
-                  fontSize: primary(),
-                  fontWeight: FontWeight.bold,
+            if (_loadingRecent)
+              const Center(child: CircularProgressIndicator())
+            else if (_recentError != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'Failed to load recent work: $_recentError',
+                  style: TextStyle(color: Colors.red, fontSize: tertiary()),
                 ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: GridView.count(
-                crossAxisCount: 2,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                children: [
-                  'Assets/Customer_Images/villa.png',
-                  'Assets/Customer_Images/villa.png',
-                  'Assets/Customer_Images/villa.png',
-                  'Assets/Customer_Images/villa.png',
-                ].map((path) => ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(path, fit: BoxFit.cover),
-                )).toList(),
-              ),
-            ),
+              )
+            else if (_recentWork.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'No recent work found.',
+                    style: TextStyle(fontSize: tertiary()),
+                  ),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: GridView.count(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: _recentWork.map((item) {
+                      final img = item['image'] as String?;
+                      final imgPath = img != null
+                          ? 'https://backend.jobizoindia.com/storage/$img'
+                          : 'Assets/Customer_Images/villa.png';
+                      final title = item['title'] as String? ?? 'Untitled';
+                      final date = item['complition_date'] as String? ?? 'Date N/A';
+
+                      return buildRecentWork(imgPath, title, date);
+                    }).toList(),
+                  ),
+                ),
+
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 16),
+            //   child: Text(
+            //     'Work Gallery',
+            //     style: TextStyle(
+            //       color: AppColors.green,
+            //       fontSize: primary(),
+            //       fontWeight: FontWeight.bold,
+            //     ),
+            //   ),
+            // ),
+            // const SizedBox(height: 16),
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 16),
+            //   child: GridView.count(
+            //     crossAxisCount: 2,
+            //     mainAxisSpacing: 12,
+            //     crossAxisSpacing: 12,
+            //     shrinkWrap: true,
+            //     physics: NeverScrollableScrollPhysics(),
+            //     children: [
+            //       'Assets/Customer_Images/villa.png',
+            //       'Assets/Customer_Images/villa.png',
+            //       'Assets/Customer_Images/villa.png',
+            //       'Assets/Customer_Images/villa.png',
+            //     ].map((path) => ClipRRect(
+            //       borderRadius: BorderRadius.circular(12),
+            //       child: Image.asset(path, fit: BoxFit.cover),
+            //     )).toList(),
+            //   ),
+            // ),
 
             const SizedBox(height: 24),
 
@@ -527,7 +611,11 @@ class _IndustrydetailsState extends State<Industrydetails> {
   }
 
 
-  Widget _buildRecentWork(String imgPath, String title, String subtitle) {
+  Widget buildRecentWork(String imgPath, String title, String subtitle) {
+    final imageProvider = imgPath.startsWith('http')
+        ? NetworkImage(imgPath)
+        : AssetImage(imgPath) as ImageProvider;
+
     return Card(
       color: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -536,8 +624,8 @@ class _IndustrydetailsState extends State<Industrydetails> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset(
-            imgPath,
+          Image(
+            image: imageProvider,
             width: double.infinity,
             height: 100,
             fit: BoxFit.cover,
@@ -552,16 +640,12 @@ class _IndustrydetailsState extends State<Industrydetails> {
                   style: TextStyle(
                     fontSize: tertiary(),
                     fontWeight: FontWeight.bold,
-
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    fontSize: tertiary(),
-
-                  ),
+                  style: TextStyle(fontSize: tertiary()),
                 ),
               ],
             ),
@@ -570,7 +654,6 @@ class _IndustrydetailsState extends State<Industrydetails> {
       ),
     );
   }
-
   Widget _buildStat(String value, String label) {
     return Expanded(
       child: Container(

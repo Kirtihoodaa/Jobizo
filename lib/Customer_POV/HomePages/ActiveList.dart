@@ -1,6 +1,10 @@
+// lib/Customer_POV/ActiveLabours.dart
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:jobizo/Design%20contraints/app%20color.dart';
-import '../../Design contraints/FontSizes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:jobizo/Design contraints/app color.dart';
+import 'package:jobizo/Design contraints/FontSizes.dart';
 import '../AppBar/commonAppBar.dart';
 
 class Activelist extends StatefulWidget {
@@ -11,46 +15,75 @@ class Activelist extends StatefulWidget {
 }
 
 class _ActivelistState extends State<Activelist> {
-  final int availableAgents = 24;
+  bool _loading = true;
+  String? _error;
+  List<Map<String, dynamic>> _agents = [];
 
-  final List<Map<String, String>> agents = [
-    {
-      'company': 'Thomas Plumbing co',
-      'name': 'Robert Mitchell',
-      'id': 'VEN-2024-001',
-      'location': 'Delhi, India',
-      'phone': '+91 7867898832',
-      'email': 'r.mitchell@globaltech.com',
-    },
-    {
-      'company': 'Thomas Plumbing co',
-      'name': 'Robert Mitchell',
-      'id': 'VEN-2024-002',
-      'location': 'Delhi, India',
-      'phone': '+91 7867898833',
-      'email': 'r.mitchell2@globaltech.com',
-    },
-    {
-      'company': 'Thomas Plumbing co',
-      'name': 'Robert Mitchell',
-      'id': 'VEN-2024-003',
-      'location': 'Delhi, India',
-      'phone': '+91 7867898834',
-      'email': 'r.mitchell3@globaltech.com',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _fetchActiveLabours();
+  }
+
+  Future<void> _fetchActiveLabours() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('auth_token') ?? '';
+      if (!token.startsWith('Bearer ')) token = 'Bearer $token';
+
+      final resp = await Dio(BaseOptions(headers: {'Authorization': token}))
+          .get(
+        'https://backend.jobizoindia.com/api/active-labours',
+        options: Options(validateStatus: (s) => s != null && s < 500),
+      );
+
+      final body = resp.data as Map<String, dynamic>;
+      if (resp.statusCode == 200 && body['status'] == true) {
+        _agents = List<Map<String, dynamic>>.from(body['active_labours']);
+      } else {
+        throw body['message'] ?? 'Failed to load';
+      }
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    Color darkBrown = AppColors.brown;
+    final darkBrown = AppColors.brown;
+
+    if (_loading) {
+      return Scaffold(
+        backgroundColor: AppColors.bgColor,
+        appBar: const Commonappbar(title: 'Active Labours'),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_error != null) {
+      return Scaffold(
+        backgroundColor: AppColors.bgColor,
+        appBar: const Commonappbar(title: 'Active Labours'),
+        body: Center(child: Text(_error!)),
+      );
+    }
+
+    final availableAgents = _agents.length;
+
     return Scaffold(
       backgroundColor: AppColors.bgColor,
-      appBar: Commonappbar(title: 'Active Labours'),
+      appBar: const Commonappbar(title: 'Active Labours'),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Available Agents Card
+            // Available Labours Card
             Container(
               width: double.infinity,
               margin: const EdgeInsets.all(16),
@@ -70,123 +103,99 @@ class _ActivelistState extends State<Activelist> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Center(
-                        child: Text(
-                          '-$availableAgents-',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 35,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 20),
+                  Text(
+                    '-$availableAgents-',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 35,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
             ),
 
-            // List of Agent Cards
+            // List of Labour Cards
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 children:
-                    agents.map((agent) => _buildAgentCard(agent)).toList(),
+                _agents.map((agent) => _buildAgentCard(agent)).toList(),
               ),
             ),
 
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAgentCard(Map<String, String> agent) {
+  Widget _buildAgentCard(Map<String, dynamic> agent) {
+    // Always use the asset placeholder for the left icon
+    const placeholder = AssetImage('Assets/Customer_Images/List_icon.png');
+
     return Card(
       color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
       elevation: 1,
-      margin: EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 16),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Logo placeholder
+            // Fixed logo/avatar placeholder
             CircleAvatar(
               radius: 30,
               backgroundColor: Colors.grey.shade200,
-              backgroundImage: AssetImage('Assets/Customer_Images/List_icon.png'),
+              backgroundImage: placeholder,
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
 
-            // Agent details
+            // Labour details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.grey.shade200,
-                    backgroundImage: AssetImage('Assets/Customer_Images/List_icon.png'),
-                  ),
                   // Name & ID
                   Row(
                     children: [
-                      Expanded(
-                        child: Row(
-                          children: [
-                            Icon(Icons.person,
-                                size: 16, color: AppColors.green),
-                            const SizedBox(width: 4),
-                            Text(agent['name']!),
-                          ],
-                        ),
-                      ),
+                      const Icon(Icons.person, size: 16, color: AppColors.green),
+                      const SizedBox(width: 4),
+                      Text(agent['name'] ?? 'null'),
+                      const Spacer(),
                       Text(
-                        'ID: ${agent['id']}',
+                        'ID: ${agent['labour_id'] ?? 'null'}',
                         style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
                     ],
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
                   // Location & Phone
                   Row(
                     children: [
-                      Expanded(
-                        child: Row(
-                          children: [
-                            Icon(Icons.location_on,
-                                size: 16, color: AppColors.green),
-                            SizedBox(width: 4),
-                            Text(agent['location']!),
-                          ],
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.phone, size: 16, color: AppColors.green),
-                          SizedBox(width: 4),
-                          Text(agent['phone']!),
-                        ],
-                      ),
+                      const Icon(Icons.location_on,
+                          size: 16, color: AppColors.green),
+                      const SizedBox(width: 4),
+                      Expanded(child: Text(agent['location'] ?? 'null')),
+                      const Icon(Icons.phone, size: 16, color: AppColors.green),
+                      const SizedBox(width: 4),
+                      Text(agent['phone'] ?? 'null'),
                     ],
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
                   // Email
                   Row(
                     children: [
-                      Icon(Icons.email, size: 16, color: AppColors.green),
-                      SizedBox(width: 4),
-                      Expanded(child: Text(agent['email']!)),
+                      const Icon(Icons.email, size: 16, color: AppColors.green),
+                      const SizedBox(width: 4),
+                      Expanded(child: Text(agent['email'] ?? 'null')),
                     ],
                   ),
                 ],
