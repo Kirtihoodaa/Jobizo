@@ -1,11 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../Design contraints/FontSizes.dart';
 import '../../Design contraints/app color.dart';
 import '../All_app_bars/app_bar.dart';
 import '../NavBar.dart';
 import 'detailsWorks.dart';
+
+class JobModel {
+  final String company;
+  final String jobTitle;
+  final String jobLocation;
+  final String duration;
+  final String status;
+  final String startDate;
+  final String labourName;
+  final int jobid;
+
+  JobModel({
+    required this.company,
+    required this.jobTitle,
+    required this.jobLocation,
+    required this.duration,
+    required this.status,
+    required this.startDate,
+    required this.labourName,
+    required this.jobid,
+  });
+
+  factory JobModel.fromJson(Map<String, dynamic> json) {
+    return JobModel(
+      company: json['company'] ?? 'N/A',
+      jobTitle: json['job_title'] ?? '',
+      jobLocation: json['job_location'] ?? '',
+      duration: json['job_duration'] ?? '',
+      status: json['status'] ?? '',
+      startDate: json['start_date'] ?? '',
+      labourName: json['labour_name'] ?? '',
+      jobid: json['job_id'] ?? 0,
+    );
+  }
+}
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});
@@ -16,6 +52,7 @@ class HistoryPage extends StatefulWidget {
 
 class _HistoryPageState extends State<HistoryPage> {
   int _selectedFilter = 0;
+  List<JobModel> jobList = [];
 
   final List<Map<String, String>> _filters = [
     {'label': 'All Jobs', 'count': '24'},
@@ -24,26 +61,32 @@ class _HistoryPageState extends State<HistoryPage> {
     {'label': 'Cancelled', 'count': '4'},
   ];
 
-  final List<Map<String, String>> _apps = [
-    {
-      'name': 'Sarah Martinez',
-      'role': 'Electrician',
-      'company': 'RAA Construction Co.',
-      'location': 'Boston, MA',
-      'startDate': '15-04-2025',
-      'duration': '3 Months',
-      'status': 'Pending',
-    },
-    {
-      'name': 'Sarah Martinez',
-      'role': 'Electrician',
-      'company': 'VIP Construction Co.',
-      'location': 'Boston, MA',
-      'startDate': '15-04-2025',
-      'duration': '3 Months',
-      'status': 'Accepted',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    fetchJobHistory();
+  }
+
+  Future<void> fetchJobHistory() async {
+    final dio = Dio();
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    dio.options.headers["Authorization"] = "Bearer $token";
+
+    try {
+      final response = await dio
+          .get('https://backend.jobizoindia.com/api/labour-job-history');
+      if (response.statusCode == 200 && response.data['status'] == true) {
+        final jobsJson = response.data['jobs'] as List;
+        setState(() {
+          jobList = jobsJson.map((e) => JobModel.fromJson(e)).toList();
+        });
+      }
+    } catch (e) {
+      print("❌ Failed to fetch job history: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +98,6 @@ class _HistoryPageState extends State<HistoryPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ─── Search Bar ───────────────────────────
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
@@ -75,10 +117,7 @@ class _HistoryPageState extends State<HistoryPage> {
                 ),
               ),
             ),
-
             const SizedBox(height: 16),
-
-            // ─── Filter Tabs ──────────────────────────
             SizedBox(
               height: 36,
               child: ListView.separated(
@@ -96,10 +135,7 @@ class _HistoryPageState extends State<HistoryPage> {
                       decoration: BoxDecoration(
                         color: isSel ? AppColors.gold : Colors.white,
                         borderRadius: BorderRadius.circular(18),
-                        border: Border.all(
-                          color: AppColors.gold,
-                          width: 1,
-                        ),
+                        border: Border.all(color: AppColors.gold, width: 1),
                       ),
                       child: Text(
                         '${f['label']} ${f['count']}',
@@ -114,23 +150,20 @@ class _HistoryPageState extends State<HistoryPage> {
                 },
               ),
             ),
-
             const SizedBox(height: 24),
-
-            // ─── Application Cards ────────────────────
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: _apps.length,
+              itemCount: jobList.length,
               separatorBuilder: (_, __) => const SizedBox(height: 16),
               itemBuilder: (context, idx) {
-                final a = _apps[idx];
-                final status = a['status']!;
-                final statusColor = status == 'Pending'
+                final job = jobList[idx];
+                final statusColor = job.status.toLowerCase() == 'pending'
                     ? AppColors.gold
-                    : status == 'Accepted'
+                    : job.status.toLowerCase() == 'accepted'
                         ? Colors.lightGreen[700]
                         : Colors.brown;
+
                 return Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -147,20 +180,14 @@ class _HistoryPageState extends State<HistoryPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // header: avatar, name/role, status badge
                       Row(
                         children: [
-                          // CircleAvatar(
-                          //   radius: 24,
-                          //   backgroundImage: AssetImage('assets/avatar.png'),
-                          // ),
-                          // const SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  a['name']!,
+                                  job.labourName,
                                   style: TextStyle(
                                       fontSize: secondary(),
                                       fontWeight: FontWeight.w600,
@@ -168,7 +195,7 @@ class _HistoryPageState extends State<HistoryPage> {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  a['role']!,
+                                  job.jobTitle,
                                   style: TextStyle(
                                     fontSize: tertiary(),
                                     color: Colors.grey[700],
@@ -185,7 +212,7 @@ class _HistoryPageState extends State<HistoryPage> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              status,
+                              job.status,
                               style: TextStyle(
                                 fontSize: tertiary(),
                                 color: Colors.white,
@@ -195,56 +222,43 @@ class _HistoryPageState extends State<HistoryPage> {
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 12),
-
-                      // company name
                       Text(
-                        a['company']!,
+                        job.company,
                         style: TextStyle(
                             fontSize: secondary(),
                             fontWeight: FontWeight.w600,
                             color: AppColors.green),
                       ),
-
                       const SizedBox(height: 8),
-
-                      // location + start date
                       Row(
                         children: [
                           Icon(Icons.location_on, size: 18),
                           const SizedBox(width: 4),
-                          Text(
-                            a['location']!,
-                            style: TextStyle(fontSize: tertiary()),
+                          Expanded(
+                            child: Text(
+                              job.jobLocation,
+                              style: TextStyle(fontSize: tertiary()),
+                              softWrap: true,
+                            ),
                           ),
                           const SizedBox(width: 16),
                           Icon(Icons.schedule, size: 18),
                           const SizedBox(width: 4),
-                          Text(
-                            'Start Date: ${a['startDate']}',
-                            style: TextStyle(fontSize: tertiary()),
-                          ),
+                          Text('Start Date: ${job.startDate}',
+                              style: TextStyle(fontSize: tertiary())),
                         ],
                       ),
-
                       const SizedBox(height: 8),
-
-                      // duration
                       Row(
                         children: [
                           Icon(Icons.hourglass_bottom, size: 18),
                           const SizedBox(width: 4),
-                          Text(
-                            a['duration']!,
-                            style: TextStyle(fontSize: tertiary()),
-                          ),
+                          Text(job.duration,
+                              style: TextStyle(fontSize: tertiary())),
                         ],
                       ),
-
                       const SizedBox(height: 12),
-
-                      // View Details button
                       Center(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
@@ -256,9 +270,14 @@ class _HistoryPageState extends State<HistoryPage> {
                             elevation: 0,
                           ),
                           onPressed: () {
-                            Get.to(() => WorkDetails(jobData: {},),
-                                transition: Transition.cupertino,
-                                duration: const Duration(milliseconds: 400));
+                            Get.to(
+                                  () => WorkDetails(
+                                jobId: job.jobid,
+
+                              ),
+                              transition: Transition.cupertino,
+                              duration: const Duration(milliseconds: 400),
+                            );
                           },
                           child: Text(
                             'View Details',
