@@ -6,7 +6,7 @@ import 'package:jobizo/Design contraints/FontSizes.dart';
 import '../NavBar.dart';
 
 class WorkDetails extends StatefulWidget {
-  const WorkDetails({Key? key}) : super(key: key);
+  const WorkDetails({Key? key, required Map<String, dynamic> jobData}) : super(key: key);
 
   @override
   State<WorkDetails> createState() => _WorkDetailsState();

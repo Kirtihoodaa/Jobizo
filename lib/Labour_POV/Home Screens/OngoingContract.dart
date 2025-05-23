@@ -23,48 +23,38 @@ class _OngoingContractPageState extends State<OngoingContractPage> {
   Future<void> fetchOngoingContracts() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token'); // 🔐 get token
+      final token = prefs.getString('auth_token');
       print(token);
+
       if (token == null || token.isEmpty) {
         print("❌ No auth token found.");
         setState(() => isLoading = false);
         return;
       }
+
       final dio = Dio();
-      final response = await dio.get('https://backend.jobizoindia.com/api/labour-request');
+      dio.options.headers["Authorization"] = "Bearer $token"; // Include auth if needed
+
+      final response = await dio.get('https://backend.jobizoindia.com/api/labour/onging-contracts'); // ✅ Adjust endpoint
 
       if (response.statusCode == 200 && response.data['status'] == true) {
-        print("✔️ Response fetched successfully");
+        print("✔️ Ongoing jobs fetched successfully");
 
-        final List dataList = response.data['data'] ?? [];
-        final List<_ContractData> contracts = [];
-
-        for (var item in dataList) {
-          // Safely extract departments
-          String roles = "";
-          if (item['departments'] is List) {
-            final List deptList = item['departments'];
-            roles = deptList
-                .map((d) => d['department']?['name'] ?? '')
-                .where((name) => name.toString().isNotEmpty)
-                .join(', ');
-          }
-
-          contracts.add(
-            _ContractData(
-              company: item['project_name'] ?? 'N/A',
-              siteName: item['work_address'] ?? 'N/A',
-              siteNo: item['id'].toString(),
-              jobType: roles.isNotEmpty ? roles : 'N/A',
-              location: item['work_address'] ?? 'N/A',
-              employeeName: item['site_manager_name'] ?? 'N/A',
-              employeeId: item['user_id'].toString(),
-              hours: '8:00 AM - 5:00 PM',
-              startDate: item['start_date'] ?? '',
-              duration: "${item['duration_days'] ?? 0} days",
-            ),
+        final List jobs = response.data['ongoing_jobs'] ?? [];
+        final List<_ContractData> contracts = jobs.map<_ContractData>((item) {
+          return _ContractData(
+            company: item['company'] ?? 'N/A',
+            siteName: item['project_name'] ?? 'N/A',
+            siteNo: item['site_number'] ?? 'N/A', // You can adjust or generate ID if needed
+            jobType: item['job_title'] ?? 'N/A',
+            location: item['job_location'] ?? 'N/A',
+            employeeName: item['labour_name'] ?? 'N/A',
+            employeeId: item['employee_id'] ?? 'N/A',
+            hours: item['working_hour'] ?? 'N/A', // Static as per your current UI
+            startDate: item['started_at'] ?? '',
+            duration: item['job_duration'] ?? 'N/A',
           );
-        }
+        }).toList();
 
         setState(() {
           items = contracts;

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 import '../All_app_bars/normal_app_bar.dart';
@@ -7,31 +9,85 @@ class UpcomingAssignmentScreen extends StatefulWidget {
   const UpcomingAssignmentScreen({super.key});
 
   @override
-  State<UpcomingAssignmentScreen> createState() => _UpcomingAssignmentScreenState();
+  State<UpcomingAssignmentScreen> createState() =>
+      _UpcomingAssignmentScreenState();
 }
 
 class _UpcomingAssignmentScreenState extends State<UpcomingAssignmentScreen> {
+  Map<String, dynamic>? jobData;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUpcomingAssignment();
+  }
+
+  Future<void> fetchUpcomingAssignment() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      Dio dio = Dio();
+      dio.options.headers["Authorization"] = "Bearer $token";
+
+      final response = await dio
+          .get("https://backend.jobizoindia.com/api/labour/upcoming-contracts");
+
+      if (response.statusCode == 200 && response.data['status'] == true) {
+        final jobList = response.data['upcoming_jobs'];
+        if (jobList != null && jobList.isNotEmpty) {
+          setState(() {
+            jobData = jobList[0];
+            isLoading = false;
+          });
+        } else {
+          setState(() => isLoading = false);
+        }
+      } else {
+        setState(() => isLoading = false);
+      }
+    } catch (e) {
+      print("❌ API Error: $e");
+      setState(() => isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
       appBar: CustomBackAppBar(title: 'Upcoming Assignment'),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: const [
-            AssignmentInfoCard(),
-            WorkAreaCard(),
-            SiteFacilitiesCard(),
-            ContactInfoCard(),
-          ],
-        ),
-      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : jobData == null
+              ? const Center(child: Text("No upcoming assignments"))
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      AssignmentInfoCard(
+                        company: jobData!["company"] ?? 'N/A',
+                        location: jobData!["job_location"] ?? 'N/A',
+                      ),
+                      WorkAreaCard(
+                        salary: jobData!["job_salary"] ?? '0',
+                        duration: jobData!["job_duration"] ?? '0 days',
+                      ),
+                      SiteFacilitiesCard(
+                          facilities: jobData!["site_facilities"] ??
+                              'No site facilities'),
+                      ContactInfoCard(
+                        manager: jobData!["Site_manager_name"] ?? 'No Assigned',
+                        phone: jobData!["Site_manager_number"] ?? 'N/A',
+                      ),
+                    ],
+                  ),
+                ),
     );
   }
 }
 
-// Reusable Card Container
 class ReusableCard extends StatelessWidget {
   final Widget child;
 
@@ -59,9 +115,12 @@ class ReusableCard extends StatelessWidget {
   }
 }
 
-// Assignment Info Section
 class AssignmentInfoCard extends StatelessWidget {
-  const AssignmentInfoCard({super.key});
+  final String company;
+  final String location;
+
+  const AssignmentInfoCard(
+      {super.key, required this.company, required this.location});
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +129,7 @@ class AssignmentInfoCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Riverside Tower Project',
+            company,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: primary(),
@@ -84,7 +143,7 @@ class AssignmentInfoCard extends StatelessWidget {
               const SizedBox(width: 4),
               Flexible(
                 child: Text(
-                  '123 Construction Ave, Downtown',
+                  location,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: secondary()),
                 ),
@@ -97,9 +156,11 @@ class AssignmentInfoCard extends StatelessWidget {
   }
 }
 
-// Work Area Section
 class WorkAreaCard extends StatelessWidget {
-  const WorkAreaCard({super.key});
+  final String salary;
+  final String duration;
+
+  const WorkAreaCard({super.key, required this.salary, required this.duration});
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +198,7 @@ class WorkAreaCard extends StatelessWidget {
                 ),
               ),
               Text(
-                'INR 1000/Day',
+                'INR $salary/Day',
                 style: TextStyle(
                   color: AppColors.green,
                   fontWeight: FontWeight.bold,
@@ -159,7 +220,7 @@ class WorkAreaCard extends StatelessWidget {
               Image.asset("Assets/Labour_image/month_alarm.png"),
               const SizedBox(width: 9),
               Text(
-                '3 Months',
+                duration,
                 style: TextStyle(fontSize: secondary()),
               ),
             ],
@@ -181,12 +242,16 @@ class WorkAreaCard extends StatelessWidget {
   }
 }
 
-// Site Facilities Section
 class SiteFacilitiesCard extends StatelessWidget {
-  const SiteFacilitiesCard({super.key});
+  final String facilities;
+
+  const SiteFacilitiesCard({super.key, required this.facilities});
 
   @override
   Widget build(BuildContext context) {
+    final List<String> facilityList =
+        facilities.split(',').map((e) => e.trim()).toList();
+
     return ReusableCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,37 +266,31 @@ class SiteFacilitiesCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Wrap(
-            spacing: 80,
+            spacing: 20,
             runSpacing: 10,
-            children: [
-              facilityItem('Assets/Labour_image/parking.png', 'Free Parking'),
-              facilityItem('Assets/Labour_image/rest_room.png', 'Rest Rooms'),
-              facilityItem(null, 'Canteen', isIcon: true),
-              facilityItem('Assets/Labour_image/medical_boy.png', 'Medical Bay'),
-            ],
+            children: facilityList.map((facility) {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.check, size: 16, color: AppColors.green),
+                  const SizedBox(width: 6),
+                  Text(facility, style: TextStyle(fontSize: secondary())),
+                ],
+              );
+            }).toList(),
           ),
         ],
       ),
     );
   }
-
-  Widget facilityItem(String? assetPath, String label, {bool isIcon = false}) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        isIcon
-            ? Icon(Icons.restaurant, color: AppColors.green)
-            : Image.asset(assetPath!, height: 20, width: 20),
-        const SizedBox(width: 4),
-        Text(label, style: TextStyle(fontSize: secondary())),
-      ],
-    );
-  }
 }
 
-// Contact Info Section
 class ContactInfoCard extends StatelessWidget {
-  const ContactInfoCard({super.key});
+  final String manager;
+  final String phone;
+
+  const ContactInfoCard(
+      {super.key, required this.manager, required this.phone});
 
   @override
   Widget build(BuildContext context) {
@@ -252,7 +311,7 @@ class ContactInfoCard extends StatelessWidget {
             children: [
               Icon(Icons.person, size: 16, color: AppColors.green),
               const SizedBox(width: 4),
-              Text('Site Manager: Robert Wilson',
+              Text('Site Manager: $manager',
                   style: TextStyle(fontSize: secondary())),
             ],
           ),
@@ -261,7 +320,7 @@ class ContactInfoCard extends StatelessWidget {
             children: [
               Icon(Icons.phone, size: 16, color: AppColors.green),
               const SizedBox(width: 4),
-              Text('+91 7788990089', style: TextStyle(fontSize: secondary())),
+              Text(phone, style: TextStyle(fontSize: secondary())),
             ],
           ),
         ],

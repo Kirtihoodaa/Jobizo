@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
+import 'package:jobizo/Login/webView.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../Design contraints/gradients.dart';
 import '../Labour_POV/Home Screens/HomePage.dart';
 import '../Customer_POV/HomePages/HomePagess.dart';
@@ -12,6 +14,7 @@ import '../splash/splash_screen2.dart';
 import 'forgotPassword.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -21,10 +24,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  // Controllers
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
   bool _isLoading = false;
 
   @override
@@ -51,8 +52,8 @@ class _LoginPageState extends State<LoginPage> {
         "https://backend.jobizoindia.com/api/login",
         data: {'email': email, 'password': password},
       );
-      print("Login response: ${response.data}");
       final data = response.data as Map<String, dynamic>;
+
       if (data['status'] == true) {
         final token = '${data['token_type']} ${data['token']}';
         final prefs = await SharedPreferences.getInstance();
@@ -61,7 +62,6 @@ class _LoginPageState extends State<LoginPage> {
         final roles = List<String>.from(data['role'] as List);
         await prefs.setBool('isLoggedIn', true);
 
-// Save user role
         if (roles.contains('labour')) {
           await prefs.setString('userRole', 'labour');
           Get.to(() => const Homepage(),
@@ -73,9 +73,11 @@ class _LoginPageState extends State<LoginPage> {
               transition: Transition.cupertino,
               duration: const Duration(milliseconds: 400));
         } else {
-          // fallback or admin
           await prefs.setString('userRole', 'unknown');
-          SnackbarHelper.showError(context, "Unknown user role");
+          // 👇 Open URL if role is something else
+          Get.to(() =>  WebViewPage(url: 'https://backend.jobizoindia.com'),
+              transition: Transition.cupertino,
+              duration: const Duration(milliseconds: 400));
         }
       } else {
         SnackbarHelper.showError(
@@ -90,6 +92,82 @@ class _LoginPageState extends State<LoginPage> {
       );
     } finally {
       setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _loginWithGoogle() async {
+    setState(() => _isLoading = true);
+    print("⏳ Starting Google Sign-In...");
+
+    try {
+      final GoogleSignIn _googleSignIn = GoogleSignIn();
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      if (googleUser == null) {
+        print("❌ Google Sign-In cancelled by user.");
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final String? idToken = googleAuth.idToken;
+
+      print("✅ Google Sign-In successful. ID Token: ${idToken?.substring(0, 20)}...");
+
+      if (idToken == null) {
+        throw Exception("Google ID token is null");
+      }
+
+      final dio = Dio();
+      print("📡 Sending ID token to Laravel backend...");
+
+      final response = await dio.post(
+        "https://backend.jobizoindia.com/api/auth/google",
+        data: {"idToken": idToken},
+        options: Options(headers: {"Content-Type": "application/json"}),
+      );
+
+      print("📥 Response received from backend: ${response.data}");
+
+      final data = response.data;
+
+      if (data['access_token'] != null) {
+        final token = '${data['token_type'] ?? 'Bearer'} ${data['access_token']}';
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('auth_token', token);
+        await prefs.setBool('isLoggedIn', true);
+
+        final roles = List<String>.from(data['user']['roles'] ?? []);
+        print("🔐 Login success. Roles: $roles");
+
+        if (roles.contains('labour')) {
+          await prefs.setString('userRole', 'labour');
+          Get.to(() => const Homepage(),
+              transition: Transition.cupertino,
+              duration: const Duration(milliseconds: 400));
+        } else if (roles.contains('customer')) {
+          await prefs.setString('userRole', 'customer');
+          Get.to(() => const Homepagess(),
+              transition: Transition.cupertino,
+              duration: const Duration(milliseconds: 400));
+        } else {
+          await prefs.setString('userRole', 'unknown');
+          print("⚠️ Unknown user role");
+          SnackbarHelper.showError(context, "Unknown user role");
+        }
+      } else {
+        print("❌ Google login failed: ${data['message']}");
+        SnackbarHelper.showError(context, data['message'] ?? 'Google login failed');
+      }
+    } on DioError catch (e) {
+      print("❗ DioError: ${e.response?.data}");
+      SnackbarHelper.showWarning(context, e.response?.data['message'] ?? e.message);
+    } catch (e) {
+      print("❌ Exception: $e");
+      SnackbarHelper.showError(context, e.toString());
+    } finally {
+      setState(() => _isLoading = false);
+      print("✅ Google login flow complete.");
     }
   }
 
@@ -188,10 +266,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               SizedBox(height: 10.h),
                               ElevatedButton.icon(
-                                onPressed: () {
-                                  // TODO: implement Google login
-                                },
-                                // icon: const Icon(Icons.email, color: AppColors.green, size: 20,),
+                                onPressed: _loginWithGoogle,
                                 label: Text(
                                   "Login with Gmail",
                                   style: TextStyle(
@@ -200,6 +275,8 @@ class _LoginPageState extends State<LoginPage> {
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
+                                icon: const Icon(Icons.login,
+                                    color: AppColors.green),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
                                   padding: EdgeInsets.symmetric(
@@ -223,35 +300,35 @@ class _LoginPageState extends State<LoginPage> {
                               SizedBox(height: 15.h),
                               _isLoading
                                   ? const CircularProgressIndicator(
-                                      color: AppColors.green)
+                                  color: AppColors.gold)
                                   : ElevatedButton.icon(
-                                      onPressed: _login,
-                                      icon: const Icon(Icons.login,
-                                          color: AppColors.green),
-                                      label: Text(
-                                        "Login",
-                                        style: TextStyle(
-                                          color: AppColors.green,
-                                          fontSize: secondary(),
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.white,
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 75.w, vertical: 12.h),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(40.r),
-                                        ),
-                                      ),
-                                    ),
+                                onPressed: _login,
+                                icon: const Icon(Icons.login,
+                                    color: AppColors.green),
+                                label: Text(
+                                  "Login",
+                                  style: TextStyle(
+                                    color: AppColors.green,
+                                    fontSize: secondary(),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 75.w, vertical: 12.h),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(40.r),
+                                  ),
+                                ),
+                              ),
                               TextButton(
                                 onPressed: () => Get.to(
-                                    () => const Forgotpassword(),
+                                        () => const Forgotpassword(),
                                     transition: Transition.cupertino,
                                     duration:
-                                        const Duration(milliseconds: 400)),
+                                    const Duration(milliseconds: 400)),
                                 child: Text(
                                   "Forgot Password?",
                                   style: TextStyle(
@@ -269,7 +346,7 @@ class _LoginPageState extends State<LoginPage> {
                                 onPressed: () => Get.to(() => SplashScreen2(),
                                     transition: Transition.cupertino,
                                     duration:
-                                        const Duration(milliseconds: 400)),
+                                    const Duration(milliseconds: 400)),
                                 child: const Text(
                                   "Register Here",
                                   style: TextStyle(

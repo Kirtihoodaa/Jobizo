@@ -54,7 +54,7 @@ class _CustomerprofileState extends State<Customerprofile> {
     if (isLoading) {
       return const Scaffold(
         backgroundColor: Colors.white,
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(child: CircularProgressIndicator(color: AppColors.gold,)),
       );
     }
 
