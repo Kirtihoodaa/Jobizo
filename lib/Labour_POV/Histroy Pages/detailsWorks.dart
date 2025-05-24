@@ -30,6 +30,7 @@ class _WorkDetailsState extends State<WorkDetails> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
+      print('🔐 Token: $token');
 
       if (token == null) {
         throw Exception('Auth token not found.');
@@ -39,28 +40,28 @@ class _WorkDetailsState extends State<WorkDetails> {
       dio.options.headers['Authorization'] = 'Bearer $token';
 
       print('👉 Requesting job ID: ${widget.jobId}');
-      print('🔗 Final URL: https://backend.jobizoindia.com/api/labour-jobs-status/${widget.jobId}?status=accept');
+      print('🔗 Final URL: https://backend.jobizoindia.com/api/labour-jobs-status/${widget.jobId}');
       final response = await dio.get(
-        'https://backend.jobizoindia.com/api/labour-jobs-status/${widget.jobId}?status=accept',
+        'https://backend.jobizoindia.com/api/labour-jobs-status/${widget.jobId}',
       );
 
       print('👉 Response status: ${response.statusCode}');
       print('👉 Content-Type: ${response.headers.value('content-type')}');
-
       if (response.statusCode == 200 &&
           response.headers.value('content-type')?.contains('application/json') == true &&
           response.data['status'] == true) {
         final data = response.data['data'];
+        print('📦 Full API data: $data');
 
         print('👉 API data type: ${data.runtimeType}');
 
-        if (data is List && data.isNotEmpty) {
+        if (data is Map<String, dynamic>) {
           setState(() {
-            jobData = data.first;
+            jobData = data;
             isLoading = false;
           });
         } else {
-          throw Exception('No valid job data found');
+          throw Exception('Unexpected job data format');
         }
       } else {
         throw Exception('Failed to load job data or unexpected content-type');
