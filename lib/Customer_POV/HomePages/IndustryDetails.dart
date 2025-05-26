@@ -334,43 +334,43 @@ class _IndustrydetailsState extends State<Industrydetails> {
             ),
 
             // —— Top Rated Workers
-            SizedBox(height: 25),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Top Rated Workers',
-                style: TextStyle(
-                  color: AppColors.green,
-                  fontSize: primary(),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _buildTopWorker(
-                      'Assets/Customer_Images/james_wilson.png',
-                      'James Wilson',
-                      '4.9',
-                      'Plumber',
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildTopWorker(
-                      'Assets/Customer_Images/robert_chen.png',
-                      'Robert Chen',
-                      '4.8',
-                      'Painting',
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // SizedBox(height: 25),
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 16),
+            //   child: Text(
+            //     'Top Rated Workers',
+            //     style: TextStyle(
+            //       color: AppColors.green,
+            //       fontSize: primary(),
+            //       fontWeight: FontWeight.bold,
+            //     ),
+            //   ),
+            // ),
+            // SizedBox(height: 16),
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 16),
+            //   child: Row(
+            //     children: [
+            //       Expanded(
+            //         child: _buildTopWorker(
+            //           'Assets/Customer_Images/james_wilson.png',
+            //           'James Wilson',
+            //           '4.9',
+            //           'Plumber',
+            //         ),
+            //       ),
+            //       const SizedBox(width: 16),
+            //       Expanded(
+            //         child: _buildTopWorker(
+            //           'Assets/Customer_Images/robert_chen.png',
+            //           'Robert Chen',
+            //           '4.8',
+            //           'Painting',
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
 
 // —— Recent Work
             const SizedBox(height: 32),
@@ -509,63 +509,63 @@ class _IndustrydetailsState extends State<Industrydetails> {
     );
   }
 
-  Widget _buildTopWorker(
-      String imgPath,
-      String name,
-      String rating,
-      String role,
-      ) {
-    return  Card(
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: 1,
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Avatar
-                CircleAvatar(
-                  radius: 40,
-                  backgroundImage: AssetImage(imgPath),
-                ),
-                SizedBox(height: 12),
-                // Name
-                Text(
-                  name,
-                  style: TextStyle(
-                    fontSize: tertiary(),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 8),
-
-                // Rating
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.star, size: 16, color:AppColors.gold,),
-                    SizedBox(width: 4),
-                    Text(
-                      rating,
-                      style: TextStyle(fontSize: tertiary()),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-
-                // Role
-                Text(
-                  role,
-                  style: TextStyle(fontSize: tertiary()),
-                ),
-              ],
-            ),
-          ),
-        );
-  }
+  // Widget _buildTopWorker(
+  //     String imgPath,
+  //     String name,
+  //     String rating,
+  //     String role,
+  //     ) {
+  //   return  Card(
+  //         color: Colors.white,
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(12),
+  //         ),
+  //         elevation: 1,
+  //         child: Padding(
+  //           padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+  //           child: Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               // Avatar
+  //               CircleAvatar(
+  //                 radius: 40,
+  //                 backgroundImage: AssetImage(imgPath),
+  //               ),
+  //               SizedBox(height: 12),
+  //               // Name
+  //               Text(
+  //                 name,
+  //                 style: TextStyle(
+  //                   fontSize: tertiary(),
+  //                   fontWeight: FontWeight.bold,
+  //                 ),
+  //               ),
+  //               SizedBox(height: 8),
+  //
+  //               // Rating
+  //               Row(
+  //                 mainAxisSize: MainAxisSize.min,
+  //                 children: [
+  //                   Icon(Icons.star, size: 16, color:AppColors.gold,),
+  //                   SizedBox(width: 4),
+  //                   Text(
+  //                     rating,
+  //                     style: TextStyle(fontSize: tertiary()),
+  //                   ),
+  //                 ],
+  //               ),
+  //               SizedBox(height: 8),
+  //
+  //               // Role
+  //               Text(
+  //                 role,
+  //                 style: TextStyle(fontSize: tertiary()),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  // }
 
   Widget _buildFaqItem({
     required String question,

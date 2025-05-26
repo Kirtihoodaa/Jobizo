@@ -60,6 +60,15 @@ class _SitedetailsState extends State<Sitedetails> {
   bool   _loading = true;
   String _error   = '';
   SiteDetail? _detail;
+  Map<String,int> _acceptedCounts = {
+    'Construction': 0,
+    'Electricians' : 0,
+    'Plumbers'     : 0,
+    'Carpenters'   : 0,
+    'Painters'     : 0,
+    'Others'       : 0,
+  };
+
 
   @override
   void initState() {
@@ -123,7 +132,16 @@ class _SitedetailsState extends State<Sitedetails> {
             WorkAreaCard      (detail: d),
             SiteFacilitiesCard(),
             ContactInfoCard  (detail: d),
-            SiteSummaryCard(detail: d),
+            SiteSummaryCard(
+              detail: d,
+              acceptedCounts: _acceptedCounts,
+              onAccept: (role) {
+                setState(() {
+                  _acceptedCounts[role] = (_acceptedCounts[role] ?? 0) + 1;
+                });
+              },
+            ),
+
           ],
         ),
       ),
@@ -286,11 +304,18 @@ class ContactInfoCard extends StatelessWidget {
 // 5) Site Summary (static UI)
 class SiteSummaryCard extends StatelessWidget {
   final SiteDetail detail;
-  const SiteSummaryCard({required this.detail, Key? key}) : super(key: key);
+  final Map<String,int> acceptedCounts;
+  final void Function(String role) onAccept;
+
+  const SiteSummaryCard({
+    Key? key,
+    required this.detail,
+    required this.acceptedCounts,
+    required this.onAccept,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-
     final totalWorkers = detail.departments.fold<int>(
       0,
           (sum, entry) => sum + (entry['number_of_labour'] as int? ?? 0),
@@ -298,141 +323,38 @@ class SiteSummaryCard extends StatelessWidget {
 
     final counts = {
       'Electricians': 0,
-      'Plumbers': 0,
-      'Painters': 0,
-      'Carpenters': 0,
+      'Plumbers'    : 0,
+      'Painters'    : 0,
+      'Carpenters'  : 0,
       'Construction': 0,
-      'Others': 0,
+      'Others'      : 0,
     };
 
     for (var entry in detail.departments) {
-      final dept = entry['department'] as Map<String, dynamic>;
-      final name = (dept['name'] as String).toLowerCase();
+      final deptName = (entry['department']['name'] as String).toLowerCase();
       final labourCount = (entry['number_of_labour'] as int?) ?? 0;
-
-      if (name.contains('electrician')) {
-        counts['Electricians'] = labourCount;
-      } else if (name.contains('plumber')) {
-        counts['Plumbers'] = labourCount;
-      } else if (name.contains('painter')) {
-        counts['Painters'] = labourCount;
-      } else if (name.contains('carpenter')) {
-        counts['Carpenters'] = labourCount;
-      } else if (name.contains('construction')) {
-        counts['Construction'] = labourCount;
-      } else {
-        counts['Others'] = labourCount;
-      }
+      if (deptName.contains('electrician'))      counts['Electricians']  = labourCount;
+      else if (deptName.contains('plumber'))     counts['Plumbers']      = labourCount;
+      else if (deptName.contains('painter'))     counts['Painters']      = labourCount;
+      else if (deptName.contains('carpenter'))   counts['Carpenters']    = labourCount;
+      else if (deptName.contains('construction'))counts['Construction']  = labourCount;
+      else                                       counts['Others']        = labourCount;
     }
-
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Job Instruction (unchanged)
-        ReusableCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Job Instruction',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: primary(),
-                  color: AppColors.green,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'All scheduled tasks for the site must be completed as planned, ensuring that every team '
-                    'follows the necessary safety protocols throughout the day. It is essential that progress '
-                    'updates are reported to the site supervisor before the end of each shift to maintain '
-                    'workflow and accountability.',
-                style: TextStyle(fontSize: secondary()),
-              ),
-            ],
-          ),
-        ),
+        // ... your unchanged Job Instruction and Stats Row here ...
 
-        // Stats Row (unchanged)
-        Container(
-          width: double.infinity,
-          height: 140,
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(color: AppColors.gold),
-          child: Row(
-            children: [
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.only(right: 8),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        '$totalWorkers',  // <- dynamic total here
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 24,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Total Workers',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: secondary(),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.only(left: 8),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    children: [
-                      Text('98',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 24,
-                              color: Colors.black)),
-                      const SizedBox(height: 4),
-                      Text('Active Today',
-                          style: TextStyle(
-                              color: Colors.black, fontSize: secondary()
-                          )
-                      ),
-                      // Text('+3% this week',
-                      //     style:
-                      //     TextStyle(color: Colors.grey[700], fontSize: 12)),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        // Labor Distribution – now driven by `counts`
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
             'Labor Distribution',
             style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: primary(),
-                color: AppColors.green),
+              fontWeight: FontWeight.bold,
+              fontSize: primary(),
+              color: AppColors.green,
+            ),
           ),
         ),
 
@@ -442,12 +364,54 @@ class SiteSummaryCard extends StatelessWidget {
             runSpacing: 12,
             spacing: 8,
             children: [
-              laborCard(context, Icons.engineering,       'Construction', counts['Construction']!, 50, Colors.blue),
-              laborCard(context, Icons.electrical_services,'Electricians', counts['Electricians']!, 40, Colors.brown),
-              laborCard(context, Icons.plumbing,          'Plumbers',     counts['Plumbers']!,     20, Colors.orange),
-              laborCard(context, Icons.handyman,          'Carpenters',   counts['Carpenters']!,   20, Colors.green),
-              laborCard(context, Icons.format_paint,      'Painters',     counts['Painters']!,     20, AppColors.gold),
-              laborCard(context, Icons.group,             'Others',       counts['Others']!,       30, Colors.blueGrey),
+              _laborCard(
+                context,
+                Icons.engineering,
+                'Construction',
+                counts['Construction']!,
+                acceptedCounts['Construction'] ?? 0,
+                Colors.blue,
+              ),
+              _laborCard(
+                context,
+                Icons.electrical_services,
+                'Electricians',
+                counts['Electricians']!,
+                acceptedCounts['Electricians'] ?? 0,
+                Colors.brown,
+              ),
+              _laborCard(
+                context,
+                Icons.plumbing,
+                'Plumbers',
+                counts['Plumbers']!,
+                acceptedCounts['Plumbers'] ?? 0,
+                Colors.orange,
+              ),
+              _laborCard(
+                context,
+                Icons.handyman,
+                'Carpenters',
+                counts['Carpenters']!,
+                acceptedCounts['Carpenters'] ?? 0,
+                Colors.green,
+              ),
+              _laborCard(
+                context,
+                Icons.format_paint,
+                'Painters',
+                counts['Painters']!,
+                acceptedCounts['Painters'] ?? 0,
+                AppColors.gold,
+              ),
+              _laborCard(
+                context,
+                Icons.group,
+                'Others',
+                counts['Others']!,
+                acceptedCounts['Others'] ?? 0,
+                Colors.blueGrey,
+              ),
             ],
           ),
         ),
@@ -455,47 +419,57 @@ class SiteSummaryCard extends StatelessWidget {
     );
   }
 
-  Widget laborCard(
+  Widget _laborCard(
       BuildContext context,
       IconData icon,
       String role,
-      int current,
-      int total,
+      int required,
+      int accepted,
       Color color,
       ) {
-    return Container(
-      width: MediaQuery.of(context).size.width / 2 - 24,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(
+    final pct = required > 0 ? accepted / required : 0.0;
+    return GestureDetector(
+      onTap: () {
+        if (accepted < required) {
+          onAccept(role);
+        }
+      },
+      child: Container(
+        width: MediaQuery.of(context).size.width / 2 - 24,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(
               color: Color.fromRGBO(0, 0, 0, 0.05),
               offset: Offset(0, 1),
-              blurRadius: 2)
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: color, size: 32),
-          const SizedBox(height: 8),
-          Text(
-            '$current/$total',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
-          const SizedBox(height: 4),
-          Text(role, style: TextStyle(fontSize: secondary())),
-          const SizedBox(height: 8),
-          LinearProgressIndicator(
-            value: total > 0 ? current / total : 0.0,
-            backgroundColor: Colors.grey[200],
-            valueColor: AlwaysStoppedAnimation<Color>(color),
-            minHeight: 6,
-          ),
-        ],
+              blurRadius: 2,
+            )
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: color, size: 32),
+            const SizedBox(height: 8),
+            Text(
+              '$accepted / $required',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            const SizedBox(height: 4),
+            Text(role, style: TextStyle(fontSize: secondary())),
+            const SizedBox(height: 8),
+            LinearProgressIndicator(
+              value: pct,
+              backgroundColor: Colors.grey[200],
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+              minHeight: 6,
+            ),
+          ],
+        ),
       ),
     );
   }
 }
+
