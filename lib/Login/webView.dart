@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../Design contraints/app color.dart';
 
@@ -17,7 +18,6 @@ class WebViewPage extends StatefulWidget {
   @override
   State<WebViewPage> createState() => _WebViewPageState();
 }
-
 class _WebViewPageState extends State<WebViewPage> {
   late final WebViewController _controller;
   bool _hasInjected = false;
@@ -60,11 +60,17 @@ class _WebViewPageState extends State<WebViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        color:AppColors.gold, // 👈 Set your desired background color here
-        child: SafeArea(
-          child: WebViewWidget(controller: _controller),
+    return WillPopScope(
+      onWillPop: () async{
+        SystemNavigator.pop();
+        return false;
+      },
+      child: Scaffold(
+        body: Container(
+          color:AppColors.gold, // 👈 Set your desired background color here
+          child: SafeArea(
+            child: WebViewWidget(controller: _controller),
+          ),
         ),
       ),
     );

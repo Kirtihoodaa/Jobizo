@@ -20,10 +20,11 @@ class _RoleScreenState extends State<RoleScreen> {
   String? selectedRole;
 
   final List<String> roles = [
-    'Client',
-    'Designer',
+    'HR',
+    'Agent',
+    'franchise',
+    'Account-Department',
     'Vendor',
-    'Admin',
     'Labour',
     'Customer',
   ];
