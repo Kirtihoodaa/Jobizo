@@ -80,7 +80,7 @@ class _WorkDetailsState extends State<WorkDetails> {
       backgroundColor: AppColors.bgColor,
       appBar: const CustomBackAppBar(title: 'Work Details'),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppColors.gold,))
           : jobData == null
               ? const Center(child: Text('No job data found.'))
               : SingleChildScrollView(
