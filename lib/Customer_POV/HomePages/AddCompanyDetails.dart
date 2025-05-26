@@ -268,6 +268,7 @@ class _AddCompanyDetailsState extends State<AddCompanyDetails> {
           Text(label, style: TextStyle(fontSize: secondary(), fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           DropdownButtonFormField<String>(
+            dropdownColor: Colors.white,
             value: value,
             items: items
                 .map((e) => DropdownMenuItem(value: e, child: Text(e, style: TextStyle(fontSize: secondary()))))

@@ -1,25 +1,38 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/routes/transitions_type.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pie_chart/pie_chart.dart';
 import 'package:jobizo/Customer_POV/HomePages/ActiveList.dart';
 import 'package:jobizo/Customer_POV/HomePages/AddComplaint.dart';
 import 'package:jobizo/Customer_POV/HomePages/AllotoedLabour.dart';
 import 'package:jobizo/Customer_POV/HomePages/Allsites.dart';
 import 'package:jobizo/Customer_POV/HomePages/ComplaintStatus.dart';
-import 'package:jobizo/Customer_POV/HomePages/Labour_types/Details_labour.dart';
 import 'package:jobizo/Customer_POV/HomePages/ManageLabour.dart';
 import 'package:jobizo/Customer_POV/HomePages/Payement/PendingPayement.dart';
 import 'package:jobizo/Customer_POV/HomePages/PendingRequest.dart';
 import 'package:jobizo/Customer_POV/HomePages/RequiredLabour.dart';
 import 'package:jobizo/Customer_POV/HomePages/WorkOpportunities.dart';
 import 'package:jobizo/Customer_POV/RequestPages/CustomerRequest.dart';
+import 'package:jobizo/Customer_POV/AppBar/CustomerAppBar.dart';
+import 'package:jobizo/Customer_POV/HomePages/Labour_types/labour_avi.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
-import 'package:pie_chart/pie_chart.dart';
 
-import '../AppBar/CustomerAppBar.dart';
-import 'Labour_types/labour_avi.dart';
+import 'Labour_types/Details_labour.dart';
+
+class LabourCategory {
+  final int id;
+  final String name;
+  final String imagePath;
+  LabourCategory({
+    required this.id,
+    required this.name,
+    required this.imagePath,
+  });
+}
 
 class DashboardScreenC extends StatefulWidget {
   const DashboardScreenC({Key? key}) : super(key: key);
@@ -29,42 +42,178 @@ class DashboardScreenC extends StatefulWidget {
 }
 
 class _DashboardScreenStateC extends State<DashboardScreenC> {
-  // Dummy API data (replace with your actual API calls)
-  int totalLabour = 24;
-  int billingAmount = 230000;
-  int pendingRequests = 23;
-  int activeSites = 18;
+  // --- STATS ---
+  int totalLabour = 0;
+  int billingAmount = 0;
+  int pendingRequests = 0;
+  int activeSites = 0;
+
+  bool _loading = true;
+  String? _error;
+
+  // --- ATTENDANCE ---
+  int _present = 0, _late = 0, _leave = 0;
+
+  // --- RECENT REQUESTS ---
+  List<Map<String, dynamic>> _recentRequests = [];
+
+  // --- CATEGORY COUNTS FROM API ---
+  Map<String, int> _categoryCounts = {};
+  bool _loadingCategories = true;
+  String? _categoriesError;
+
+  // --- STATIC CATEGORIES FOR UI (WITH IMAGES) ---
+  final List<LabourCategory> _staticCategories = [
+    LabourCategory(
+      id: 0,
+      name: "Construction",
+      imagePath: "Assets/Customer_Images/Construction.png",
+    ),
+    LabourCategory(
+      id: 1,
+      name: "Electrician",
+      imagePath: "Assets/Customer_Images/Electrician.png",
+    ),
+    LabourCategory(
+      id: 2,
+      name: "Plumber",
+      imagePath: "Assets/Customer_Images/plumbing.png",
+    ),
+    LabourCategory(
+      id: 3,
+      name: "Painter",
+      imagePath: "Assets/Customer_Images/painter.png",
+    ),
+    LabourCategory(
+      id: 4,
+      name: "Carpenter",
+      imagePath: "Assets/Customer_Images/carpanter.png",
+    ),
+  ];
 
   @override
   void initState() {
     super.initState();
     _fetchDashboardData();
+    _fetchCategories();
+  }
+
+  Future<void> _fetchCategories() async {
+    setState(() {
+      _loadingCategories = true;
+      _categoriesError = null;
+    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token') ?? '';
+      final dio = Dio()..options.headers['Authorization'] = 'Bearer $token';
+
+      final resp = await dio.get(
+        'https://backend.jobizoindia.com/api/labour-category',
+        options: Options(validateStatus: (_) => true),
+      );
+      if (resp.statusCode == null ||
+          resp.statusCode! < 200 ||
+          resp.statusCode! >= 300) {
+        throw 'Server returned ${resp.statusCode}';
+      }
+
+      dynamic raw = resp.data;
+      if (raw is String) raw = jsonDecode(raw);
+      if (raw is! Map<String, dynamic> || raw['status'] != true) {
+        throw 'Unexpected response format';
+      }
+
+      final data = raw['data'] as List<dynamic>;
+      _categoryCounts = {
+        for (var entry in data)
+          (entry['name'] as String).toLowerCase():
+          (entry['labour_count'] as int? ?? 0)
+      };
+    } catch (e) {
+      _categoriesError = e.toString();
+    } finally {
+      setState(() {
+        _loadingCategories = false;
+      });
+    }
   }
 
   Future<void> _fetchDashboardData() async {
-    // TODO: Replace with Dio/HTTP GET request to fetch API data
-    // Example:
-    // final response = await Dio().get('your-api-endpoint');
-    // setState(() {
-    //   totalLabour = response.data['totalLabour'];
-    //   ...
-    // });
-  }
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token') ?? '';
+      final dio = Dio()..options.headers['Authorization'] = 'Bearer $token';
 
-  List<Map<String, dynamic>> labourCategories = [
-    {"category": "Construction", "count": 32},
-    {"category": "Electrician", "count": 33},
-    {"category": "Plumber", "count": 60},
-    {"category": "Painter", "count": 45},
-    {"category": "Carpenter", "count": 44},
-  ];
+      final resp = await dio.get(
+        'https://backend.jobizoindia.com/api/customer-dashboard',
+        options: Options(validateStatus: (_) => true),
+      );
+      if (resp.statusCode == null ||
+          resp.statusCode! < 200 ||
+          resp.statusCode! >= 300) {
+        throw 'Server returned ${resp.statusCode}';
+      }
+
+      dynamic raw = resp.data;
+      if (raw is String) raw = jsonDecode(raw);
+      if (raw is! Map<String, dynamic> || raw['status'] != true) {
+        throw 'Unexpected response format';
+      }
+
+      final d = raw['data'] as Map<String, dynamic>;
+
+      // Stats
+      totalLabour = d['total_active_labours'] as int? ?? 0;
+      billingAmount = d['total_billing_amount'] as int? ?? 0;
+      pendingRequests = d['pending_requests'] as int? ?? 0;
+      activeSites = d['active_sites'] as int? ?? 0;
+
+      // Attendance
+      final att = d['today_attendance'] as Map<String, dynamic>? ?? {};
+      _present = att['present'] as int? ?? 0;
+      _late = att['late'] as int? ?? 0;
+      _leave = att['leave'] as int? ?? 0;
+
+      // Recent Requests
+      _recentRequests = (d['recent_activities']?['recent_requests']
+      as List<dynamic>? ??
+          [])
+          .cast<Map<String, dynamic>>();
+
+      setState(() {});
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+      });
+    } finally {
+      setState(() {
+        _loading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (_error != null) {
+      return Scaffold(
+        appBar: Customerappbar(profileImageUrl: ''),
+        body: Center(child: Text('Error: $_error')),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: Customerappbar(profileImageUrl: '',
-      ),
+      appBar: Customerappbar(profileImageUrl: ''),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -86,26 +235,26 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
     final stats = [
       {
         "title": "Total Active Labour",
-        "value": "24",
-        "desc": "+12 TODAY",
+        "value": totalLabour.toString(),
+        "desc": "" ,
         "screen": Activelist()
       },
       {
         "title": "Total Billing Amount",
-        "value": "INR 230000",
+        "value": "INR $billingAmount",
         "desc": "",
         "screen": PendingPaymentScreen()
       },
       {
         "title": "Pending Requests",
-        "value": "23",
-        "desc": "5 URGENT",
+        "value": pendingRequests.toString(),
+        "desc": "",
         "screen": PendingRequestScreen()
       },
       {
         "title": "Active Sites",
-        "value": "18",
-        "desc": "2 NEW",
+        "value": activeSites.toString(),
+        "desc": "",
         "screen": AllSitesScreen()
       },
     ];
@@ -127,25 +276,18 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
               onTap: () {
                 final screen = item['screen'] as Widget?;
                 if (screen != null) {
-                  Get.to(
-                        () => screen,
-                    transition: Transition.cupertino,
-                    duration: const Duration(milliseconds: 400),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('No page assigned for this card!')),
-                  );
+                  Get.to(() => screen,
+                      transition: Transition.cupertino,
+                      duration: const Duration(milliseconds: 400));
                 }
               },
               child: _statCard(
                 item['title'] as String,
                 item['value'] as String,
-                item['desc']  as String,
+                item['desc'] as String,
               ),
             );
           }).toList(),
-
         ),
       ),
     );
@@ -161,22 +303,13 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: TextStyle(fontSize: tertiary(), color: Colors.black),
-          ),
+          Text(title, style: TextStyle(fontSize: tertiary(), color: Colors.black)),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Text(
-                value,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
-              ),
-              Text(
-                descriptor,
-                style: TextStyle(color: Colors.green, fontSize: tertiary()),
-              ),
+              Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+              Text(descriptor, style: TextStyle(color: Colors.green, fontSize: tertiary())),
             ],
           )
         ],
@@ -185,6 +318,18 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
   }
 
   Widget _buildCategorySection() {
+    if (_loadingCategories) {
+      return const Padding(
+        padding: EdgeInsets.all(16),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (_categoriesError != null) {
+      return Padding(
+        padding: const EdgeInsets.all(16),
+        child: Center(child: Text('Error loading categories: $_categoriesError')),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.only(top: 20.0),
       child: Container(
@@ -203,79 +348,63 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
             ),
             const SizedBox(height: 10),
             SizedBox(
-              height: 100, // restrict height explicitly
-              child: SingleChildScrollView(
+              height: 120,
+              child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _categoryCard("Construction", "32",
-                        "Assets/Customer_Images/Construction.png"),
-                    const SizedBox(width: 10),
-                    _categoryCard("Electrician", "21",
-                        "Assets/Customer_Images/Electrician.png"),
-                    const SizedBox(width: 10),
-                    _categoryCard(
-                        "Plumber", "15", "Assets/Customer_Images/plumbing.png"),
-                    const SizedBox(width: 10),
-                    _categoryCard(
-                        "Painter", "12", "Assets/Customer_Images/painter.png"),
-                    const SizedBox(width: 10),
-                    _categoryCard("Carpenter", "12",
-                        "Assets/Customer_Images/carpanter.png"),
-                  ],
-                ),
+                itemCount: _staticCategories.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                itemBuilder: (context, index) {
+                  final cat = _staticCategories[index];
+                  final count = _categoryCounts[cat.name.toLowerCase()] ?? 0;
+                  return GestureDetector(
+                    onTap: () {
+                      if (count > 0) {
+                        Get.to(
+                              () => LabourListScreen(
+                            categoryId: cat.id,
+                            categoryName: cat.name,
+                          ),
+                          transition: Transition.cupertino,
+                          duration: const Duration(milliseconds: 400),
+                        );
+                      }
+                      // else do nothing
+                    },
+                    child: Container(
+                      width: MediaQuery.of(context).size.width / 3,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.all(8),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(cat.imagePath, height: 40, fit: BoxFit.contain),
+                          const SizedBox(height: 6),
+                          Text(
+                            cat.name,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: tertiary(),
+                            ),
+                          ),
+                          Text(
+                            "$count",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: tertiary(),
+                              color: AppColors.gold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _categoryCard(String title, String count, String imagePath) {
-    return GestureDetector(
-      onTap: () {
-        Get.to(
-              () => Requiredlabour(),
-          transition: Transition.cupertino,
-          duration: const Duration(milliseconds: 400),
-        );
-      },
-      child: Container(
-        height: 100,
-        width: MediaQuery.sizeOf(context).width / 3,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              imagePath,
-              height: 40,
-              fit: BoxFit.contain,
-            ),
-            const SizedBox(height: 6),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text(
-                  "$title",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: tertiary()),
-                ),
-                Text(
-                  "$count",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: tertiary(),
-                      color: AppColors.gold),
-                ),
-              ],
             ),
           ],
         ),
@@ -286,71 +415,38 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
   Widget _buildMainButtons() {
     return Column(
       children: [
-        _mainButton(
-          "ALLOTED LABOUR",
-          const Color(0xFF415202),
-          "Assets/Customer_Images/labour type.png",
-          AllottedLaboursScreen(),
-        ),
-        _mainButton(
-          "REQUEST LABOUR",
-          const Color(0xFF4B1E03),
-          "Assets/Customer_Images/add comp details.png",
-          Customerrequest(),
-        ),
-        _mainButton(
-          "WORK INTEREST",
-          const Color(0xFFF97616),
-          "Assets/Customer_Images/work.png",
-          WorkOpportunitiesPage(),
-        ),
+        _mainButton("ALLOTED LABOUR", const Color(0xFF415202),
+            "Assets/Customer_Images/labour type.png", AllottedLaboursScreen()),
+        _mainButton("REQUEST LABOUR", const Color(0xFF4B1E03),
+            "Assets/Customer_Images/add comp details.png", Customerrequest()),
+        _mainButton("WORK INTEREST", const Color(0xFFF97616),
+            "Assets/Customer_Images/work.png", WorkOpportunitiesPage()),
       ],
     );
   }
 
-  Widget _mainButton(
-      String label, Color color, String imagePath, Widget? destination) {
+  Widget _mainButton(String label, Color color, String imagePath, Widget? destination) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         ),
         onPressed: () {
           if (destination != null) {
-            Get.to(
-                  () => destination,
-              transition: Transition.cupertino,
-              duration: const Duration(milliseconds: 400),
-            );
-          } else {
-            // Optional: Show a snackbar if no destination is available
-            // ScaffoldMessenger.of(context).showSnackBar(
-            //   SnackBar(content: Text('Coming Soon')),
-            // );
+            Get.to(() => destination,
+                transition: Transition.cupertino, duration: const Duration(milliseconds: 400));
           }
         },
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              imagePath,
-              height: 20,
-              width: 20,
-              color: Colors.white,
-            ),
+            Image.asset(imagePath, height: 20, width: 20, color: Colors.white),
             const SizedBox(width: 10),
-            Text(
-              label,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: tertiary(),
-              ),
-            ),
+            Text(label,
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: tertiary())),
           ],
         ),
       ),
@@ -360,18 +456,19 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
   Widget _buildActionButtons(BuildContext context) {
     return Container(
       color: AppColors.gold,
-      width: MediaQuery.sizeOf(context).width,
+      width: MediaQuery.of(context).size.width,
       child: GridView.count(
-          crossAxisCount: 2,
-          childAspectRatio: 3,
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          children: [
-            _actionButton(context, "Required Labour", Requiredlabour()),
-            _actionButton(context, "Manage Labour", LabourManagementScreen()),
-            _actionButton(context, "Add Complaint", AddComplaintPage()),
-            _actionButton(context, "Complaint Status", ComplaintStatusScreen()),
-          ]),
+        crossAxisCount: 2,
+        childAspectRatio: 3,
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        children: [
+          _actionButton(context, "Required Labour", Requiredlabour()),
+          _actionButton(context, "Manage Labour", LabourManagementScreen()),
+          _actionButton(context, "Add Complaint", AddComplaintPage()),
+          _actionButton(context, "Complaint Status", ComplaintStatusScreen()),
+        ],
+      ),
     );
   }
 
@@ -381,35 +478,89 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
       child: ElevatedButton(
         onPressed: () {
           if (targetPage != null) {
-            Get.to(
-                  () => targetPage!,
-              transition: Transition.cupertino,
-              duration: const Duration(milliseconds: 400),
-            );
-          } else {
-            print('$label page is not implemented yet.');
+            Get.to(() => targetPage,
+                transition: Transition.cupertino, duration: const Duration(milliseconds: 400));
           }
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          elevation: 2,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
         child: Text(label),
       ),
     );
   }
 
   Widget _buildAttendanceChart() {
-    Map<String, double> dataMap = {
-      "Present": 142,
-      "Late": 20,
-      "Leave": 4,
-    };
+    // If absolutely no attendance data, draw a red ring + "0%"
+    if (_present + _late + _leave == 0) {
+      return Card(
+        margin: const EdgeInsets.all(10),
+        color: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Today's Attendance",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: AppColors.green)),
+              const SizedBox(height: 20),
+              Center(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.red, width: 20),
+                      ),
+                    ),
+                    const Text(
+                      "0%",
+                      style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text("Present - 0",
+                      style: TextStyle(
+                          color: Colors.red,
+                          fontSize: tertiary(),
+                          fontWeight: FontWeight.bold)),
+                  Text("Late - 0",
+                      style: TextStyle(
+                          color: Colors.red,
+                          fontSize: tertiary(),
+                          fontWeight: FontWeight.bold)),
+                  Text("Leave - 0",
+                      style: TextStyle(
+                          color: Colors.red,
+                          fontSize: tertiary(),
+                          fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
+    final dataMap = {
+      "Present": _present.toDouble(),
+      "Late": _late.toDouble(),
+      "Leave": _leave.toDouble(),
+    };
     final colorList = <Color>[
       Color(0xFF4B1E03),
       Color(0xFFEE6666),
@@ -424,11 +575,9 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Today's Attendance",
-              style: TextStyle(
-                  fontWeight: FontWeight.bold, color: AppColors.green),
-            ),
+            Text("Today's Attendance",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: AppColors.green)),
             const SizedBox(height: 20),
             PieChart(
               dataMap: dataMap,
@@ -451,17 +600,17 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text("Present - 142",
+                Text("Present - $_present",
                     style: TextStyle(
                         color: Color(0xFF4B1E03),
                         fontSize: tertiary(),
                         fontWeight: FontWeight.bold)),
-                Text("Late - 20",
+                Text("Late - $_late",
                     style: TextStyle(
                         color: Color(0xFFEE6666),
                         fontSize: tertiary(),
                         fontWeight: FontWeight.bold)),
-                Text("Leave - 4",
+                Text("Leave - $_leave",
                     style: TextStyle(
                         color: Color(0xFFFAC858),
                         fontSize: tertiary(),
@@ -482,29 +631,23 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
         padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             Text("Recent Activities",
                 style: TextStyle(
                     fontWeight: FontWeight.bold, color: AppColors.gold)),
-            SizedBox(height: 10),
-            ListTile(
-              leading: Icon(Icons.location_on, color: Colors.blue),
-              title: Text("15 workers checked in at Downtown Site"),
-              subtitle: Text("2 minutes ago"),
-            ),
-            ListTile(
-              leading: Icon(Icons.warning, color: Colors.orange),
-              title: Text("Shortage alert: 5 workers needed"),
-              subtitle: Text("15 minutes ago"),
-            ),
-            ListTile(
-              leading: Icon(Icons.verified, color: Colors.green),
-              title: Text("Labour request approved"),
-              subtitle: Text("1 hour ago"),
-            ),
+            const SizedBox(height: 10),
+            ..._recentRequests.map((r) {
+              final date = (r['created_at'] as String).split('T').first;
+              return ListTile(
+                leading: const Icon(Icons.location_on, color: Colors.blue),
+                title: Text(r['project_name'] as String? ?? 'No project'),
+                subtitle: Text(date),
+              );
+            }).toList(),
           ],
         ),
       ),
     );
   }
+
 }
