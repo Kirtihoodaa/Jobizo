@@ -12,8 +12,7 @@ class LeaveRequestDetailsPage extends StatefulWidget {
   const LeaveRequestDetailsPage({super.key});
 
   @override
-  State<LeaveRequestDetailsPage> createState() =>
-      _LeaveRequestDetailsPageState();
+  State<LeaveRequestDetailsPage> createState() => _LeaveRequestDetailsPageState();
 }
 
 class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
@@ -39,12 +38,17 @@ class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
       final token = prefs.getString('auth_token');
 
       if (token == null) {
-        print("Token not found");
+        print("⚠️ Token not found");
         return;
       }
 
       Dio dio = Dio();
-      dio.options.headers["Authorization"] = "Bearer $token";
+      dio.options.headers = {
+        "Authorization": "Bearer $token",
+        "Accept": "application/json",
+      };
+
+      print("📡 Fetching leave requests with token: Bearer $token");
 
       final response = await dio.get("https://backend.jobizoindia.com/api/leave-request");
 
@@ -54,8 +58,11 @@ class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
           leaveRequests = List<Map<String, dynamic>>.from(data.reversed);
         });
       }
+    } on DioException catch (e) {
+      print("❌ DioException: ${e.response?.statusCode}");
+      print("❌ Response body: ${e.response?.data}");
     } catch (e) {
-      print("Error fetching leave requests: $e");
+      print("❌ Unknown error fetching leave requests: $e");
     }
   }
 
@@ -63,13 +70,17 @@ class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
+
       if (token == null) {
         print("⚠️ Token not found");
         return;
       }
 
       Dio dio = Dio();
-      dio.options.headers["authorization"] = "Bearer $token";
+      dio.options.headers = {
+        "Authorization": "Bearer $token",
+        "Accept": "application/json",
+      };
 
       final formData = {
         "leave_type": leaveTypeController.text.trim(),
@@ -78,13 +89,14 @@ class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
         "reason": reasonController.text.trim(),
       };
 
+      print("📤 Submitting leave request: $formData");
+
       final response = await dio.post(
         'https://backend.jobizoindia.com/api/leave-request',
         data: formData,
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // manually create leave request with timestamp
         final newRequest = {
           'status': 'Pending',
           'approved_by': null,
@@ -108,9 +120,13 @@ class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
       } else {
         SnackbarHelper.showError(context, 'Failed to submit leave request');
       }
-    } catch (e) {
-      print("❌ Error submitting leave request: $e");
+    } on DioException catch (e) {
+      print("❌ DioException: ${e.response?.statusCode}");
+      print("❌ Response body: ${e.response?.data}");
       SnackbarHelper.showError(context, 'Error submitting leave request');
+    } catch (e) {
+      print("❌ Unknown error submitting leave request: $e");
+      SnackbarHelper.showError(context, 'Unexpected error submitting leave request');
     }
   }
 
@@ -244,8 +260,7 @@ class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
     );
   }
 
-  Widget buildReasonField(TextEditingController controller,
-      {String? hintText}) {
+  Widget buildReasonField(TextEditingController controller, {String? hintText}) {
     return TextField(
       controller: controller,
       maxLines: 4,

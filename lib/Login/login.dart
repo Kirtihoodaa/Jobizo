@@ -56,6 +56,7 @@ class _LoginPageState extends State<LoginPage> {
 
       if (data['status'] == true) {
         final token = '${data['token_type']} ${data['token']}';
+        print(token);
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('auth_token', token);
 
@@ -75,7 +76,8 @@ class _LoginPageState extends State<LoginPage> {
         } else {
           await prefs.setString('userRole', 'unknown');
           // 👇 Open URL if role is something else
-          Get.to(() =>  WebViewPage(url: 'https://backend.jobizoindia.com'),
+          final url = 'https://backend.jobizoindia.com/auth/login';
+          Get.to(() =>  WebViewPage(url: url, email: '$email', password: '$password',),
               transition: Transition.cupertino,
               duration: const Duration(milliseconds: 400));
         }
