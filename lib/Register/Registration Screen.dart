@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Design contraints/FontSizes.dart';
 import '../Design contraints/gradients.dart';
+import '../Login/login.dart';
 import '../SnackBar/Snackbar.dart';
 import 'RoleSelection.dart';
 import 'Sucess Registration.dart';
@@ -77,9 +78,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('auth_token', response.data['token']);
         SnackbarHelper.showSuccess(context, "Registration Successful");
-        Get.to(() => SucessRegister(role: role ?? "unknown"),
-            transition: Transition.cupertino,
-            duration: const Duration(milliseconds: 400));
+        if (role == 'labour' || role == 'customer') {
+          Get.to(() => SucessRegister(role: role ?? "unknown"),
+              transition: Transition.cupertino,
+              duration: const Duration(milliseconds: 400));
+        }else{
+          Get.to(()=> LoginPage(),
+              transition: Transition.cupertino,
+              duration: const Duration(milliseconds: 400));
+        }
       } else {
         SnackbarHelper.showError(
             context, response.data['message'] ?? 'Registration failed');
