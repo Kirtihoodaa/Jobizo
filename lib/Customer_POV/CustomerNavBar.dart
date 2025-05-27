@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import '../../Design contraints/FontSizes.dart';
 import 'HistoryPages/HistoryPage.dart';
 import 'HomePages/HomePagess.dart';
@@ -48,10 +50,13 @@ class _CustomernavbarState extends State<Customernavbar> {
         return;
     }
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => page),
-    );
+    if (page != null) {
+      Get.off(
+        page,
+        transition: Transition.cupertino,
+        duration: Duration(milliseconds: 1000),
+      );
+    }
   }
 
   @override

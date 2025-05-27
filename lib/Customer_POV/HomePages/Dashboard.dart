@@ -201,7 +201,8 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
   Widget build(BuildContext context) {
     if (_loading) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        backgroundColor: Colors.white,
+        body: Center(child: CircularProgressIndicator(color: AppColors.gold,)),
       );
     }
     if (_error != null) {

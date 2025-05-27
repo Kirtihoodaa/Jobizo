@@ -62,7 +62,7 @@ class _ActivelistState extends State<Activelist> {
       return Scaffold(
         backgroundColor: AppColors.bgColor,
         appBar: const Commonappbar(title: 'Active Labours'),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const Center(child: CircularProgressIndicator(color: AppColors.gold,)),
       );
     }
 

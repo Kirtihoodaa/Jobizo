@@ -21,17 +21,17 @@ class _AddCompanyDetailsState extends State<AddCompanyDetails> {
   bool _isSubmitting = false;
 
   //–– Text controllers
-  final _companyNameCtrl   = TextEditingController();
-  final _regNumberCtrl     = TextEditingController();
-  final _yearCtrl          = TextEditingController();
-  final _gstNumberCtrl     = TextEditingController();
-  final _streetCtrl        = TextEditingController();
-  final _cityCtrl          = TextEditingController();
-  final _stateCtrl         = TextEditingController();
-  final _countryCtrl       = TextEditingController();
-  final _pinCtrl           = TextEditingController();
-  final _directorNameCtrl  = TextEditingController();
-  final _dinCtrl           = TextEditingController();
+  final _companyNameCtrl = TextEditingController();
+  final _regNumberCtrl = TextEditingController();
+  final _yearCtrl = TextEditingController();
+  final _gstNumberCtrl = TextEditingController();
+  final _streetCtrl = TextEditingController();
+  final _cityCtrl = TextEditingController();
+  final _stateCtrl = TextEditingController();
+  final _countryCtrl = TextEditingController();
+  final _pinCtrl = TextEditingController();
+  final _directorNameCtrl = TextEditingController();
+  final _dinCtrl = TextEditingController();
   final _directorEmailCtrl = TextEditingController();
 
   //–– Dropdown / checkboxes
@@ -67,31 +67,31 @@ class _AddCompanyDetailsState extends State<AddCompanyDetails> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       // Text fields
-      _companyNameCtrl.text   = prefs.getString('company_name')           ?? '';
-      _regNumberCtrl.text     = prefs.getString('registration_number')     ?? '';
-      _yearCtrl.text          = prefs.getString('year_of_establishment')   ?? '';
-      _gstNumberCtrl.text     = prefs.getString('gst_number')             ?? '';
-      _streetCtrl.text        = prefs.getString('street_address')          ?? '';
-      _cityCtrl.text          = prefs.getString('city')                    ?? '';
-      _stateCtrl.text         = prefs.getString('state')                   ?? '';
-      _countryCtrl.text       = prefs.getString('country')                 ?? '';
-      _pinCtrl.text           = prefs.getString('pin_code')                ?? '';
-      _directorNameCtrl.text  = prefs.getString('director_name')           ?? '';
-      _dinCtrl.text           = prefs.getString('din_number')              ?? '';
-      _directorEmailCtrl.text = prefs.getString('email')                   ?? '';
+      _companyNameCtrl.text = prefs.getString('company_name') ?? '';
+      _regNumberCtrl.text = prefs.getString('registration_number') ?? '';
+      _yearCtrl.text = prefs.getString('year_of_establishment') ?? '';
+      _gstNumberCtrl.text = prefs.getString('gst_number') ?? '';
+      _streetCtrl.text = prefs.getString('street_address') ?? '';
+      _cityCtrl.text = prefs.getString('city') ?? '';
+      _stateCtrl.text = prefs.getString('state') ?? '';
+      _countryCtrl.text = prefs.getString('country') ?? '';
+      _pinCtrl.text = prefs.getString('pin_code') ?? '';
+      _directorNameCtrl.text = prefs.getString('director_name') ?? '';
+      _dinCtrl.text = prefs.getString('din_number') ?? '';
+      _directorEmailCtrl.text = prefs.getString('email') ?? '';
 
       // Dropdown & categories
-      _companyType            = prefs.getString('company_type')           ?? _companyTypes.first;
+      _companyType = prefs.getString('company_type') ?? _companyTypes.first;
       _selectedCategories
         ..clear()
         ..addAll(prefs.getStringList('project_categories') ?? []);
 
       // File‐paths
-      _gstCertificatePath     = prefs.getString('gst_certificate');
-      _idProofPath            = prefs.getString('id_proof');
-      _companyRegDocPath      = prefs.getString('company_registration_doc');
-      _panCardPath            = prefs.getString('pan_card');
-      _otherDocsPath          = prefs.getString('other_documents');
+      _gstCertificatePath = prefs.getString('gst_certificate');
+      _idProofPath = prefs.getString('id_proof');
+      _companyRegDocPath = prefs.getString('company_registration_doc');
+      _panCardPath = prefs.getString('pan_card');
+      _otherDocsPath = prefs.getString('other_documents');
     });
   }
 
@@ -113,7 +113,8 @@ class _AddCompanyDetailsState extends State<AddCompanyDetails> {
   }
 
   /// Only accept PDF; else warn user.
-  Future<void> _pickAndSave(String prefKey, ValueChanged<String> onSaved) async {
+  Future<void> _pickAndSave(
+      String prefKey, ValueChanged<String> onSaved) async {
     final result = await FilePicker.platform.pickFiles();
     if (result?.files.single.path != null) {
       final filePath = result!.files.single.path!;
@@ -205,7 +206,8 @@ class _AddCompanyDetailsState extends State<AddCompanyDetails> {
       );
 
       final body = resp.data as Map<String, dynamic>;
-      if ((resp.statusCode == 200 || resp.statusCode == 201) && body['status'] == true) {
+      if ((resp.statusCode == 200 || resp.statusCode == 201) &&
+          body['status'] == true) {
         // **Save** text + selections
         await prefs
           ..setString('company_name', _companyNameCtrl.text.trim())
@@ -214,10 +216,12 @@ class _AddCompanyDetailsState extends State<AddCompanyDetails> {
           ..setString('company_type', _companyType!)
           ..setString('gst_number', _gstNumberCtrl.text.trim())
           ..setStringList('project_categories', _selectedCategories.toList());
-        SnackbarHelper.showSuccess(context, body['message'] ?? 'Company created successfully');
+        SnackbarHelper.showSuccess(
+            context, body['message'] ?? 'Company created successfully');
         Get.back();
       } else {
-        SnackbarHelper.showError(context, body['message'] ?? 'Failed (${resp.statusCode})');
+        SnackbarHelper.showError(
+            context, body['message'] ?? 'Failed (${resp.statusCode})');
       }
     } on DioError catch (e) {
       final msg = e.response?.data['message'] ?? e.message;
@@ -230,108 +234,139 @@ class _AddCompanyDetailsState extends State<AddCompanyDetails> {
   // --- UI helpers ---
 
   Widget _sectionContainer({required Widget child}) => Container(
-    margin: const EdgeInsets.symmetric(vertical: 8),
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
-    child: child,
-  );
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+            color: Colors.white, borderRadius: BorderRadius.circular(8)),
+        child: child,
+      );
 
   Widget _sectionTitle(String title) => Padding(
-    padding: const EdgeInsets.only(bottom: 12.0),
-    child: Text(title,
-        style: TextStyle(fontSize: primary(), fontWeight: FontWeight.bold, color: AppColors.green)),
-  );
+        padding: const EdgeInsets.only(bottom: 12.0),
+        child: Text(title,
+            style: TextStyle(
+                fontSize: primary(),
+                fontWeight: FontWeight.bold,
+                color: AppColors.green)),
+      );
 
-  Widget _textField(String label, TextEditingController ctrl, String hint) => Padding(
-    padding: const EdgeInsets.only(bottom: 12.0),
-    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(label, style: TextStyle(fontSize: secondary(), fontWeight: FontWeight.bold)),
-      const SizedBox(height: 4),
-      TextField(
-        controller: ctrl,
-        decoration: InputDecoration(
-          hintText: hint,
-          enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey), borderRadius: BorderRadius.circular(8)),
-          focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: AppColors.gold), borderRadius: BorderRadius.circular(8)),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-        ),
-      )
-    ]),
-  );
-
-  Widget _dropdownField(String label, List<String> items, String? value, ValueChanged<String?> onChanged) =>
+  Widget _textField(String label, TextEditingController ctrl, String hint) =>
       Padding(
         padding: const EdgeInsets.only(bottom: 12.0),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label, style: TextStyle(fontSize: secondary(), fontWeight: FontWeight.bold)),
+          Text(label,
+              style: TextStyle(
+                  fontSize: secondary(), fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          TextField(
+            controller: ctrl,
+            decoration: InputDecoration(
+              hintText: hint,
+              enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.gold),
+                  borderRadius: BorderRadius.circular(8)),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            ),
+          )
+        ]),
+      );
+
+  Widget _dropdownField(String label, List<String> items, String? value,
+          ValueChanged<String?> onChanged) =>
+      Padding(
+        padding: const EdgeInsets.only(bottom: 12.0),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(label,
+              style: TextStyle(
+                  fontSize: secondary(), fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           DropdownButtonFormField<String>(
             dropdownColor: Colors.white,
             value: value,
             items: items
-                .map((e) => DropdownMenuItem(value: e, child: Text(e, style: TextStyle(fontSize: secondary()))))
+                .map((e) => DropdownMenuItem(
+                    value: e,
+                    child: Text(e, style: TextStyle(fontSize: secondary()))))
                 .toList(),
             onChanged: onChanged,
             decoration: InputDecoration(
               enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey), borderRadius: BorderRadius.circular(8)),
+                  borderSide: BorderSide(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8)),
               focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.gold), borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                  borderSide: BorderSide(color: AppColors.gold),
+                  borderRadius: BorderRadius.circular(8)),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             ),
           )
         ]),
       );
 
   Widget _categoryCheckbox(String title) => CheckboxListTile(
-    value: _selectedCategories.contains(title),
-    onChanged: (v) {
-      setState(() {
-        if (v == true) _selectedCategories.add(title);
-        else _selectedCategories.remove(title);
-      });
-    },
-    activeColor: AppColors.gold,
-    title: Text(title, style: TextStyle(fontSize: tertiary())),
-    controlAffinity: ListTileControlAffinity.leading,
-  );
+        value: _selectedCategories.contains(title),
+        onChanged: (v) {
+          setState(() {
+            if (v == true)
+              _selectedCategories.add(title);
+            else
+              _selectedCategories.remove(title);
+          });
+        },
+        activeColor: AppColors.gold,
+        title: Text(title, style: TextStyle(fontSize: tertiary())),
+        controlAffinity: ListTileControlAffinity.leading,
+      );
 
-  Widget _uploadButton(String label, VoidCallback onTap, {bool uploaded = false}) => Center(
-    child: Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: ElevatedButton.icon(
-        onPressed: onTap,
-        icon: Icon(uploaded ? Icons.check_circle : Icons.upload, size: 22, color: Colors.white),
-        label: Text(uploaded ? 'Uploaded' : label,
-            style: TextStyle(fontSize: tertiary(), color: Colors.white)),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.gold,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+  Widget _uploadButton(String label, VoidCallback onTap,
+          {bool uploaded = false}) =>
+      Center(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 12.0),
+          child: ElevatedButton.icon(
+            onPressed: onTap,
+            icon: Icon(uploaded ? Icons.check_circle : Icons.upload,
+                size: 22, color: Colors.white),
+            label: Text(uploaded ? 'Uploaded' : label,
+                style: TextStyle(fontSize: tertiary(), color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.gold,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(40)),
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+            ),
+          ),
         ),
-      ),
-    ),
-  );
+      );
 
-  Widget _uploadDocumentButton(String label, VoidCallback onTap, {bool uploaded = false}) => Center(
-    child: Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: ElevatedButton.icon(
-        onPressed: onTap,
-        icon: Icon(uploaded ? Icons.check_circle : Icons.upload_file_rounded,
-            size: 22, color: uploaded ? Colors.white : Colors.black),
-        label: Text(label,
-            style: TextStyle(fontSize: tertiary(), color: uploaded ? Colors.white : Colors.black)),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: uploaded ? AppColors.gold : AppColors.grey,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-          minimumSize: const Size(300, 48),
+  Widget _uploadDocumentButton(String label, VoidCallback onTap,
+          {bool uploaded = false}) =>
+      Center(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 12.0),
+          child: ElevatedButton.icon(
+            onPressed: onTap,
+            icon: Icon(
+                uploaded ? Icons.check_circle : Icons.upload_file_rounded,
+                size: 22,
+                color: uploaded ? Colors.white : Colors.black),
+            label: Text(label,
+                style: TextStyle(
+                    fontSize: tertiary(),
+                    color: uploaded ? Colors.white : Colors.black)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: uploaded ? AppColors.gold : AppColors.grey,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(40)),
+              minimumSize: const Size(300, 48),
+            ),
+          ),
         ),
-      ),
-    ),
-  );
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -343,25 +378,29 @@ class _AddCompanyDetailsState extends State<AddCompanyDetails> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           // Company Details
           _sectionContainer(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               _sectionTitle('Company Details'),
-              _textField('Company Name', _companyNameCtrl, 'TechVision Solutions Ltd.'),
+              _textField('Company Name', _companyNameCtrl,
+                  'TechVision Solutions Ltd.'),
               _textField('Registration Number', _regNumberCtrl, 'REG123456789'),
               _textField('Year of Establishment', _yearCtrl, '2024'),
               _dropdownField('Company Type', _companyTypes, _companyType,
-                      (v) => setState(() => _companyType = v)),
+                  (v) => setState(() => _companyType = v)),
             ]),
           ),
 
           // GST
           _sectionContainer(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               _sectionTitle('GST Information'),
               _textField('GST Number', _gstNumberCtrl, '22AAAAA0000A1Z5'),
               _sectionTitle('GST Certificate'),
               _uploadButton(
                 'Upload Certificate',
-                    () => _pickAndSave('gst_certificate', (p) => setState(() => _gstCertificatePath = p)),
+                () => _pickAndSave('gst_certificate',
+                    (p) => setState(() => _gstCertificatePath = p)),
                 uploaded: _gstCertificatePath != null,
               ),
             ]),
@@ -369,7 +408,8 @@ class _AddCompanyDetailsState extends State<AddCompanyDetails> {
 
           // Address
           _sectionContainer(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               _sectionTitle('Address Information'),
               _textField('Street Address', _streetCtrl, '123 Innovation Park'),
               Row(children: [
@@ -387,23 +427,29 @@ class _AddCompanyDetailsState extends State<AddCompanyDetails> {
 
           // Director
           _sectionContainer(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               _sectionTitle('Director Information'),
               Align(
                 alignment: Alignment.centerRight,
                 child: OutlinedButton(
                   onPressed: () {}, // optional add more
-                  style: OutlinedButton.styleFrom(side: BorderSide(color: AppColors.gold)),
-                  child: Text('+ Add Director', style: TextStyle(fontSize: tertiary(),color: AppColors.gold)),
+                  style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: AppColors.gold)),
+                  child: Text('+ Add Director',
+                      style: TextStyle(
+                          fontSize: tertiary(), color: AppColors.gold)),
                 ),
               ),
               _textField('Director Name', _directorNameCtrl, 'Sarah Anderson'),
               _textField('DIN Number', _dinCtrl, '00123456'),
-              _textField('Contact Email', _directorEmailCtrl, 'sarah.anderson@techvision.com'),
+              _textField('Contact Email', _directorEmailCtrl,
+                  'sarah.anderson@techvision.com'),
               _sectionTitle('ID Proof'),
               _uploadButton(
                 'Upload ID Proof',
-                    () => _pickAndSave('id_proof', (p) => setState(() => _idProofPath = p)),
+                () => _pickAndSave(
+                    'id_proof', (p) => setState(() => _idProofPath = p)),
                 uploaded: _idProofPath != null,
               ),
             ]),
@@ -411,7 +457,8 @@ class _AddCompanyDetailsState extends State<AddCompanyDetails> {
 
           // Categories
           _sectionContainer(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               _sectionTitle('Project Categories'),
               ..._projectCategoriesList.map(_categoryCheckbox),
             ]),
@@ -419,24 +466,34 @@ class _AddCompanyDetailsState extends State<AddCompanyDetails> {
 
           // Documents
           _sectionContainer(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               _sectionTitle('Other Documents'),
-              Text('Company Registration', style: TextStyle(fontWeight: FontWeight.bold, fontSize: secondary())),
+              Text('Company Registration',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: secondary())),
               _uploadDocumentButton(
                 'Upload Registration',
-                    () => _pickAndSave('company_registration_doc', (p) => setState(() => _companyRegDocPath = p)),
+                () => _pickAndSave('company_registration_doc',
+                    (p) => setState(() => _companyRegDocPath = p)),
                 uploaded: _companyRegDocPath != null,
               ),
-              Text('PAN Card', style: TextStyle(fontWeight: FontWeight.bold, fontSize: secondary())),
+              Text('PAN Card',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: secondary())),
               _uploadDocumentButton(
                 'Upload PAN Card',
-                    () => _pickAndSave('pan_card', (p) => setState(() => _panCardPath = p)),
+                () => _pickAndSave(
+                    'pan_card', (p) => setState(() => _panCardPath = p)),
                 uploaded: _panCardPath != null,
               ),
-              Text('Other Documents', style: TextStyle(fontWeight: FontWeight.bold, fontSize: secondary())),
+              Text('Other Documents',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: secondary())),
               _uploadDocumentButton(
                 'Upload Other Docs',
-                    () => _pickAndSave('other_documents', (p) => setState(() => _otherDocsPath = p)),
+                () => _pickAndSave('other_documents',
+                    (p) => setState(() => _otherDocsPath = p)),
                 uploaded: _otherDocsPath != null,
               ),
             ]),
@@ -448,15 +505,18 @@ class _AddCompanyDetailsState extends State<AddCompanyDetails> {
               onPressed: _isSubmitting ? null : _submitCompanyProfile,
               style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.gold,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 14)),
               child: _isSubmitting
                   ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-              )
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                          color: Colors.white, strokeWidth: 2),
+                    )
                   : Text('Submit Company Profile',
-                  style: TextStyle(fontSize: tertiary(), color: Colors.white)),
+                      style:
+                          TextStyle(fontSize: tertiary(), color: Colors.white)),
             ),
           ),
           const SizedBox(height: 50),

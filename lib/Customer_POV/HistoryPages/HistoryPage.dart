@@ -63,7 +63,7 @@ class _HistotypageeState extends State<Histotypagee> {
       return Scaffold(
         backgroundColor: AppColors.bgColor,
         appBar: Customerappbar(profileImageUrl: ''),
-        body: const Center(child: CircularProgressIndicator(color: AppColors.green,)),
+        body: const Center(child: CircularProgressIndicator(color: AppColors.gold,)),
         bottomNavigationBar: Customernavbar(currentIndex: 2),
       );
     }
