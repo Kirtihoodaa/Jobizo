@@ -121,9 +121,9 @@ class _AgentsListState extends State<AgentsList> {
             CircleAvatar(
               radius: 30,
               backgroundColor: Colors.grey.shade200,
-              backgroundImage: AssetImage('Assets/Customer_Images/List_icon.png'),
+              backgroundImage:
+                  AssetImage('Assets/Customer_Images/List_icon.png'),
             ),
-
 
             const SizedBox(width: 16),
 
@@ -146,10 +146,12 @@ class _AgentsListState extends State<AgentsList> {
                   // Agent name & ID
                   Row(
                     children: [
-                      const Icon(Icons.person, size: 16, color: AppColors.green),
+                      const Icon(Icons.person,
+                          size: 16, color: AppColors.green),
                       const SizedBox(width: 4),
                       Expanded(child: Text(agent.agentName)),
-                      Text('ID: ${agent.id}', style: const TextStyle(fontWeight: FontWeight.w500)),
+                      Text('ID: ${agent.id}',
+                          style: const TextStyle(fontWeight: FontWeight.w500)),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -170,7 +172,8 @@ class _AgentsListState extends State<AgentsList> {
 
                   Row(
                     children: [
-                      const Icon(Icons.location_on, size: 16, color: AppColors.green),
+                      const Icon(Icons.location_on,
+                          size: 16, color: AppColors.green),
                       const SizedBox(width: 4),
                       Text(agent.location),
                     ],
@@ -200,65 +203,66 @@ class _AgentsListState extends State<AgentsList> {
       backgroundColor: AppColors.bgColor,
       appBar: const Commonappbar(title: 'Agent List'),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.green))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.gold))
           : _error.isNotEmpty
-          ? Center(child: Text(_error))
-          : SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Available Agents Card
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.brown,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Available Agents',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Row(
+              ? Center(child: Text(_error))
+              : SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Center(
-                        child: Text(
-                          '- ${_agents.length} -',
-                          style:  TextStyle(
-                            color: Colors.white,
-                            fontSize: 35,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      // Available Agents Card
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.brown,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Available Agents',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            Row(
+                              children: [
+                                Center(
+                                  child: Text(
+                                    '- ${_agents.length} -',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 35,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
+                      // List of Agent Cards
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Column(
+                          children: _agents
+                              .map((agent) => _buildAgentCard(agent))
+                              .toList(),
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
                     ],
                   ),
-                ],
-              ),
-            ),
-            // List of Agent Cards
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: _agents
-                    .map((agent) => _buildAgentCard(agent))
-                    .toList(),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
+                ),
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:jobizo/Customer_POV/HomePages/Allsites.dart';
 import 'package:jobizo/Customer_POV/HomePages/AssignedLabour.dart';
 import 'package:jobizo/Customer_POV/HomePages/Labour_types/labour_avi.dart';
@@ -28,47 +30,47 @@ class _HomepagessState extends State<Homepagess> {
     {
       "label": "Dashboard",
       "image": "Assets/Labour_image/dashboard icon.png",
-      "navigateTo": DashboardScreenC(),
+      "navigateTo": () => DashboardScreenC(),
     },
     {
       "label": "Industry",
       "image": "Assets/Customer_Images/industry.png",
-      "navigateTo": Industrydetails(),
+      "navigateTo": () => Industrydetails(),
     },
     {
       "label": "Sites",
       "image": "Assets/Customer_Images/sites.png",
-      "navigateTo": AllSitesScreen(),
+      "navigateTo": () => AllSitesScreen(),
     },
     {
       "label": "Labour\nTypes",
       "image": "Assets/Customer_Images/labour type.png",
-      "navigateTo": AllLaboursScreen(),
+      "navigateTo": () => AllLaboursScreen(),
     },
     {
       "label": "Agents",
       "image": "Assets/Customer_Images/agents.png",
-      "navigateTo": AgentsList(),
+      "navigateTo": () => AgentsList(),
     },
     {
       "label": "Labour\nLocalities",
       "image": "Assets/Customer_Images/location.png",
-      "navigateTo": Labourlocalities(),
+      "navigateTo": () => Labourlocalities(),
     },
     {
       "label": "Add Company\nDetails",
       "image": "Assets/Customer_Images/add comp details.png",
-      "navigateTo": AddCompanyDetails(),
+      "navigateTo": () => AddCompanyDetails(),
     },
     {
       "label": "Company\nDetails",
       "image": "Assets/Customer_Images/details comp.png",
-      "navigateTo": Companydetails(),
+      "navigateTo": () => Companydetails(),
     },
     {
       "label": "Assigned\nLabour",
       "image": "Assets/Customer_Images/assigned labour.png",
-      "navigateTo": AssignedWorkerPage(),
+      "navigateTo": () => AssignedWorkerPage(),
     },
   ];
 
@@ -81,7 +83,8 @@ class _HomepagessState extends State<Homepagess> {
       },
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: Customerappbar(profileImageUrl: '',
+        appBar: Customerappbar(
+          profileImageUrl: '',
           // onMenuTap: () => CustomMenu.show(context),
         ),
         body: SingleChildScrollView(
@@ -92,7 +95,10 @@ class _HomepagessState extends State<Homepagess> {
                 padding: const EdgeInsets.all(15.0),
                 child: Text(
                   "Welcome to Jobizo !",
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFF2C4305)),
+                  style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2C4305)),
                 ),
               )),
               Container(
@@ -111,7 +117,8 @@ class _HomepagessState extends State<Homepagess> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 10.0, right: 25, left: 25, bottom: 10),
+                      padding: const EdgeInsets.only(
+                          top: 10.0, right: 25, left: 25, bottom: 10),
                       child: Image.asset(
                           "Assets/Labour_image/labour deshboard image.png"),
                     ),
@@ -141,10 +148,9 @@ class _HomepagessState extends State<Homepagess> {
                   children: options.map((item) {
                     return GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => item['navigateTo']),
-                        );
+                        Get.to(item['navigateTo'],
+                            transition: Transition.cupertino,
+                            duration: const Duration(milliseconds: 400));
                       },
                       child: Column(
                         mainAxisSize: MainAxisSize.min,

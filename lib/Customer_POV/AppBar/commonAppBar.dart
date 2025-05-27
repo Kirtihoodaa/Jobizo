@@ -20,15 +20,7 @@ class Commonappbar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.white),
-        onPressed: () {
-          // Simply pop one route if possible
-          if (Get.key.currentState?.canPop() ?? false) {
-            Get.back();
-          } else {
-            // Fallback if there's nothing to pop
-            SystemNavigator.pop();
-          }
-        },
+        onPressed: () => Get.back(),
       ),
       title: Text(
         title,

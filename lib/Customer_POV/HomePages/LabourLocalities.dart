@@ -101,7 +101,7 @@ class _LabourlocalitiesState extends State<Labourlocalities> {
       backgroundColor: AppColors.bgColor,
       appBar: const Commonappbar(title: 'Labour Localities'),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.green))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.gold))
           : _error != null
           ? Center(child: Text(_error!))
           : SingleChildScrollView(

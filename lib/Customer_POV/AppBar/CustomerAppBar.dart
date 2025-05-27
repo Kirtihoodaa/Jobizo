@@ -116,13 +116,7 @@ class CustomerappbarState extends State<Customerappbar> {
             /// Menu + Profile Info
             Row(
               children: [
-                IconButton(
-                  icon: const Icon(Icons.menu, color: Colors.white),
-                  onPressed: widget.onMenuTap ??
-                      () {
-                        CustomMenuCustomer.show(context);
-                      },
-                ),
+                AnimatedMenuButtonCustomer(),
                 GestureDetector(
                     onTap: widget.onProfileTap,
                     child: CircleAvatar(
