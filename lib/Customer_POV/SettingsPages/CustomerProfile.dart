@@ -74,9 +74,16 @@ class _CustomerprofileState extends State<Customerprofile> {
                   CircleAvatar(
                     radius: 40,
                     backgroundColor: AppColors.gold,
-                    backgroundImage: userData?['image'] != null
-                        ? NetworkImage("https://backend.jobizoindia.com/storage/${userData!['image']}")
-                        : const NetworkImage('https://i.imgur.com/BoN9kdC.png'),
+                    backgroundImage: userData?['image'] != null &&
+                        userData!['image'].toString().isNotEmpty
+                        ? NetworkImage(
+                        "https://backend.jobizoindia.com/storage/${userData!['image']}")
+                        : null,
+                    child: userData?['image'] == null ||
+                        userData!['image'].toString().isEmpty
+                        ? const Icon(Icons.person,
+                        size: 60, color: Colors.white)
+                        : null,
                   ),
                   const SizedBox(width: 16),
                   Expanded(

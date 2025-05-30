@@ -73,21 +73,33 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           "phone": mobile,
         },
       );
-
-      if (response.statusCode == 200 && response.data['status'] == true) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('auth_token', response.data['token']);
+      print("📥 response.statusCode = ${response.statusCode}");
+      print(
+          "📥 response.data['status'] = ${response.data['status']} (${response.data['status'].runtimeType})");
+      print("📥 response.data = ${response.data}");
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          response.data['status'] == true) {
         SnackbarHelper.showSuccess(context, "Registration Successful");
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('auth_token', response.data['token'] ?? '');
+
+        final dynamic rawRole = widget.selectedRole;
+        final String role = (rawRole is List && rawRole.isNotEmpty)
+            ? rawRole.first.toString().toLowerCase()
+            : rawRole.toString().toLowerCase();
+
         if (role == 'labour' || role == 'customer') {
-          Get.to(() => SucessRegister(role: role ?? "unknown"),
+          Get.to(() => SucessRegister(role: role),
               transition: Transition.cupertino,
               duration: const Duration(milliseconds: 400));
-        }else{
-          Get.to(()=> LoginPage(),
+        } else {
+          Get.to(() => LoginPage(),
               transition: Transition.cupertino,
               duration: const Duration(milliseconds: 400));
         }
       } else {
+        print('$response.data');
         SnackbarHelper.showError(
             context, response.data['message'] ?? 'Registration failed');
       }

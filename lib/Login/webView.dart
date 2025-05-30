@@ -21,6 +21,9 @@ class WebViewPage extends StatefulWidget {
 class _WebViewPageState extends State<WebViewPage> {
   late final WebViewController _controller;
   bool _hasInjected = false;
+  String _currentUrl = '';
+
+  static const String ownerPageUrl = 'https://backend.jobizoindia.com/owner';
 
   @override
   void initState() {
@@ -30,11 +33,15 @@ class _WebViewPageState extends State<WebViewPage> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
-          onPageStarted: (url) => debugPrint("🔄 Loading $url"),
+          onPageStarted: (url) {
+            debugPrint("🔄 Loading $url");
+          },
           onPageFinished: (url) async {
             debugPrint("✅ Finished $url");
+            _currentUrl = url;
+
             if (!_hasInjected && url.contains('login')) {
-              _hasInjected = true; // Prevent re-injection after logout
+              _hasInjected = true;
               await _injectLoginData();
             }
           },
@@ -58,16 +65,30 @@ class _WebViewPageState extends State<WebViewPage> {
     debugPrint("🚀 Injected email + password and submitted form.");
   }
 
+  Future<bool> _handleBack() async {
+    if (_currentUrl == ownerPageUrl) {
+      debugPrint("🚪 On owner page → exiting app.");
+      SystemNavigator.pop();
+      return false;
+    }
+
+    if (await _controller.canGoBack()) {
+      debugPrint("↩️ Can go back → navigating back in WebView.");
+      _controller.goBack();
+      return false;
+    }
+
+    debugPrint("🚪 No history → exiting app.");
+    SystemNavigator.pop();
+    return false;
+  }
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async{
-        SystemNavigator.pop();
-        return false;
-      },
+      onWillPop: _handleBack,
       child: Scaffold(
         body: Container(
-          color:AppColors.gold, // 👈 Set your desired background color here
+          color: AppColors.gold,
           child: SafeArea(
             child: WebViewWidget(controller: _controller),
           ),

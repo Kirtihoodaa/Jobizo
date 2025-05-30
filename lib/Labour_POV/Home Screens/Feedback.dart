@@ -58,6 +58,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
       final data = response.data as Map<String, dynamic>;
       if(data['status'] == true ){
+        print(data);
         SnackbarHelper.showSuccess(
             context, data['message'] ?? 'Submitted Successfully');
 
