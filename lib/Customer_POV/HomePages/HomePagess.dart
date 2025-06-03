@@ -67,11 +67,11 @@ class _HomepagessState extends State<Homepagess> {
       "image": "Assets/Customer_Images/details comp.png",
       "navigateTo": () => Companydetails(),
     },
-    {
-      "label": "Assigned\nLabour",
-      "image": "Assets/Customer_Images/assigned labour.png",
-      "navigateTo": () => AssignedWorkerPage(),
-    },
+    // {
+    //   "label": "Assigned\nLabour",
+    //   "image": "Assets/Customer_Images/assigned labour.png",
+    //   "navigateTo": () => AssignedWorkerPage(),
+    // },
   ];
 
   @override
