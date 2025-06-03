@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jobizo/Customer_POV/AppBar/commonAppBar.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Requestdetails extends StatefulWidget {
   final int requestId;
@@ -18,7 +18,7 @@ class Requestdetails extends StatefulWidget {
 class _RequestdetailsState extends State<Requestdetails> {
   bool _loading = true;
   String? _error;
-  late _Detail _detail;
+  _Detail? _detail; // May be null until loaded
 
   @override
   void initState() {
@@ -44,7 +44,8 @@ class _RequestdetailsState extends State<Requestdetails> {
       );
 
       if (resp.statusCode == 200 && resp.data['status'] == true) {
-        _detail = _Detail.fromJson(resp.data['data']);
+        final data = resp.data['data'] as Map<String, dynamic>? ?? {};
+        _detail = _Detail.fromJson(data);
       } else {
         throw resp.data['message'] ??
             'Failed to load (code ${resp.statusCode})';
@@ -62,7 +63,8 @@ class _RequestdetailsState extends State<Requestdetails> {
       return Scaffold(
         backgroundColor: AppColors.bgColor,
         appBar: Commonappbar(title: "Request Details"),
-        body: const Center(child: CircularProgressIndicator(color: AppColors.green,)),
+        body: const Center(
+            child: CircularProgressIndicator(color: AppColors.green)),
       );
     }
 
@@ -74,6 +76,8 @@ class _RequestdetailsState extends State<Requestdetails> {
       );
     }
 
+    // At this point, _detail is non-null
+    final d = _detail!;
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: Commonappbar(title: "Request Details"),
@@ -92,25 +96,27 @@ class _RequestdetailsState extends State<Requestdetails> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    _detail.projectName ?? "—",
-                    style: TextStyle(
-                      fontSize: secondary(),
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.green,
+                  Expanded(
+                    child: Text(
+                      d.projectName ?? "—",
+                      style: TextStyle(
+                        fontSize: secondary(),
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.green,
+                      ),
                     ),
                   ),
                   Container(
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: _detail.status.toLowerCase() == 'pending'
+                      color: d.status.toLowerCase() == 'pending'
                           ? AppColors.gold
                           : AppColors.brown,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      _detail.status.capitalize!,
+                      d.status.capitalize!,
                       style: TextStyle(
                         fontSize: tertiary(),
                         color: Colors.white,
@@ -130,9 +136,9 @@ class _RequestdetailsState extends State<Requestdetails> {
               Wrap(
                 spacing: 16,
                 runSpacing: 8,
-                children: _detail.departments
-                    .map((d) => Text(
-                  "${d.departmentName} ${d.numberOfLabour}",
+                children: d.departments
+                    .map((dept) => Text(
+                  "${dept.departmentName} ${dept.numberOfLabour}",
                   style: TextStyle(
                       fontSize: tertiary(),
                       fontWeight: FontWeight.w400),
@@ -146,7 +152,7 @@ class _RequestdetailsState extends State<Requestdetails> {
                   style: TextStyle(
                       fontSize: secondary(), fontWeight: FontWeight.w600)),
               const SizedBox(height: 4),
-              Text("${_detail.durationDays} days",
+              Text("${d.durationDays} day(s)",
                   style: TextStyle(
                       fontSize: tertiary(), fontWeight: FontWeight.w400)),
               const SizedBox(height: 16),
@@ -155,14 +161,14 @@ class _RequestdetailsState extends State<Requestdetails> {
               Row(
                 children: [
                   Expanded(
-                    child: _dateColumn("Start Date", _detail.startDate),
+                    child: _dateColumn("Start Date", d.startDate),
                   ),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: _dateColumn(
                         "End Date",
-                        _detail
-                            .startDate
-                            .add(Duration(days: _detail.durationDays))),
+                        d.startDate.add(
+                            Duration(days: d.durationDays))),
                   ),
                 ],
               ),
@@ -173,17 +179,17 @@ class _RequestdetailsState extends State<Requestdetails> {
                   style: TextStyle(
                       fontSize: secondary(), fontWeight: FontWeight.w600)),
               const SizedBox(height: 4),
-              Text(_detail.workAddress,
+              Text(d.workAddress ?? "—",
                   style: TextStyle(
                       fontSize: tertiary(), fontWeight: FontWeight.w400)),
               const SizedBox(height: 30),
 
-              // Site Manager
+              // Site Manager Name
               Text("Site Manager Name",
                   style: TextStyle(
                       fontSize: secondary(), fontWeight: FontWeight.w600)),
               const SizedBox(height: 4),
-              Text(_detail.siteManagerName,
+              Text(d.siteManagerName ?? "—",
                   style: TextStyle(
                       fontSize: tertiary(), fontWeight: FontWeight.w400)),
               const SizedBox(height: 30),
@@ -193,7 +199,7 @@ class _RequestdetailsState extends State<Requestdetails> {
                   style: TextStyle(
                       fontSize: secondary(), fontWeight: FontWeight.w600)),
               const SizedBox(height: 4),
-              Text(_detail.siteManagerPhone,
+              Text(d.siteManagerPhone ?? "—",
                   style: TextStyle(
                       fontSize: tertiary(), fontWeight: FontWeight.w400)),
               const SizedBox(height: 30),
@@ -203,7 +209,7 @@ class _RequestdetailsState extends State<Requestdetails> {
                   style: TextStyle(
                       fontSize: secondary(), fontWeight: FontWeight.w600)),
               const SizedBox(height: 4),
-              Text(_detail.siteManagerEmail,
+              Text(d.siteManagerEmail ?? "—",
                   style: TextStyle(
                       fontSize: tertiary(), fontWeight: FontWeight.w400)),
               const SizedBox(height: 30),
@@ -213,7 +219,7 @@ class _RequestdetailsState extends State<Requestdetails> {
                   style: TextStyle(
                       fontSize: secondary(), fontWeight: FontWeight.w600)),
               const SizedBox(height: 4),
-              Text(_detail.workDescription,
+              Text(d.workDescription ?? "—",
                   style: TextStyle(
                       fontSize: tertiary(), fontWeight: FontWeight.w400)),
             ],
@@ -259,6 +265,7 @@ class _RequestdetailsState extends State<Requestdetails> {
 class _RequestDepartment {
   final String departmentName;
   final int numberOfLabour;
+
   _RequestDepartment({
     required this.departmentName,
     required this.numberOfLabour,
@@ -268,11 +275,11 @@ class _RequestDepartment {
 class _Detail {
   final int id;
   final String? projectName;
-  final String siteManagerName;
-  final String siteManagerPhone;
-  final String siteManagerEmail;
-  final String workDescription;
-  final String workAddress;
+  final String? siteManagerName;
+  final String? siteManagerPhone;
+  final String? siteManagerEmail;
+  final String? workDescription;
+  final String? workAddress;
   final DateTime startDate;
   final int durationDays;
   final String status;
@@ -281,11 +288,11 @@ class _Detail {
   _Detail({
     required this.id,
     this.projectName,
-    required this.siteManagerName,
-    required this.siteManagerPhone,
-    required this.siteManagerEmail,
-    required this.workDescription,
-    required this.workAddress,
+    this.siteManagerName,
+    this.siteManagerPhone,
+    this.siteManagerEmail,
+    this.workDescription,
+    this.workAddress,
     required this.startDate,
     required this.durationDays,
     required this.status,
@@ -293,24 +300,27 @@ class _Detail {
   });
 
   factory _Detail.fromJson(Map<String, dynamic> json) {
-    final deps = (json['departments'] as List<dynamic>)
-        .map((d) => _RequestDepartment(
-      departmentName: d['department']['name'] as String,
-      numberOfLabour: d['number_of_labour'] as int,
-    ))
-        .toList();
+    // Departments: safely map each entry, defaulting missing strings
+    final depsJson = (json['departments'] as List<dynamic>? ?? []);
+    final deps = depsJson.map((d) {
+      final deptObj = d['department'] as Map<String, dynamic>? ?? {};
+      return _RequestDepartment(
+        departmentName: (deptObj['name'] as String?) ?? 'Unknown',
+        numberOfLabour: (d['number_of_labour'] as int?) ?? 0,
+      );
+    }).toList();
 
     return _Detail(
       id: json['id'] as int,
-      projectName: json['project_name'] as String?,
-      siteManagerName: json['site_manager_name'] as String,
-      siteManagerPhone: json['site_manager_phone'] as String,
-      siteManagerEmail: json['site_manager_email'] as String,
-      workDescription: json['work_description'] as String,
-      workAddress: json['work_address'] as String,
-      startDate: DateTime.parse(json['start_date'] as String),
-      durationDays: (json['duration_days'] as num).toInt(),
-      status: json['status'] as String,
+      projectName: (json['project_name'] as String?),
+      siteManagerName: (json['site_manager_name'] as String?) ?? '—',
+      siteManagerPhone: (json['site_manager_phone'] as String?) ?? '—',
+      siteManagerEmail: (json['site_manager_email'] as String?) ?? '—',
+      workDescription: (json['work_description'] as String?) ?? '—',
+      workAddress: (json['work_address'] as String?) ?? '—',
+      startDate: DateTime.parse(json['start_date'] as String? ?? ''),
+      durationDays: (json['duration_days'] as num?)?.toInt() ?? 0,
+      status: (json['status'] as String?) ?? 'pending',
       departments: deps,
     );
   }

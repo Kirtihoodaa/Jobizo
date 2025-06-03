@@ -23,6 +23,9 @@ class _CustomerrequestState extends State<Customerrequest> {
     'Painting', 'Carpentry', 'Labour'
   ];
   late List<TextEditingController> controllers;
+  List<Map<String, dynamic>> _franchises = [];
+  int? _selectedFranchiseId;
+  bool _isLoadingFranchises = false;
 
   // 2) Site Manager
   final _siteNameCtrl  = TextEditingController();
@@ -46,11 +49,39 @@ class _CustomerrequestState extends State<Customerrequest> {
   @override
   void initState() {
     super.initState();
-    controllers = List.generate(
-      departmentList.length,
-          (_) => TextEditingController(),
-    );
+    controllers = List.generate(departmentList.length, (_) => TextEditingController());
+    _fetchFranchises();
   }
+
+  Future<void> _fetchFranchises() async {
+    setState(() => _isLoadingFranchises = true);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('auth_token') ?? '';
+      if (!token.startsWith('Bearer ')) token = 'Bearer $token';
+
+      final dio = Dio(BaseOptions(headers: {'Authorization': token}));
+      final resp = await dio.get(
+        'https://backend.jobizoindia.com/api/franchise',
+        options: Options(validateStatus: (s) => s != null && s < 500),
+      );
+
+      final data = resp.data as Map<String, dynamic>;
+      if (resp.statusCode == 200 && data['status'] == true) {
+        // assuming JSON key is "franchise"
+        _franchises = List<Map<String, dynamic>>.from(data['franchise']);
+      } else {
+        SnackbarHelper.showError(context, data['message'] ?? 'Failed to load franchises');
+      }
+    } on DioError catch (e) {
+      final msg = e.response?.data['message'] ?? e.message;
+      SnackbarHelper.showError(context, msg);
+    } finally {
+      setState(() => _isLoadingFranchises = false);
+    }
+  }
+
+
 
   @override
   void dispose() {
@@ -131,7 +162,7 @@ class _CustomerrequestState extends State<Customerrequest> {
       final cnt = int.tryParse(controllers[i].text.trim()) ?? 0;
       if (cnt > 0) {
         depts.add({
-          'department_id': i + 1,           // adjust if your IDs differ
+          'department_id': i + 1,
           'number_of_labour': cnt,
         });
       }
@@ -141,6 +172,10 @@ class _CustomerrequestState extends State<Customerrequest> {
         context,
         'Enter workers for at least one department',
       );
+      return;
+    }
+    if (_selectedFranchiseId == null) {
+      SnackbarHelper.showWarning(context, 'Please select a franchise');
       return;
     }
 
@@ -157,6 +192,7 @@ class _CustomerrequestState extends State<Customerrequest> {
       final resp = await dio.post(
         'https://backend.jobizoindia.com/api/labour-request',
         data: {
+          'franchise_id'       : _selectedFranchiseId,
           'site_manager_name'  : siteName,
           'site_manager_phone' : sitePhone,
           'site_manager_email' : siteEmail,
@@ -250,6 +286,45 @@ class _CustomerrequestState extends State<Customerrequest> {
             ),
             const SizedBox(height: 15),
 
+            //Selectt franchise
+            Text("Franchise",
+                style: TextStyle(
+                  fontSize: secondary(),
+                  fontWeight: FontWeight.bold,
+                )),
+            const SizedBox(height: 10),
+            _isLoadingFranchises
+                ? Center(child: CircularProgressIndicator(color: AppColors.green,))
+                : DropdownButtonFormField<int>(
+              decoration: InputDecoration(
+                contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: AppColors.green, width: 1.5),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: AppColors.green, width: 2),
+                ),
+                filled: true,
+                fillColor: Colors.white,
+              ),
+              hint: const Text("Select Franchise"),
+              dropdownColor: Colors.white,
+              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              value: _selectedFranchiseId,
+              items: _franchises.map((fr) {
+                // display the nested user's name
+                final name = fr['user']?['name'] ?? 'Unknown';
+                return DropdownMenuItem(
+                  value: fr['id'] as int,
+                  child: Text(name, style: const TextStyle(color: Colors.black)),
+                );
+              }).toList(),
+              onChanged: (val) => setState(() => _selectedFranchiseId = val),
+            ),
+            SizedBox(height: 15,),
             // Number of Workers Needed grid
             Text("Number of Workers Needed",
                 style: TextStyle(

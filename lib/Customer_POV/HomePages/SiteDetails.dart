@@ -24,21 +24,22 @@ class SiteDetail {
   final List<Map<String, dynamic>> departments;
 
   SiteDetail.fromJson(Map<String, dynamic> json)
-      : raw               = json,
-        id                = json['id'] as int,
-        projectName       = json['project_name'] as String?,
-        siteManagerName   = json['site_manager_name'] as String?,
-        siteManagerPhone  = json['site_manager_phone'] as String?,
-        siteManagerEmail  = json['site_manager_email'] as String?,
-        workDescription   = json['work_description'] as String?,
-        workAddress       = json['work_address'] as String?,
-        startDate         = json['start_date'] as String?,
-        durationDays      = json['duration_days'] as int?,
-        contactName       = json['contact_name'] as String?,
-        contactPhone      = json['contact_phone'] as String?,
-        contactEmail      = json['contact_email'] as String?,
-        departments       = (json['departments'] as List<dynamic>?)
-            ?.cast<Map<String, dynamic>>() ?? [];
+      : raw = json,
+        id = json['id'] as int,
+        projectName = json['project_name'] as String?,
+        siteManagerName = json['site_manager_name'] as String?,
+        siteManagerPhone = json['site_manager_phone'] as String?,
+        siteManagerEmail = json['site_manager_email'] as String?,
+        workDescription = json['work_description'] as String?,
+        workAddress = json['work_address'] as String?,
+        startDate = json['start_date'] as String?,
+        durationDays = json['duration_days'] as int?,
+        contactName = json['contact_name'] as String?,
+        contactPhone = json['contact_phone'] as String?,
+        contactEmail = json['contact_email'] as String?,
+        departments = (json['departments'] as List<dynamic>?)
+            ?.cast<Map<String, dynamic>>() ??
+            [];
 
   /// If the parsed field is null, fall back to printing the raw JSON value as a string.
   String rawValue(String key) {
@@ -57,18 +58,19 @@ class Sitedetails extends StatefulWidget {
 }
 
 class _SitedetailsState extends State<Sitedetails> {
-  bool   _loading = true;
-  String _error   = '';
+  bool _loading = true;
+  String _error = '';
   SiteDetail? _detail;
-  Map<String,int> _acceptedCounts = {
-    'Construction': 0,
-    'Electricians' : 0,
-    'Plumbers'     : 0,
-    'Carpenters'   : 0,
-    'Painters'     : 0,
-    'Others'       : 0,
-  };
 
+  /// Tracks how many workers have been “accepted” for each role.
+  final Map<String, int> _acceptedCounts = {
+    'Construction': 0,
+    'Electricians': 0,
+    'Plumbers': 0,
+    'Carpenters': 0,
+    'Painters': 0,
+    'Others': 0,
+  };
 
   @override
   void initState() {
@@ -77,7 +79,10 @@ class _SitedetailsState extends State<Sitedetails> {
   }
 
   Future<void> _fetchDetail() async {
-    setState(() { _loading = true; _error = ''; });
+    setState(() {
+      _loading = true;
+      _error = '';
+    });
     try {
       final prefs = await SharedPreferences.getInstance();
       var token = prefs.getString('auth_token') ?? '';
@@ -92,14 +97,85 @@ class _SitedetailsState extends State<Sitedetails> {
 
       final body = resp.data as Map<String, dynamic>;
       if (resp.statusCode == 200 && body['status'] == true) {
-        _detail = SiteDetail.fromJson(body['data'] as Map<String, dynamic>);
+        _detail =
+            SiteDetail.fromJson(body['data'] as Map<String, dynamic>);
       } else {
         throw body['message'] ?? 'Failed to load';
       }
     } catch (e) {
       _error = e.toString();
     } finally {
-      setState(() { _loading = false; });
+      setState(() {
+        _loading = false;
+      });
+    }
+  }
+
+  /// Called when a user taps to “accept” a worker for [role].
+  /// Finds the matching department_id, sends a POST to the server, and
+  /// increments the local counter only if the server responds with success.
+  Future<void> _acceptLaborRole(String role) async {
+    if (_detail == null) return;
+
+    // 1. Find department entry whose name matches [role] (case-insensitive).
+    final deptEntry = _detail!.departments.firstWhere(
+          (entry) {
+        final deptMap = entry['department'] as Map<String, dynamic>? ?? {};
+        final name = (deptMap['name'] as String? ?? '').toLowerCase();
+        return name == role.toLowerCase();
+      },
+      orElse: () => {},
+    );
+    //
+    // if (deptEntry.isEmpty) {
+    //   // No matching department found. Possibly a custom mapping needed.
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(content: Text('Department not found for')),
+    //   );
+    //   return;
+    // }
+
+    final departmentId = deptEntry['department_id'] as int?;
+
+    if (departmentId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid department_id')),
+      );
+      return;
+    }
+
+    // 2. Send POST to backend endpoint to register acceptance.
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('auth_token') ?? '';
+      if (!token.startsWith('Bearer ')) token = 'Bearer $token';
+
+      final dio = Dio(BaseOptions(headers: {'Authorization': token}));
+      final response = await dio.post(
+        'https://backend.jobizoindia.com/api/labour-request/${widget.siteId}/accept',
+        data: {
+          'department_id': departmentId,
+          // You may need to include other fields per your API (e.g. user_id).
+        },
+        options: Options(validateStatus: (s) => s != null && s < 500),
+      );
+
+      final respBody = response.data as Map<String, dynamic>;
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          respBody['status'] == true) {
+        // Only increment after success:
+        setState(() {
+          _acceptedCounts[role] = (_acceptedCounts[role] ?? 0) + 1;
+        });
+      } else {
+        final msg =
+            respBody['message'] ?? 'Failed (code ${response.statusCode})';
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(msg)));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
@@ -109,7 +185,8 @@ class _SitedetailsState extends State<Sitedetails> {
       return Scaffold(
         backgroundColor: AppColors.bgColor,
         appBar: Commonappbar(title: 'Site Details'),
-        body: const Center(child: CircularProgressIndicator(color: AppColors.gold,)),
+        body: const Center(
+            child: CircularProgressIndicator(color: AppColors.gold)),
       );
     }
 
@@ -129,19 +206,17 @@ class _SitedetailsState extends State<Sitedetails> {
         child: Column(
           children: [
             AssignmentInfoCard(detail: d),
-            WorkAreaCard      (detail: d),
+            WorkAreaCard(detail: d),
             SiteFacilitiesCard(),
-            ContactInfoCard  (detail: d),
+            ContactInfoCard(detail: d),
             SiteSummaryCard(
               detail: d,
               acceptedCounts: _acceptedCounts,
               onAccept: (role) {
-                setState(() {
-                  _acceptedCounts[role] = (_acceptedCounts[role] ?? 0) + 1;
-                });
+                // Delegate to the new backend‐calling method
+                _acceptLaborRole(role);
               },
             ),
-
           ],
         ),
       ),
@@ -149,7 +224,7 @@ class _SitedetailsState extends State<Sitedetails> {
   }
 }
 
-
+/// Reusable Card Container
 class ReusableCard extends StatelessWidget {
   final Widget child;
   const ReusableCard({required this.child, Key? key}) : super(key: key);
@@ -163,7 +238,12 @@ class ReusableCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
-        boxShadow: const [BoxShadow(color: Color.fromRGBO(0,0,0,0.05), offset: Offset(0,1), blurRadius: 2)],
+        boxShadow: const [
+          BoxShadow(
+              color: Color.fromRGBO(0, 0, 0, 0.05),
+              offset: Offset(0, 1),
+              blurRadius: 2)
+        ],
       ),
       child: child,
     ),
@@ -173,24 +253,35 @@ class ReusableCard extends StatelessWidget {
 // 1) Assignment Info
 class AssignmentInfoCard extends StatelessWidget {
   final SiteDetail detail;
-  const AssignmentInfoCard({required this.detail, Key? key}) : super(key: key);
+  const AssignmentInfoCard({required this.detail, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final title   = detail.projectName ?? detail.rawValue('project_name');
-    final address = detail.workAddress   ?? detail.rawValue('work_address');
+    final title =
+        detail.projectName ?? detail.rawValue('project_name');
+    final address =
+        detail.workAddress ?? detail.rawValue('work_address');
     return ReusableCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: primary(), color: AppColors.green),
+          Text(
+            title,
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: primary(),
+                color: AppColors.green),
           ),
           const SizedBox(height: 4),
           Row(children: [
-            Icon(Icons.location_on, size:16, color:AppColors.green),
-            const SizedBox(width:4),
-            Flexible(child: Text(address, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: secondary()))),
+            Icon(Icons.location_on, size: 16, color: AppColors.green),
+            const SizedBox(width: 4),
+            Flexible(
+              child: Text(address,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: secondary())),
+            ),
           ]),
         ],
       ),
@@ -201,42 +292,67 @@ class AssignmentInfoCard extends StatelessWidget {
 // 2) Work Area
 class WorkAreaCard extends StatelessWidget {
   final SiteDetail detail;
-  const WorkAreaCard({required this.detail, Key? key}) : super(key: key);
+  const WorkAreaCard({required this.detail, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final desc = detail.workDescription ?? detail.rawValue('work_description');
-    final addr = detail.workAddress   ?? detail.rawValue('work_address');
-    final mgr  = detail.siteManagerName ?? detail.rawValue('site_manager_name');
+    final desc =
+        detail.workDescription ?? detail.rawValue('work_description');
+    final addr =
+        detail.workAddress ?? detail.rawValue('work_address');
+    final mgr = detail.siteManagerName ?? detail.rawValue('site_manager_name');
     return ReusableCard(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[
-        Text('Work Area Details',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: primary(), color: AppColors.green),
-        ),
-        const SizedBox(height:8),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.asset('Assets/Labour_image/map.png', height:200, width: double.infinity, fit: BoxFit.cover),
-        ),
-        const SizedBox(height:12),
-        Row(children:[
-          Image.asset("Assets/Labour_image/zone.png"), const SizedBox(width:9),
-          Expanded(child: Text(desc, style: TextStyle(fontSize: secondary()))),
-          Text('${detail.durationDays ?? detail.rawValue('duration_days')} Days',
-            style: TextStyle(color: AppColors.green, fontWeight: FontWeight.bold, fontSize: primary()),
-          ),
-        ]),
-        const SizedBox(height:4),
-        Row(children:[
-          Image.asset("Assets/Labour_image/workers.png"), const SizedBox(width:9),
-          Text('Contact: $mgr', style: TextStyle(fontSize: secondary())),
-        ]),
-        const SizedBox(height:4),
-        Row(children:[
-          Image.asset("Assets/Labour_image/clock.png"), const SizedBox(width:9),
-          Text('Start: ${detail.startDate ?? detail.rawValue('start_date')}', style: TextStyle(fontSize: secondary())),
-        ]),
-      ]),
+      child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Work Area Details',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: primary(),
+                  color: AppColors.green),
+            ),
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                'Assets/Labour_image/map.png',
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(children: [
+              Image.asset("Assets/Labour_image/zone.png"),
+              const SizedBox(width: 9),
+              Expanded(
+                  child:
+                  Text(desc, style: TextStyle(fontSize: secondary()))),
+              Text(
+                '${detail.durationDays ?? detail.rawValue('duration_days')} Days',
+                style: TextStyle(
+                    color: AppColors.green,
+                    fontWeight: FontWeight.bold,
+                    fontSize: primary()),
+              ),
+            ]),
+            const SizedBox(height: 4),
+            Row(children: [
+              Image.asset("Assets/Labour_image/workers.png"),
+              const SizedBox(width: 9),
+              Text('Contact: $mgr',
+                  style: TextStyle(fontSize: secondary())),
+            ]),
+            const SizedBox(height: 4),
+            Row(children: [
+              Image.asset("Assets/Labour_image/clock.png"),
+              const SizedBox(width: 9),
+              Text('Start: ${detail.startDate ?? detail.rawValue('start_date')}',
+                  style: TextStyle(fontSize: secondary())),
+            ]),
+          ]),
     );
   }
 }
@@ -246,25 +362,36 @@ class SiteFacilitiesCard extends StatelessWidget {
   const SiteFacilitiesCard({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) => ReusableCard(
-    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[
-      Text('Site Facilities',
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: primary(), color: AppColors.green),
-      ),
-      const SizedBox(height:8),
-      Wrap(spacing:80, runSpacing:10, children:[
-        facilityItem('Assets/Labour_image/parking.png','Free Parking'),
-        facilityItem('Assets/Labour_image/rest_room.png','Rest Rooms'),
-        facilityItem(null,'Canteen', isIcon:true),
-        facilityItem('Assets/Labour_image/medical_boy.png','Medical Bay'),
-      ]),
-    ]),
+    child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Site Facilities',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: primary(),
+                color: AppColors.green),
+          ),
+          const SizedBox(height: 8),
+          Wrap(spacing: 80, runSpacing: 10, children: [
+            facilityItem('Assets/Labour_image/parking.png',
+                'Free Parking'),
+            facilityItem('Assets/Labour_image/rest_room.png',
+                'Rest Rooms'),
+            facilityItem(null, 'Canteen', isIcon: true),
+            facilityItem('Assets/Labour_image/medical_boy.png',
+                'Medical Bay'),
+          ]),
+        ]),
   );
 
-  Widget facilityItem(String? assetPath,String label,{bool isIcon=false}) {
-    return Row(mainAxisSize: MainAxisSize.min, children:[
-      isIcon ? Icon(Icons.restaurant, color:AppColors.green)
-          : Image.asset(assetPath!,height:20,width:20),
-      const SizedBox(width:4),
+  Widget facilityItem(String? assetPath, String label,
+      {bool isIcon = false}) {
+    return Row(mainAxisSize: MainAxisSize.min, children: [
+      isIcon
+          ? Icon(Icons.restaurant, color: AppColors.green)
+          : Image.asset(assetPath!, height: 20, width: 20),
+      const SizedBox(width: 4),
       Text(label, style: TextStyle(fontSize: secondary())),
     ]);
   }
@@ -277,34 +404,43 @@ class ContactInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = detail.siteManagerName ?? detail.rawValue('site_manager_name');
-    final phone= detail.siteManagerPhone?? detail.rawValue('site_manager_phone');
+    final name =
+        detail.siteManagerName ?? detail.rawValue('site_manager_name');
+    final phone =
+        detail.siteManagerPhone ?? detail.rawValue('site_manager_phone');
     return ReusableCard(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[
-        Text('Contact Information',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: primary(), color: AppColors.green),
-        ),
-        const SizedBox(height:8),
-        Row(children:[
-          Icon(Icons.person, size:16, color:AppColors.green),
-          const SizedBox(width:4),
-          Text('Site Manager: $name', style: TextStyle(fontSize: secondary())),
-        ]),
-        const SizedBox(height:4),
-        Row(children:[
-          Icon(Icons.phone, size:16, color:AppColors.green),
-          const SizedBox(width:4),
-          Text(phone, style: TextStyle(fontSize: secondary())),
-        ]),
-      ]),
+      child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Contact Information',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: primary(),
+                  color: AppColors.green),
+            ),
+            const SizedBox(height: 8),
+            Row(children: [
+              Icon(Icons.person, size: 16, color: AppColors.green),
+              const SizedBox(width: 4),
+              Text('Site Manager: $name',
+                  style: TextStyle(fontSize: secondary())),
+            ]),
+            const SizedBox(height: 4),
+            Row(children: [
+              Icon(Icons.phone, size: 16, color: AppColors.green),
+              const SizedBox(width: 4),
+              Text(phone, style: TextStyle(fontSize: secondary())),
+            ]),
+          ]),
     );
   }
 }
 
-// 5) Site Summary (static UI)
+// 5) Site Summary (labour distribution)
 class SiteSummaryCard extends StatelessWidget {
   final SiteDetail detail;
-  final Map<String,int> acceptedCounts;
+  final Map<String, int> acceptedCounts;
   final void Function(String role) onAccept;
 
   const SiteSummaryCard({
@@ -316,36 +452,38 @@ class SiteSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalWorkers = detail.departments.fold<int>(
-      0,
-          (sum, entry) => sum + (entry['number_of_labour'] as int? ?? 0),
-    );
-
+    // Compute how many workers are required for each role:
     final counts = {
       'Electricians': 0,
-      'Plumbers'    : 0,
-      'Painters'    : 0,
-      'Carpenters'  : 0,
+      'Plumbers': 0,
+      'Painters': 0,
+      'Carpenters': 0,
       'Construction': 0,
-      'Others'      : 0,
+      'Others': 0,
     };
 
     for (var entry in detail.departments) {
       final deptName = (entry['department']['name'] as String).toLowerCase();
       final labourCount = (entry['number_of_labour'] as int?) ?? 0;
-      if (deptName.contains('electrician'))      counts['Electricians']  = labourCount;
-      else if (deptName.contains('plumber'))     counts['Plumbers']      = labourCount;
-      else if (deptName.contains('painter'))     counts['Painters']      = labourCount;
-      else if (deptName.contains('carpenter'))   counts['Carpenters']    = labourCount;
-      else if (deptName.contains('construction'))counts['Construction']  = labourCount;
-      else                                       counts['Others']        = labourCount;
+      if (deptName.contains('electrician')) {
+        counts['Electricians'] = labourCount;
+      } else if (deptName.contains('plumber')) {
+        counts['Plumbers'] = labourCount;
+      } else if (deptName.contains('painter')) {
+        counts['Painters'] = labourCount;
+      } else if (deptName.contains('carpenter')) {
+        counts['Carpenters'] = labourCount;
+      } else if (deptName.contains('construction')) {
+        counts['Construction'] = labourCount;
+      } else {
+        counts['Others'] = labourCount;
+      }
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ... your unchanged Job Instruction and Stats Row here ...
-
+        const SizedBox(height: 16),
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
@@ -357,9 +495,8 @@ class SiteSummaryCard extends StatelessWidget {
             ),
           ),
         ),
-
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Wrap(
             runSpacing: 12,
             spacing: 8,
@@ -427,9 +564,11 @@ class SiteSummaryCard extends StatelessWidget {
       int accepted,
       Color color,
       ) {
-    final pct = required > 0 ? accepted / required : 0.0;
+    final pct = required > 0 ? (accepted / required).clamp(0.0, 1.0) : 0.0;
+
     return GestureDetector(
       onTap: () {
+        // Only attempt to “accept” if we haven’t already reached the required count
         if (accepted < required) {
           onAccept(role);
         }
@@ -455,7 +594,8 @@ class SiteSummaryCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               '$accepted / $required',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(height: 4),
             Text(role, style: TextStyle(fontSize: secondary())),
@@ -472,4 +612,3 @@ class SiteSummaryCard extends StatelessWidget {
     );
   }
 }
-

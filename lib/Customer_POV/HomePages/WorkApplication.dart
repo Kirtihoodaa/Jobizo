@@ -40,7 +40,17 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
   File? _coverLetterFile;
   File? _photoIdFile;
 
+  List<Map<String, dynamic>> _franchises = [];
+  bool _isLoadingFranchises = false;
+  int? _selectedFranchiseId;
+
   bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchFranchises();
+  }
 
   @override
   void dispose() {
@@ -55,6 +65,37 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
     _educationController.dispose();
     _motivationController.dispose();
     super.dispose();
+  }
+
+  Future<void> _fetchFranchises() async {
+    setState(() => _isLoadingFranchises = true);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('auth_token') ?? '';
+      if (!token.startsWith('Bearer ')) token = 'Bearer $token';
+
+      final dio = Dio(BaseOptions(headers: {'Authorization': token}));
+      final resp = await dio.get(
+        'https://backend.jobizoindia.com/api/franchise',
+        options: Options(validateStatus: (s) => s != null && s < 500),
+      );
+
+      final data = resp.data as Map<String, dynamic>;
+      if (resp.statusCode == 200 && data['status'] == true) {
+        // assume “franchise” is a JSON array of objects
+        _franchises = List<Map<String, dynamic>>.from(data['franchise']);
+      } else {
+        SnackbarHelper.showError(
+          context,
+          data['message'] ?? 'Failed to load franchises',
+        );
+      }
+    } on DioError catch (e) {
+      final msg = e.response?.data['message'] ?? e.message;
+      SnackbarHelper.showError(context, msg);
+    } finally {
+      setState(() => _isLoadingFranchises = false);
+    }
   }
 
   Future<File?> pickFile() async {
@@ -104,6 +145,7 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
         'expected_salary':     _salaryController.text.trim(),
         'education':           _educationController.text.trim(),
         'joining_description': _motivationController.text.trim(),
+        'franchise_id':         _selectedFranchiseId,
         if (_resumeFile != null)
           'resume': await MultipartFile.fromFile(
             _resumeFile!.path,
@@ -205,9 +247,6 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
     );
   }
 
-
-
-
   Widget _buildDropdownField() {
     const roles = ['Office Manager', 'Franchise', 'HR', 'Agent', 'Vendor'];
     return DropdownButtonFormField<String>(
@@ -266,6 +305,35 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
     );
   }
 
+  Widget _buildFranchiseDropdown() {
+    return _isLoadingFranchises
+        ? const Center(child: CircularProgressIndicator(color: AppColors.green,))
+        : DropdownButtonFormField<int>(
+      dropdownColor: Colors.white,
+      decoration: InputDecoration(
+        hintText: 'Select Franchise',
+        contentPadding:
+        const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        border:
+        OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide:
+            BorderSide(color: AppColors.gold, width: 2)),
+      ),
+      value: _selectedFranchiseId,
+      items: _franchises.map((fr) {
+        final name = fr['user']?['name'] ?? 'Unknown';
+        return DropdownMenuItem(
+          value: fr['id'] as int,
+          child: Text(name),
+        );
+      }).toList(),
+      onChanged: (v) => setState(() => _selectedFranchiseId = v),
+      validator: (v) => v == null ? 'Franchise is required' : null,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -287,6 +355,19 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
                     children: [
                       _buildLabel('Select Position'),
                       _buildDropdownField(),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: _containerDecoration(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildLabel('Select Franchise'),
+                      _buildFranchiseDropdown(),
                     ],
                   ),
                 ),
