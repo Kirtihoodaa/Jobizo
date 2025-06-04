@@ -19,8 +19,8 @@ class Customerrequest extends StatefulWidget {
 class _CustomerrequestState extends State<Customerrequest> {
   // 1) Department + controllers
   final List<String> departmentList = [
-    'Construction', 'Electrical', 'Plumbing',
-    'Painting', 'Carpentry', 'Labour'
+    'Construction', 'Electrician', 'Plumber',
+    'Painter', 'Carpenter', 'Labour'
   ];
   late List<TextEditingController> controllers;
   List<Map<String, dynamic>> _franchises = [];
@@ -66,14 +66,29 @@ class _CustomerrequestState extends State<Customerrequest> {
         options: Options(validateStatus: (s) => s != null && s < 500),
       );
 
-      final data = resp.data as Map<String, dynamic>;
-      if (resp.statusCode == 200 && data['status'] == true) {
-        // assuming JSON key is "franchise"
-        _franchises = List<Map<String, dynamic>>.from(data['franchise']);
+      final raw = resp.data as Map<String, dynamic>;
+      if (resp.statusCode == 200 && raw['status'] == true) {
+        // Determine which key the API actually used
+        final listKey = raw.containsKey('Franchise') ? 'Franchise' : 'franchise';
+        final rawList = raw[listKey] as List<dynamic>;
+
+        _franchises = rawList.map((item) {
+          final m = Map<String, dynamic>.from(item);
+          // Capitalize the first letter of the "name" field, if present
+          if (m.containsKey('name') && m['name'] is String && (m['name'] as String).isNotEmpty) {
+            final s = m['name'] as String;
+            m['name'] = s[0].toUpperCase() + s.substring(1);
+          }
+          return m;
+        }).toList();
       } else {
-        SnackbarHelper.showError(context, data['message'] ?? 'Failed to load franchises');
+        SnackbarHelper.showError(
+          context,
+          raw['message'] ?? 'Failed to load franchises',
+        );
       }
-    } on DioError catch (e) {
+    }
+    on DioError catch (e) {
       final msg = e.response?.data['message'] ?? e.message;
       SnackbarHelper.showError(context, msg);
     } finally {
@@ -252,38 +267,38 @@ class _CustomerrequestState extends State<Customerrequest> {
             const SizedBox(height: 10),
 
             // Department dropdown
-            Text("Department",
-                style: TextStyle(
-                  fontSize: secondary(),
-                  fontWeight: FontWeight.bold,
-                )),
-            const SizedBox(height: 10),
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                contentPadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: AppColors.green, width: 1.5),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: AppColors.green, width: 2),
-                ),
-                filled: true,
-                fillColor: Colors.white,
-              ),
-              hint: const Text("Select Department"),
-              dropdownColor: Colors.white,
-              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-              items: departmentList.map((dept) {
-                return DropdownMenuItem(
-                  value: dept,
-                  child: Text(dept, style: const TextStyle(color: Colors.black)),
-                );
-              }).toList(),
-              onChanged: (_) {}, // we don’t actually use this here
-            ),
+            // Text("Department",
+            //     style: TextStyle(
+            //       fontSize: secondary(),
+            //       fontWeight: FontWeight.bold,
+            //     )),
+            // const SizedBox(height: 10),
+            // DropdownButtonFormField<String>(
+            //   decoration: InputDecoration(
+            //     contentPadding:
+            //     const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            //     enabledBorder: OutlineInputBorder(
+            //       borderRadius: BorderRadius.circular(10),
+            //       borderSide: BorderSide(color: AppColors.green, width: 1.5),
+            //     ),
+            //     focusedBorder: OutlineInputBorder(
+            //       borderRadius: BorderRadius.circular(10),
+            //       borderSide: BorderSide(color: AppColors.green, width: 2),
+            //     ),
+            //     filled: true,
+            //     fillColor: Colors.white,
+            //   ),
+            //   hint: const Text("Select Department"),
+            //   dropdownColor: Colors.white,
+            //   style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            //   items: departmentList.map((dept) {
+            //     return DropdownMenuItem(
+            //       value: dept,
+            //       child: Text(dept, style: const TextStyle(color: Colors.black)),
+            //     );
+            //   }).toList(),
+            //   onChanged: (_) {},
+            // ),
             const SizedBox(height: 15),
 
             //Selectt franchise
@@ -315,13 +330,20 @@ class _CustomerrequestState extends State<Customerrequest> {
               style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
               value: _selectedFranchiseId,
               items: _franchises.map((fr) {
-                // display the nested user's name
-                final name = fr['user']?['name'] ?? 'Unknown';
-                return DropdownMenuItem(
+                // get the raw name (falls back to "Unknown" if null)
+                final rawName = fr['user']?['name'] as String? ?? 'Unknown';
+
+                // capitalize first letter
+                final name = rawName.isNotEmpty
+                    ? rawName[0].toUpperCase() + rawName.substring(1)
+                    : rawName;
+
+                return DropdownMenuItem<int>(
                   value: fr['id'] as int,
                   child: Text(name, style: const TextStyle(color: Colors.black)),
                 );
               }).toList(),
+
               onChanged: (val) => setState(() => _selectedFranchiseId = val),
             ),
             SizedBox(height: 15,),
