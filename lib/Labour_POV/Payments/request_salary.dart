@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 
+import '../../SnackBar/Snackbar.dart';
 import '../All_app_bars/normal_app_bar.dart';
 import 'biometricsuccessscreen.dart';
 
@@ -15,10 +16,10 @@ class RequestSalary extends StatefulWidget {
 class _RequestSalaryState extends State<RequestSalary> {
   final TextEditingController amountController = TextEditingController();
   final TextEditingController reasonController = TextEditingController();
-  String? selectedPaymentMethod;
-
   final FocusNode amountFocus = FocusNode();
   final FocusNode reasonFocus = FocusNode();
+  final int availableAmount = 8500; // Replace INR 85,000
+
 
   @override
   void dispose() {
@@ -28,6 +29,39 @@ class _RequestSalaryState extends State<RequestSalary> {
     reasonFocus.dispose();
     super.dispose();
   }
+
+  void _submitRequest() {
+    final amount = amountController.text.trim();
+    final reason = reasonController.text.trim();
+
+    if (amount.isEmpty || reason.isEmpty) {
+      SnackbarHelper.showWarning(context, "All Fields are Required");
+      return;
+    }
+
+    final enteredAmount = int.tryParse(amount.replaceAll(',', ''));
+
+    if (enteredAmount == null) {
+      SnackbarHelper.showWarning(context, "Invalid amount entered");
+      return;
+    }
+
+    if (enteredAmount > availableAmount) {
+      SnackbarHelper.showWarning(context, "Amount cannot exceed INR $availableAmount");
+      return;
+    }
+
+    // All checks passed
+    print('Submitting salary request: ₹$enteredAmount for "$reason"');
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const BiometricSuccessScreen(requestType: 'Salary'),
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +96,7 @@ class _RequestSalaryState extends State<RequestSalary> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'INR 85,000',
+                    ' INR $availableAmount',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -94,88 +128,111 @@ class _RequestSalaryState extends State<RequestSalary> {
               fontSize: secondary(),
               focusNode: reasonFocus,
             ),
+            const SizedBox(height: 50),
 
-            const SizedBox(height: 20),
-
-            // Payment Method Dropdown
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Payment Method',
-                style: TextStyle(
-                  fontSize: secondary(),
-                  fontWeight: FontWeight.w500,
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _submitRequest,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.gold,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text(
+                  'Submit Request',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: secondary(),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade400, width: 1.3),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: DropdownButtonFormField<String>(
-                decoration: const InputDecoration(border: InputBorder.none),
-                dropdownColor: Colors.white,
-                hint: const Text('Select Payment Method'),
-                value: selectedPaymentMethod,
-                items: ['UPI', 'Bank Transfer', 'Wallet']
-                    .map((method) => DropdownMenuItem(
-                          value: method,
-                          child: Text(method),
-                        ))
-                    .toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedPaymentMethod = value;
-                  });
-                },
-              ),
-            ),
 
-            const SizedBox(height: 40),
+            // const SizedBox(height: 20),
+            //
+            // // Payment Method Dropdown
+            // Align(
+            //   alignment: Alignment.centerLeft,
+            //   child: Text(
+            //     'Payment Method',
+            //     style: TextStyle(
+            //       fontSize: secondary(),
+            //       fontWeight: FontWeight.w500,
+            //     ),
+            //   ),
+            // ),
+            // const SizedBox(height: 6),
+            // Container(
+            //   padding: const EdgeInsets.symmetric(horizontal: 12),
+            //   decoration: BoxDecoration(
+            //     border: Border.all(color: Colors.grey.shade400, width: 1.3),
+            //     borderRadius: BorderRadius.circular(8),
+            //   ),
+            //   child: DropdownButtonFormField<String>(
+            //     decoration: const InputDecoration(border: InputBorder.none),
+            //     dropdownColor: Colors.white,
+            //     hint: const Text('Select Payment Method'),
+            //     value: selectedPaymentMethod,
+            //     items: ['UPI', 'Bank Transfer', 'Wallet']
+            //         .map((method) => DropdownMenuItem(
+            //               value: method,
+            //               child: Text(method),
+            //             ))
+            //         .toList(),
+            //     onChanged: (value) {
+            //       setState(() {
+            //         selectedPaymentMethod = value;
+            //       });
+            //     },
+            //   ),
+            // ),
 
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        const BiometricSuccessScreen(requestType: 'Salary'),
-                  ),
-                );
-              },
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.grey.shade300,
-                    ),
-                    child: const Icon(Icons.fingerprint,
-                        size: 36, color: Color(0xFF4B1E03)),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Place your finger on the scanner\nto verify your identity',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: tertiary(), fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Biometric Authentication',
-                    style: TextStyle(
-                      fontSize: secondary(),
-                      color: AppColors.gold,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // const SizedBox(height: 40),
+
+            // GestureDetector(
+            //   onTap: () {
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //         builder: (_) =>
+            //             const BiometricSuccessScreen(requestType: 'Salary'),
+            //       ),
+            //     );
+            //   },
+            //   child: Column(
+            //     children: [
+            //       Container(
+            //         padding: const EdgeInsets.all(14),
+            //         decoration: BoxDecoration(
+            //           shape: BoxShape.circle,
+            //           color: Colors.grey.shade300,
+            //         ),
+            //         child: const Icon(Icons.fingerprint,
+            //             size: 36, color: Color(0xFF4B1E03)),
+            //       ),
+            //       const SizedBox(height: 16),
+            //       Text(
+            //         'Place your finger on the scanner\nto verify your identity',
+            //         textAlign: TextAlign.center,
+            //         style: TextStyle(
+            //             fontSize: tertiary(), fontWeight: FontWeight.w500),
+            //       ),
+            //       const SizedBox(height: 10),
+            //       Text(
+            //         'Biometric Authentication',
+            //         style: TextStyle(
+            //           fontSize: secondary(),
+            //           color: AppColors.gold,
+            //           fontWeight: FontWeight.w600,
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
 
             const SizedBox(height: 30),
           ],

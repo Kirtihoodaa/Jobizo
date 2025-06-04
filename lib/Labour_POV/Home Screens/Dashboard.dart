@@ -76,7 +76,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             _buildProfileCard(),
             _buildCurrentStatus(),
-            _buildEarnings(),
+            // _buildEarnings(),
              _buildUpcomingAssignments(),
             _buildAttendanceOverview(),
             _buildRecentActivity(),
@@ -141,29 +141,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildEarnings() {
-    return Card(
-      color: Colors.white,
-      margin: const EdgeInsets.only(top: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _earningsTile("Totals Earnings", totalEarnings),
-            SizedBox(
-              height: 5,
-            ),
-            _earningsTile("Weekly Earnings", weeklyEarnings),
-            SizedBox(
-              height: 5,
-            ),
-            _earningsTile("Monthly Earnings", monthlyEarnings),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildEarnings() {
+  //   return Card(
+  //     color: Colors.white,
+  //     margin: const EdgeInsets.only(top: 12),
+  //     child: Padding(
+  //       padding: const EdgeInsets.all(16.0),
+  //       child: Column(
+  //         mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //         children: [
+  //           _earningsTile("Totals Earnings", totalEarnings),
+  //           SizedBox(
+  //             height: 5,
+  //           ),
+  //           _earningsTile("Weekly Earnings", weeklyEarnings),
+  //           SizedBox(
+  //             height: 5,
+  //           ),
+  //           _earningsTile("Monthly Earnings", monthlyEarnings),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _earningsTile(String label, String amount) {
     return Row(
@@ -325,47 +325,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                CircleAvatar(
-                    radius: 12,
-                    backgroundColor: Colors.green,
-                    child: Text("M",
-                        style: TextStyle(
-                            fontSize: tertiary(), color: Colors.white))),
-                CircleAvatar(
-                    radius: 12,
-                    backgroundColor: Colors.green,
-                    child: Text("T",
-                        style: TextStyle(
-                            fontSize: tertiary(), color: Colors.white))),
-                CircleAvatar(
-                    radius: 12,
-                    backgroundColor: Colors.green,
-                    child: Text("W",
-                        style: TextStyle(
-                            fontSize: tertiary(), color: Colors.white))),
-                CircleAvatar(
-                    radius: 12,
-                    backgroundColor: Colors.green,
-                    child: Text("T",
-                        style: TextStyle(
-                            fontSize: tertiary(), color: Colors.white))),
-                CircleAvatar(
-                    radius: 12,
-                    backgroundColor: Colors.grey,
-                    child: Text("F",
-                        style: TextStyle(
-                            fontSize: tertiary(), color: Colors.white))),
-                CircleAvatar(
-                    radius: 12,
-                    backgroundColor: Colors.grey,
-                    child: Text("S",
-                        style: TextStyle(
-                            fontSize: tertiary(), color: Colors.white))),
-              ],
-            )
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            //   children: [
+            //     CircleAvatar(
+            //         radius: 12,
+            //         backgroundColor: Colors.green,
+            //         child: Text("M",
+            //             style: TextStyle(
+            //                 fontSize: tertiary(), color: Colors.white))),
+            //     CircleAvatar(
+            //         radius: 12,
+            //         backgroundColor: Colors.green,
+            //         child: Text("T",
+            //             style: TextStyle(
+            //                 fontSize: tertiary(), color: Colors.white))),
+            //     CircleAvatar(
+            //         radius: 12,
+            //         backgroundColor: Colors.green,
+            //         child: Text("W",
+            //             style: TextStyle(
+            //                 fontSize: tertiary(), color: Colors.white))),
+            //     CircleAvatar(
+            //         radius: 12,
+            //         backgroundColor: Colors.green,
+            //         child: Text("T",
+            //             style: TextStyle(
+            //                 fontSize: tertiary(), color: Colors.white))),
+            //     CircleAvatar(
+            //         radius: 12,
+            //         backgroundColor: Colors.grey,
+            //         child: Text("F",
+            //             style: TextStyle(
+            //                 fontSize: tertiary(), color: Colors.white))),
+            //     CircleAvatar(
+            //         radius: 12,
+            //         backgroundColor: Colors.grey,
+            //         child: Text("S",
+            //             style: TextStyle(
+            //                 fontSize: tertiary(), color: Colors.white))),
+            //   ],
+            // )
           ],
         ),
       ),
@@ -385,16 +385,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 style: TextStyle(
                     fontWeight: FontWeight.bold, fontSize: secondary())),
             SizedBox(height: 12),
-            _activityTile("Payment Received", "+₹35,000",
-                "From: Skyline Construction Co.\nToday 2:30 PM", Colors.green),
-            _activityTile("Job Completed", "★ 4.8",
-                "Metro Station Project\nYesterday 5:00 PM", Colors.black),
-            _activityTile("Warning Notice", "High Severity",
-                "From: Skyline Construction Co.\nToday 2:30 PM", Colors.red),
-            _activityTile("Complaint Status", "Pending",
-                "Equipment issue #123\n3 days ago", Colors.orange),
-            _activityTile("Late Arrival", "Warning",
-                "Reported by site supervisor\n4 days ago", Colors.redAccent),
+            // _activityTile("Payment Received", "+₹35,000",
+            //     "From: Skyline Construction Co.\nToday 2:30 PM", Colors.green),
+            // _activityTile("Job Completed", "★ 4.8",
+            //     "Metro Station Project\nYesterday 5:00 PM", Colors.black),
+            // _activityTile("Warning Notice", "High Severity",
+            //     "From: Skyline Construction Co.\nToday 2:30 PM", Colors.red),
+            // _activityTile("Complaint Status", "Pending",
+            //     "Equipment issue #123\n3 days ago", Colors.orange),
+            // _activityTile("Late Arrival", "Warning",
+            //     "Reported by site supervisor\n4 days ago", Colors.redAccent),
           ],
         ),
       ),

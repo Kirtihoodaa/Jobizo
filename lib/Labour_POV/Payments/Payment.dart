@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -5,7 +6,9 @@ import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 import 'package:jobizo/Labour_POV/Payments/request_advance.dart';
 import 'package:jobizo/Labour_POV/Payments/request_salary.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../SnackBar/Snackbar.dart';
 import '../All_app_bars/normal_app_bar.dart';
 
 class Payment extends StatefulWidget {
@@ -14,9 +17,30 @@ class Payment extends StatefulWidget {
   @override
   State<Payment> createState() => _PaymentState();
 }
+Future<void> Payments() async {
+  try {
+    final pref = await SharedPreferences.getInstance();
+    final token = pref.getString('auth_token') ?? '';
+    final dio = Dio(BaseOptions(
+      headers: {'Authorization': token},
+    ));
 
+    final response = await dio.get(
+        'https://backend.jobizoindia.com/api/salary-request');
+    print(response.data);
+    final creditedAmount = response.data['credited_amount'].toString();
+  }catch (e) {
+    print('Error: $e');
+  }
+}
 class _PaymentState extends State<Payment> {
   String selectedAction = '';
+  String creditedAmount = 'Loading...';
+  @override
+  void initState() {
+    super.initState();
+    Payments(); // Call the API when page loads
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +53,9 @@ class _PaymentState extends State<Payment> {
           child: Column(
             children: [
               SalarySummaryCard(
-                salaryAmount: "INR 85,000",
-                month: "May 2025",
-                dueDate: "31st May",
+                salaryAmount: creditedAmount,
+                month: " 2025",
+                dueDate: "31st",
               ),
               const SizedBox(height: 20),
               AdvanceSalaryLimitsCard(
@@ -72,7 +96,7 @@ class _PaymentState extends State<Payment> {
               const SizedBox(height: 20),
               const TransactionHistoryCard(),
               const SizedBox(height: 20),
-              const PaymentDetailsCard(),
+              PaymentDetailsCard(creditedAmount: creditedAmount),
             ],
           ),
         ),
@@ -160,6 +184,14 @@ class SalarySummaryCard extends StatelessWidget {
                   color: Colors.white,
                   fontWeight: FontWeight.w400,
                 ),
+              ),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.refresh, color: Colors.white),
+                onPressed: () {
+                  // Call your refresh function here
+                  Payments(); // or any other relevant method
+                },
               ),
             ],
           ),
@@ -394,7 +426,8 @@ class TransactionHistoryCard extends StatelessWidget {
 }
 
 class PaymentDetailsCard extends StatelessWidget {
-  const PaymentDetailsCard({super.key});
+  final String creditedAmount;
+  const PaymentDetailsCard({super.key, required this.creditedAmount});
 
   @override
   Widget build(BuildContext context) {
@@ -423,24 +456,24 @@ class PaymentDetailsCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 15),
-          const _PaymentDetailRow(label: "Basic Salary", value: "INR 65,000"),
-          const _PaymentDetailRow(label: "HRA", value: "INR 15,000"),
+           _PaymentDetailRow(label: "Basic Salary", value: creditedAmount),
+          const _PaymentDetailRow(label: "HRA", value: "INR 0"),
           const _PaymentDetailRow(
-              label: "Special Allowance", value: "INR 12,000"),
+              label: "Special Allowance", value: "INR 0"),
           const _PaymentDetailRow(
             label: "PF Deduction",
-            value: "-INR 3,600",
+            value: "-INR 0",
             valueColor: Color(0xFF4B1E03),
           ),
           const _PaymentDetailRow(
             label: "Tax Deduction",
-            value: "-INR 3,400",
+            value: "-INR 0",
             valueColor: Color(0xFF4B1E03),
           ),
           const Divider(),
-          const _PaymentDetailRow(
+           _PaymentDetailRow(
             label: "Net Salary",
-            value: "INR 85,000",
+            value: creditedAmount,
             fontWeight: FontWeight.w600, // Bold text for net salary
           ),
         ],
