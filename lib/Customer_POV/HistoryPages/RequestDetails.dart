@@ -39,16 +39,24 @@ class _RequestdetailsState extends State<Requestdetails> {
 
       final dio = Dio(BaseOptions(headers: {'Authorization': token}));
       final resp = await dio.get(
-        'https://backend.jobizoindia.com/api/labour-request/${widget.requestId}',
+        'https://backend.jobizoindia.com/api/labour-request',
         options: Options(validateStatus: (s) => s != null && s < 500),
       );
 
-      if (resp.statusCode == 200 && resp.data['status'] == true) {
-        final data = resp.data['data'] as Map<String, dynamic>? ?? {};
-        _detail = _Detail.fromJson(data);
+      if (resp.statusCode == 200 && resp.data['data'] is List) {
+        final dataList = resp.data['data'] as List;
+        final match = dataList.firstWhere(
+              (item) => item['id'] == widget.requestId,
+          orElse: () => null,
+        );
+
+        if (match != null) {
+          _detail = _Detail.fromJson(match);
+        } else {
+          throw 'No request found with ID ${widget.requestId}';
+        }
       } else {
-        throw resp.data['message'] ??
-            'Failed to load (code ${resp.statusCode})';
+        throw resp.data['message'] ?? 'Invalid response';
       }
     } catch (e) {
       _error = e.toString();
@@ -56,6 +64,7 @@ class _RequestdetailsState extends State<Requestdetails> {
       setState(() => _loading = false);
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

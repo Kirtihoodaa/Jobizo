@@ -230,14 +230,25 @@ class _CustomerrequestState extends State<Customerrequest> {
         SnackbarHelper.showSuccess(
             context, data['message'] ?? 'Request created.'
         );
-        Get.back();
+       // Get.back();
 
       } else {
-        SnackbarHelper.showError(
+        // Check for validation errors
+        if (data.containsKey('errors') && data['errors'] is Map<String, dynamic>) {
+          final errors = data['errors'] as Map<String, dynamic>;
+          final firstError = errors.values.first;
+          final errorMessage = firstError is List && firstError.isNotEmpty
+              ? firstError.first.toString()
+              : 'Validation error occurred.';
+          SnackbarHelper.showError(context, errorMessage);
+        } else {
+          SnackbarHelper.showError(
             context,
-            data['message'] ?? 'Failed (${resp.statusCode})'
-        );
+            data['message'] ?? 'An unexpected error occurred.',
+          );
+        }
       }
+
     } on DioError catch (e) {
       final msg = e.response?.data['message'] ?? e.message;
       SnackbarHelper.showError(context, msg);
@@ -330,7 +341,6 @@ class _CustomerrequestState extends State<Customerrequest> {
               style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
               value: _selectedFranchiseId,
               items: _franchises.map((fr) {
-                // get the raw name (falls back to "Unknown" if null)
                 final rawName = fr['user']?['name'] as String? ?? 'Unknown';
 
                 // capitalize first letter

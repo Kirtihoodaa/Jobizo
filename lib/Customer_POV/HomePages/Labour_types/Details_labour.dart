@@ -1,8 +1,6 @@
-// labour_list_screen.dart
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jobizo/Customer_POV/AppBar/commonAppBar.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
@@ -15,10 +13,10 @@ class LabourListScreen extends StatefulWidget {
   final String categoryName;
 
   const LabourListScreen({
-    super.key,
+    Key? key,
     required this.categoryId,
     required this.categoryName,
-  });
+  }) : super(key: key);
 
   @override
   State<LabourListScreen> createState() => _LabourListScreenState();
@@ -27,7 +25,7 @@ class LabourListScreen extends StatefulWidget {
 class _LabourListScreenState extends State<LabourListScreen> {
   bool _loading = true;
   String? _error;
-  int _total = 0;
+  int _totalLabours = 0;
   List<LabourItem> _labours = [];
 
   @override
@@ -46,140 +44,100 @@ class _LabourListScreenState extends State<LabourListScreen> {
       var token = prefs.getString('auth_token') ?? '';
       if (!token.startsWith('Bearer ')) token = 'Bearer $token';
 
-      final resp = await Dio(BaseOptions(headers: {'Authorization': token}))
-          .get(
-        'https://backend.jobizoindia.com/api/labour-category/${widget.categoryId}',
-        options: Options(validateStatus: (s) => s != null && s < 500),
+      final dio = Dio(BaseOptions(headers: {'Authorization': token}));
+      final resp = await dio.get(
+        'https://backend.jobizoindia.com/api/get-labour-category/${widget.categoryId}',
+        options: Options(validateStatus: (status) => status != null && status < 500),
       );
 
-      final body = resp.data as Map<String, dynamic>;
-      if (resp.statusCode == 200 && body['status'] == true) {
-        // total_labours comes from top level
-        _total = body['total_labours'] as int;
-
-        // data.labour array
-        final labourArray = (body['data']['labour'] as List<dynamic>);
+      final data = resp.data as Map<String, dynamic>;
+      if (resp.statusCode == 200 && data['status'] == true) {
+        _totalLabours = data['total_labours'] ?? 0;
+        final labourArray = (data['labours'] as List<dynamic>);
         _labours = labourArray
             .map((e) => LabourItem.fromJson(e as Map<String, dynamic>))
             .toList();
       } else {
-        throw body['message'] ?? 'Failed to load';
+        throw data['message'] ?? 'Failed to load labours';
       }
     } catch (e) {
       _error = e.toString();
     } finally {
-      setState(() => _loading = false);
+      setState(() {
+        _loading = false;
+      });
     }
+  }
+
+  String _capitalize(String? input) {
+    if (input == null || input.isEmpty) return '';
+    return input[0].toUpperCase() + input.substring(1);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return Scaffold(
-        backgroundColor: AppColors.bgColor,
-        appBar: Commonappbar(title: '${widget.categoryName} Labours'),
-        body: const Center(child: CircularProgressIndicator(color:  AppColors.gold,)),
-      );
-    }
-    if (_error != null) {
-      return Scaffold(
-        backgroundColor: AppColors.bgColor,
-        appBar: Commonappbar(title: '${widget.categoryName} Labours'),
-        body: Center(child: Text(_error!)),
-      );
-    }
-
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: Commonappbar(title: '${widget.categoryName} Labours'),
-      body: Padding(
+      body: _loading
+          ? const Center(child: CircularProgressIndicator(color: AppColors.gold))
+          : _error != null
+          ? Center(child: Text(_error!))
+          : _labours.isEmpty
+          ? Center(
+        child: Text(
+          "No labours found in ${widget.categoryName}.",
+          style: TextStyle(fontSize: secondary()),
+        ),
+      )
+          : Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _TotalLaboursCard(total: _total),
-            const SizedBox(height: 30),
-            Row(
-              children: [
-                Text(
-                  "All Labours",
-                  style: TextStyle(
-                    color: AppColors.green,
-                    fontWeight: FontWeight.bold,
-                    fontSize: secondary(),
-                  ),
-                ),
-                const Spacer(),
-                Container(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppColors.gold,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    children: const [
-                      Text("Sort by Schedule"),
-                      Icon(Icons.arrow_drop_down),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            _TotalLaboursCard(total: _totalLabours),
             const SizedBox(height: 20),
             Expanded(
-              child: _labours.isEmpty
-                  ? Center(
-                child: Text(
-                  "No labours found in ${widget.categoryName}.",
-                  style: TextStyle(fontSize: secondary()),
-                ),
-              )
-                  : ListView.builder(
+              child: ListView.builder(
                 itemCount: _labours.length,
-                itemBuilder: (context, i) {
-                  final labour = _labours[i];
+                itemBuilder: (context, index) {
+                  final labour = _labours[index];
+
+                  // Decide whether to show a NetworkImage or local placeholder
+                  ImageProvider avatarImage;
+                  if (labour.profilePicture != null &&
+                      labour.profilePicture!.isNotEmpty) {
+                    // Prepend the base URL to your relative path
+                    avatarImage = NetworkImage(
+                      'https://backend.jobizoindia.com/storage/${labour.profilePicture!}',
+                    );
+                  } else {
+                    avatarImage = const AssetImage(
+                        "Assets/Labour_image/labour_profile.png")
+                    as ImageProvider;
+                  }
+
                   return InkWell(
                     onTap: () {
                       Get.to(
                             () => LabourProfilePage(
-                          labourId: labour.id,
+                          labourId: labour.labourId,
                         ),
                         transition: Transition.cupertino,
                         duration: const Duration(milliseconds: 300),
                       );
                     },
-
-                    child: Container(
-                      width: double.infinity,
-                      height: 140,
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.1),
-                            blurRadius: 10,
-                          ),
-                        ],
-                      ),
+                    child: Card(
+                      color: Colors.white,
+                      margin:
+                      const EdgeInsets.symmetric(vertical: 8),
                       child: Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: Row(
                           children: [
                             CircleAvatar(
                               radius: 30,
-                              backgroundImage: labour
-                                  .profilePictureUrl !=
-                                  null
-                                  ? NetworkImage(
-                                  labour.profilePictureUrl!)
-                                  : (labour.user.image != null
-                                  ? NetworkImage(labour.user.image!)
-                                  : const AssetImage(
-                                  "Assets/Labour_image/labour_profile.png")
-                              as ImageProvider),
+                              backgroundImage: avatarImage,
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -190,34 +148,38 @@ class _LabourListScreenState extends State<LabourListScreen> {
                                 MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    labour.user.name,
+                                    labour.labourName.isNotEmpty
+                                        ? _capitalize(
+                                        labour.labourName)
+                                        : '',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: secondary(),
                                     ),
                                   ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.work,
-                                        size: 16,
-                                        color: Colors.black,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        "${labour.user.experience} yrs",
-                                        style: TextStyle(
-                                          fontSize: tertiary(),
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                    ],
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    "Job Title: ${_capitalize(labour.jobTitle)}",
+                                    style: TextStyle(
+                                      fontSize: tertiary(),
+                                      color: Colors.black87,
+                                    ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    "Skills: ${labour.user.skills}",
-                                    style: TextStyle(fontSize: tertiary()),
+                                    "Experience: ${labour.experience}",
+                                    style: TextStyle(
+                                      fontSize: tertiary(),
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    "Status: ${_capitalize(labour.status)}",
+                                    style: TextStyle(
+                                      fontSize: tertiary(),
+                                      color: Colors.black87,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -238,77 +200,30 @@ class _LabourListScreenState extends State<LabourListScreen> {
 }
 
 class LabourItem {
-  final int id;
-  final String workSchedule;
-  final String startingDate;
-  final String emergencyPhone;
-  final String preferredLocation;
-  final String salaryType;
-  final String workingStatus;
-  final String? profilePictureUrl;
-  final LabourUser user;
+  final int labourId;
+  final String labourName;
+  final String jobTitle;
+  final String status;
+  final String experience;
+  final String? profilePicture;
 
   LabourItem({
-    required this.id,
-    required this.workSchedule,
-    required this.startingDate,
-    required this.emergencyPhone,
-    required this.preferredLocation,
-    required this.salaryType,
-    required this.workingStatus,
-    required this.profilePictureUrl,
-    required this.user,
+    required this.labourId,
+    required this.labourName,
+    required this.jobTitle,
+    required this.status,
+    required this.experience,
+    required this.profilePicture,
   });
 
   factory LabourItem.fromJson(Map<String, dynamic> json) {
     return LabourItem(
-      id: json['id'] as int,
-      workSchedule: json['work_schedule'] as String? ?? '',
-      startingDate: json['starting_date'] as String? ?? '',
-      emergencyPhone: json['emergency_phone'] as String? ?? '',
-      preferredLocation:
-      json['preferred_work_location'] as String? ?? '',
-      salaryType: json['salary_type'] as String? ?? '',
-      workingStatus: json['working_status'] as String? ?? '',
-      profilePictureUrl: json['profile_picture'] as String?,
-      user: LabourUser.fromJson(
-        json['user'] as Map<String, dynamic>,
-      ),
-    );
-  }
-}
-
-class LabourUser {
-  final int id;
-  final String name;
-  final String email;
-  final String phone;
-  final String address;
-  final int experience;
-  final String skills;
-  final String? image;
-
-  LabourUser({
-    required this.id,
-    required this.name,
-    required this.email,
-    required this.phone,
-    required this.address,
-    required this.experience,
-    required this.skills,
-    required this.image,
-  });
-
-  factory LabourUser.fromJson(Map<String, dynamic> json) {
-    return LabourUser(
-      id: json['id'] as int,
-      name: json['name'] as String? ?? '',
-      email: json['email'] as String? ?? '',
-      phone: json['phone'] as String? ?? '',
-      address: json['address'] as String? ?? '',
-      experience: (json['experience'] as int?) ?? 0,
-      skills: json['skills'] as String? ?? 'none',
-      image: json['image'] as String?,
+      labourId: json['labour_id'] as int,
+      labourName: json['labour_name'] as String? ?? '',
+      jobTitle: json['job_title'] as String? ?? '',
+      status: json['status'] as String? ?? '',
+      experience: json['experience'] as String? ?? 'N/A',
+      profilePicture: json['profile_picture'] as String?,
     );
   }
 }
@@ -321,7 +236,7 @@ class _TotalLaboursCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
       decoration: BoxDecoration(
         color: AppColors.brown,
         borderRadius: BorderRadius.circular(12),
@@ -333,13 +248,13 @@ class _TotalLaboursCard extends StatelessWidget {
             "Available Labours",
             style: TextStyle(
               color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Text(
-            "- $total -",
+            "- $total - ",
             style: const TextStyle(
               color: Colors.white,
               fontSize: 28,

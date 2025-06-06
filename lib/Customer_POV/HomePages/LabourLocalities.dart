@@ -13,7 +13,7 @@ class Labourlocalities extends StatefulWidget {
 }
 
 class _LabourlocalitiesState extends State<Labourlocalities> {
-  // categories for the chip list
+  // Categories for the chip list
   final List<String> _categories = [
     'All',
     'Construction',
@@ -28,8 +28,8 @@ class _LabourlocalitiesState extends State<Labourlocalities> {
 
   bool _loading = true;
   String? _error;
-  List<Map<String, dynamic>> _allWorkers = [];  // raw data
-  List<Map<String, dynamic>> _filtered = [];    // filtered list
+  List<Map<String, dynamic>> _allWorkers = [];  // Raw data
+  List<Map<String, dynamic>> _filtered = [];    // Filtered list
 
   @override
   void initState() {
@@ -48,13 +48,16 @@ class _LabourlocalitiesState extends State<Labourlocalities> {
       if (!token.startsWith('Bearer ')) token = 'Bearer $token';
 
       final resp = await Dio(BaseOptions(headers: {'Authorization': token}))
-          .get('https://backend.jobizoindia.com/api/labour/localities',
-          options: Options(validateStatus: (s) => s! < 500));
+          .get(
+        'https://backend.jobizoindia.com/api/labour/localities',
+        options: Options(validateStatus: (s) => s! < 500),
+      );
 
       final data = resp.data as Map<String, dynamic>;
       if (resp.statusCode == 200 && data['status'] == true) {
-        _allWorkers =
-        List<Map<String, dynamic>>.from(data['data'] as List<dynamic>);
+        _allWorkers = List<Map<String, dynamic>>.from(
+          data['data'] as List<dynamic>,
+        );
         _applyFilter();
       } else {
         throw data['message'] ?? 'Failed to load';
@@ -66,6 +69,8 @@ class _LabourlocalitiesState extends State<Labourlocalities> {
     }
   }
 
+  /// Apply both category‐based filtering and search‐term filtering.
+  /// Search now includes: profession, address, and name.
   void _applyFilter() {
     final term = _searchCtrl.text.trim().toLowerCase();
     final prof = _selectedCategory > 0
@@ -73,16 +78,31 @@ class _LabourlocalitiesState extends State<Labourlocalities> {
         : null;
 
     _filtered = _allWorkers.where((w) {
+      // Lowercased fields for comparison
       final p = (w['profession'] as String? ?? '').toLowerCase();
       final addr = (w['address'] as String? ?? '').toLowerCase();
+      final name = (w['name'] as String? ?? '').toLowerCase();
+
+      // Category‐matching: if a category is selected other than "All"
       final matchProf = prof != null && prof != 'all' && p == prof;
-      final matchSearch = term.isNotEmpty && (p.contains(term) || addr.contains(term));
+
+      // Search‐term matching: now checks profession, address, OR name
+      final matchSearch = term.isNotEmpty &&
+          (p.contains(term) || addr.contains(term) || name.contains(term));
+
       if (prof != null && prof != 'all') {
+        // If a specific profession is chosen, include workers whose profession matches
+        // OR whose profession/address/name matches the search term.
         return matchProf || matchSearch;
       }
+
       if (term.isNotEmpty) {
+        // If no specific category but search term is present,
+        // include any worker whose profession, address, or name contains that term.
         return matchSearch;
       }
+
+      // If neither category nor search term, show all.
       return true;
     }).toList();
 
@@ -101,7 +121,9 @@ class _LabourlocalitiesState extends State<Labourlocalities> {
       backgroundColor: AppColors.bgColor,
       appBar: const Commonappbar(title: 'Labour Localities'),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.gold))
+          ? const Center(
+        child: CircularProgressIndicator(color: AppColors.gold),
+      )
           : _error != null
           ? Center(child: Text(_error!))
           : SingleChildScrollView(
@@ -118,13 +140,14 @@ class _LabourlocalitiesState extends State<Labourlocalities> {
                 textInputAction: TextInputAction.search,
                 onChanged: (_) => _applyFilter(),
                 decoration: InputDecoration(
-                  hintText: 'Search by profession or address…',
+                  hintText: 'Search by name, profession or address…',
                   prefixIcon: Icon(Icons.search, color: AppColors.green),
                   filled: true,
                   fillColor: Colors.white,
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(60),
-                    borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
+                    borderSide: BorderSide(
+                        color: Colors.grey.shade300, width: 1.5),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(60),
@@ -133,7 +156,6 @@ class _LabourlocalitiesState extends State<Labourlocalities> {
                 ),
               ),
             ),
-
 
             const SizedBox(height: 16),
 
@@ -194,10 +216,24 @@ class _LabourlocalitiesState extends State<Labourlocalities> {
     );
   }
 
+  /// Helper to uppercase only the first character of a non-empty string.
+  String capitalizeFirst(String? input) {
+    if (input == null || input.isEmpty) return '';
+    return input[0].toUpperCase() + input.substring(1);
+  }
+
   Widget _buildWorkerCard(Map<String, dynamic> w) {
-    final avatarUrl = w['image'] != null
-        ? "https://backend.jobizoindia.com/storage/${w['image'] as String}"
+    // Build the avatar URL if an image path exists.
+    final rawImagePath = w['image'] as String?;
+    final avatarUrl = rawImagePath != null
+        ? "https://backend.jobizoindia.com/storage/$rawImagePath"
         : null;
+
+    // Safely capitalize first letters.
+    final name = capitalizeFirst(w['name'] as String?);
+    final profession = capitalizeFirst(w['profession'] as String?);
+    final address = capitalizeFirst(w['address'] as String?);
+    final availability = capitalizeFirst(w['availability'] as String?);
 
     return Card(
       color: Colors.white,
@@ -208,6 +244,7 @@ class _LabourlocalitiesState extends State<Labourlocalities> {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
+            // Avatar circle (network or placeholder)
             CircleAvatar(
               radius: 30,
               backgroundColor: Colors.grey.shade200,
@@ -221,15 +258,19 @@ class _LabourlocalitiesState extends State<Labourlocalities> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Name + rating
+                  // — Name + Rating Row —
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      // Name (capitalized)
                       Text(
-                        w['name'] as String? ?? '',
+                        name,
                         style: TextStyle(
-                            fontSize: secondary(), fontWeight: FontWeight.bold),
+                          fontSize: secondary(),
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
+                      // Rating star + value
                       Row(
                         children: [
                           const Icon(Icons.star, size: 16, color: AppColors.gold),
@@ -242,37 +283,30 @@ class _LabourlocalitiesState extends State<Labourlocalities> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 4),
-
-                  // Profession
+                  // — Profession (capitalized) —
                   Text(
-                    w['profession'] as String? ?? '',
+                    profession,
                     style: TextStyle(fontSize: tertiary()),
                   ),
-
                   const SizedBox(height: 4),
-
-                  // Address
+                  // — Address (capitalized) —
                   Text(
-                    w['address'] as String? ?? '',
+                    address,
                     style: TextStyle(fontSize: tertiary() - 1),
                   ),
-
                   const SizedBox(height: 8),
-
-                  // Availability badge
+                  // — Availability Badge (capitalized) —
                   Container(
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: (w['availability'] as String? ?? '') == 'Available'
+                      color: availability == 'Available'
                           ? Colors.lightGreen
                           : AppColors.brown,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      w['availability'] as String? ?? '',
+                      availability,
                       style: TextStyle(
                         fontSize: tertiary() - 1,
                         color: Colors.white,
