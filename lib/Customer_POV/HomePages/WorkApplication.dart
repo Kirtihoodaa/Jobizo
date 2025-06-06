@@ -82,7 +82,6 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
 
       final data = resp.data as Map<String, dynamic>;
       if (resp.statusCode == 200 && data['status'] == true) {
-        // assume “franchise” is a JSON array of objects
         _franchises = List<Map<String, dynamic>>.from(data['franchise']);
       } else {
         SnackbarHelper.showError(
@@ -145,7 +144,7 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
         'expected_salary':     _salaryController.text.trim(),
         'education':           _educationController.text.trim(),
         'joining_description': _motivationController.text.trim(),
-        'franchise_id':         _selectedFranchiseId,
+        'franchise_id':        _selectedFranchiseId,
         if (_resumeFile != null)
           'resume': await MultipartFile.fromFile(
             _resumeFile!.path,
@@ -168,10 +167,15 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
         data: form,
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          response.data['status'] == true) {
         debugPrint('POST /job-application response body: ${response.data}');
         final appId = response.data['application_id'] as String? ?? '–';
-        if (mounted) _showSubmittedDialog(appId);
+        if (mounted) {
+          _showSubmittedDialog(appId).then((_) {
+            Navigator.of(context).pop();
+          });
+        }
       } else {
         SnackbarHelper.showError(context, 'Failed (${response.statusCode})');
       }
@@ -183,10 +187,8 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
     }
   }
 
-  void _showSubmittedDialog(String applicationId) {
-    print('Generated application_id: $applicationId');
-
-    showDialog(
+  Future<void> _showSubmittedDialog(String applicationId) {
+    return showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -323,8 +325,11 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
       ),
       value: _selectedFranchiseId,
       items: _franchises.map((fr) {
-        final name = fr['user']?['name'] ?? 'Unknown';
-        return DropdownMenuItem(
+        final rawName = fr['user']?['name'] as String? ?? 'Unknown';
+        final name = rawName.isNotEmpty
+            ? rawName[0].toUpperCase() + rawName.substring(1)
+            : '';
+        return DropdownMenuItem<int>(
           value: fr['id'] as int,
           child: Text(name),
         );
@@ -436,7 +441,6 @@ class _WorkApplicationFormState extends State<WorkApplicationForm> {
                         },
                         validator: (v) => v == null || v.isEmpty ? 'Required' : null,
                       ),
-
 
                       _buildLabel('Current Location'),
                       _buildTextField(

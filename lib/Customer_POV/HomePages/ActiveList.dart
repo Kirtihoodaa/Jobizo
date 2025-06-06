@@ -3,8 +3,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:jobizo/Design contraints/app color.dart';
-import 'package:jobizo/Design contraints/FontSizes.dart';
+import 'package:jobizo/Design%20contraints/app%20color.dart';
+import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import '../AppBar/commonAppBar.dart';
 
 class Activelist extends StatefulWidget {
@@ -54,6 +54,11 @@ class _ActivelistState extends State<Activelist> {
     }
   }
 
+  String _capitalize(String? input) {
+    if (input == null || input.isEmpty) return '';
+    return input[0].toUpperCase() + input.substring(1);
+  }
+
   @override
   Widget build(BuildContext context) {
     final darkBrown = AppColors.brown;
@@ -62,7 +67,8 @@ class _ActivelistState extends State<Activelist> {
       return Scaffold(
         backgroundColor: AppColors.bgColor,
         appBar: const Commonappbar(title: 'Active Labours'),
-        body: const Center(child: CircularProgressIndicator(color: AppColors.gold,)),
+        body:
+        const Center(child: CircularProgressIndicator(color: AppColors.gold)),
       );
     }
 
@@ -106,7 +112,7 @@ class _ActivelistState extends State<Activelist> {
                   const SizedBox(height: 20),
                   Text(
                     '-$availableAgents-',
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 35,
                       fontWeight: FontWeight.bold,
@@ -133,8 +139,24 @@ class _ActivelistState extends State<Activelist> {
   }
 
   Widget _buildAgentCard(Map<String, dynamic> agent) {
-    // Always use the asset placeholder for the left icon
-    const placeholder = AssetImage('Assets/Customer_Images/List_icon.png');
+    // Base URL for stored images
+    const baseUrl = 'https://backend.jobizoindia.com/storage/';
+
+    // If "image" exists, prepend base URL. Otherwise use placeholder.
+    ImageProvider avatarImage;
+    if (agent['image'] != null && (agent['image'] as String).isNotEmpty) {
+      avatarImage = NetworkImage(baseUrl + agent['image'] as String);
+    } else {
+      avatarImage =
+      const AssetImage('Assets/Customer_Images/List_icon.png');
+    }
+
+    // Safely read and capitalize name/location/email
+    final name = _capitalize(agent['name'] as String?);
+    final location = _capitalize(agent['location'] as String?);
+    final email = (agent['email'] as String? ?? '');
+    final phone = agent['phone'] as String? ?? '';
+    final labourId = agent['labour_id']?.toString() ?? 'N/A';
 
     return Card(
       color: Colors.white,
@@ -148,11 +170,11 @@ class _ActivelistState extends State<Activelist> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Fixed logo/avatar placeholder
+            // Logo/avatar
             CircleAvatar(
               radius: 30,
               backgroundColor: Colors.grey.shade200,
-              backgroundImage: placeholder,
+              backgroundImage: avatarImage,
             ),
             const SizedBox(width: 16),
 
@@ -164,12 +186,16 @@ class _ActivelistState extends State<Activelist> {
                   // Name & ID
                   Row(
                     children: [
-                      const Icon(Icons.person, size: 16, color: AppColors.green),
+                      const Icon(Icons.person,
+                          size: 16, color: AppColors.green),
                       const SizedBox(width: 4),
-                      Text(agent['name'] ?? 'null'),
+                      Text(
+                        name.isNotEmpty ? name : 'N/A',
+                        style: TextStyle(fontSize: secondary()),
+                      ),
                       const Spacer(),
                       Text(
-                        'ID: ${agent['labour_id'] ?? 'null'}',
+                        'ID: $labourId',
                         style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
                     ],
@@ -182,10 +208,18 @@ class _ActivelistState extends State<Activelist> {
                       const Icon(Icons.location_on,
                           size: 16, color: AppColors.green),
                       const SizedBox(width: 4),
-                      Expanded(child: Text(agent['location'] ?? 'null')),
-                      const Icon(Icons.phone, size: 16, color: AppColors.green),
+                      Expanded(
+                          child: Text(
+                            location.isNotEmpty ? location : 'N/A',
+                            style: TextStyle(fontSize: tertiary()),
+                          )),
+                      const Icon(Icons.phone,
+                          size: 16, color: AppColors.green),
                       const SizedBox(width: 4),
-                      Text(agent['phone'] ?? 'null'),
+                      Text(
+                        phone.isNotEmpty ? phone : 'N/A',
+                        style: TextStyle(fontSize: tertiary()),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -193,9 +227,15 @@ class _ActivelistState extends State<Activelist> {
                   // Email
                   Row(
                     children: [
-                      const Icon(Icons.email, size: 16, color: AppColors.green),
+                      const Icon(Icons.email,
+                          size: 16, color: AppColors.green),
                       const SizedBox(width: 4),
-                      Expanded(child: Text(agent['email'] ?? 'null')),
+                      Expanded(
+                        child: Text(
+                          email.isNotEmpty ? email : 'N/A',
+                          style: TextStyle(fontSize: tertiary()),
+                        ),
+                      ),
                     ],
                   ),
                 ],
