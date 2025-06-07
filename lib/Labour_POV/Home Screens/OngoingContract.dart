@@ -20,11 +20,11 @@ class _OngoingContractPageState extends State<OngoingContractPage> {
     super.initState();
     fetchOngoingContracts();
   }
+
   Future<void> fetchOngoingContracts() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
-      print(token);
 
       if (token == null || token.isEmpty) {
         print("❌ No auth token found.");
@@ -33,26 +33,28 @@ class _OngoingContractPageState extends State<OngoingContractPage> {
       }
 
       final dio = Dio();
-      dio.options.headers["Authorization"] = "Bearer $token"; // Include auth if needed
+      dio.options.headers["Authorization"] = "Bearer $token";
 
-      final response = await dio.get('https://backend.jobizoindia.com/api/labour/onging-contracts'); // ✅ Adjust endpoint
+      final response = await dio
+          .get('https://backend.jobizoindia.com/api/labour/ongoing-contracts');
 
-      if (response.statusCode == 200 && response.data['status'] == true) {
-        print("✔️ Ongoing jobs fetched successfully");
-
-        final List jobs = response.data['ongoing_jobs'] ?? [];
-        final List<_ContractData> contracts = jobs.map<_ContractData>((item) {
+      if (response.statusCode == 200 && response.data['data'] != null) {
+        final List<dynamic> contractsJson = response.data['data'];
+        final List<_ContractData> contracts =
+            contractsJson.map<_ContractData>((item) {
           return _ContractData(
-            company: item['company'] ?? 'N/A',
+            company: item['company_name'] ?? 'N/A',
             siteName: item['project_name'] ?? 'N/A',
-            siteNo: item['site_number'] ?? 'N/A', // You can adjust or generate ID if needed
+            siteNo: item['site_number']?.toString() ?? 'N/A',
             jobType: item['job_title'] ?? 'N/A',
-            location: item['job_location'] ?? 'N/A',
-            employeeName: item['labour_name'] ?? 'N/A',
+            location: item['work_address'] ?? 'N/A',
+            employeeName: item['contact_name'] ?? 'N/A',
             employeeId: item['employee_id'] ?? 'N/A',
-            hours: item['working_hour'] ?? 'N/A', // Static as per your current UI
-            startDate: item['started_at'] ?? '',
-            duration: item['job_duration'] ?? 'N/A',
+            hours: '8 hrs/day',
+            startDate: item['start_date'] ?? '',
+            duration: '${item['duration_days'] ?? '0'} days',
+            role: item['department_name'] ?? 'N/A',
+            status: item['is_ongoing'] ?? 'N/A',
           );
         }).toList();
 
@@ -70,9 +72,9 @@ class _OngoingContractPageState extends State<OngoingContractPage> {
       setState(() => isLoading = false);
     }
   }
+
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: AppBar(
@@ -89,25 +91,27 @@ class _OngoingContractPageState extends State<OngoingContractPage> {
           ),
         ),
       ),
-        body: isLoading
-            ? Center(child: CircularProgressIndicator(color: AppColors.gold,))
-            : items.isEmpty
-            ? Center(child: Text("No ongoing contracts found."))
-            : SingleChildScrollView(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            children: items
-                .map((data) => Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: _ContractCard(data: data),
+      body: isLoading
+          ? Center(
+              child: CircularProgressIndicator(
+              color: AppColors.gold,
             ))
-                .toList(),
-          ),
-        ),
+          : items.isEmpty
+              ? Center(child: Text("No ongoing contracts found."))
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    children: items
+                        .map((data) => Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: _ContractCard(data: data),
+                            ))
+                        .toList(),
+                  ),
+                ),
     );
   }
 }
-
 class _ContractData {
   final String company,
       siteName,
@@ -118,7 +122,9 @@ class _ContractData {
       employeeId,
       hours,
       startDate,
-      duration;
+      duration,
+      role,
+      status;
 
   _ContractData({
     required this.company,
@@ -131,6 +137,8 @@ class _ContractData {
     required this.hours,
     required this.startDate,
     required this.duration,
+    required this.role,
+    required this.status,
   });
 }
 
@@ -175,7 +183,7 @@ class _ContractCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  'Ongoing',
+                  data.status,
                   style: TextStyle(
                     fontSize: tertiary(),
                     color: Colors.white,
@@ -252,9 +260,9 @@ class _ContractCard extends StatelessWidget {
 
           Row(
             children: [
-              Text('Role:'),
+              Text('Role: '),
               const SizedBox(width: 8),
-              Text(data.jobType),
+              Text(data.role),
               Spacer(),
               Icon(Icons.calendar_today, size: 18),
               const SizedBox(width: 8),

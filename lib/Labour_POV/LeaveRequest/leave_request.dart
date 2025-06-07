@@ -212,7 +212,7 @@ class _LeaveRequestDetailsPageState extends State<LeaveRequestDetailsPage> {
                       const SizedBox(height: 8),
                       buildInfoRow('Approved Date', leave['approved_date'] ?? 'Pending'),
                       const SizedBox(height: 8),
-                      buildInfoRow('Requested On', formattedRequestTime),
+                      buildInfoRow('Requested On', leave['created_at']?? 'N/A'),
                     ],
                   ),
                 );

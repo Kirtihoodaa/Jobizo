@@ -37,8 +37,8 @@ class JobModel {
       duration: json['job_duration'] ?? '',
       status: json['status'] ?? '',
       startDate: json['start_date'] ?? '',
-      labourName: json['labour_name'] ?? '',
-      jobid: json['job_id'] ?? 0,
+      labourName: json['site_manager_name'] ?? '',
+      jobid: json['project_id'] ?? 0,
     );
   }
 }
@@ -55,10 +55,10 @@ class _HistoryPageState extends State<HistoryPage> {
   List<JobModel> jobList = [];
 
   final List<Map<String, String>> _filters = [
-    {'label': 'All Jobs', 'count': '24'},
-    {'label': 'Ongoing', 'count': '8'},
-    {'label': 'Completed', 'count': '12'},
-    {'label': 'Cancelled', 'count': '4'},
+    {'label': 'All Jobs', 'count': '0'},
+    {'label': 'Ongoing', 'count': '0'},
+    {'label': 'Completed', 'count': '0'},
+    {'label': 'Cancelled', 'count': '0'},
   ];
 
   @override
@@ -160,7 +160,7 @@ class _HistoryPageState extends State<HistoryPage> {
                 final job = jobList[idx];
                 final statusColor = job.status.toLowerCase() == 'pending'
                     ? AppColors.gold
-                    : job.status.toLowerCase() == 'accepted'
+                    : job.status.toLowerCase() == 'accept'
                         ? Colors.lightGreen[700]
                         : Colors.brown;
 

@@ -44,7 +44,6 @@ class _WorkDetailsState extends State<WorkDetails> {
       final response = await dio.get(
         'https://backend.jobizoindia.com/api/labour-jobs-status/${widget.jobId}',
       );
-
       print('👉 Response status: ${response.statusCode}');
       print('👉 Content-Type: ${response.headers.value('content-type')}');
       if (response.statusCode == 200 &&
@@ -115,7 +114,7 @@ class _WorkDetailsState extends State<WorkDetails> {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
-                                jobData!['status'] ?? 'N/A',
+                                jobData!['labour_status'] ?? 'N/A',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: tertiary(),
@@ -143,7 +142,7 @@ class _WorkDetailsState extends State<WorkDetails> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    jobData!['company_name'] ?? 'N/A',
+                                    jobData!['labour_request']['company_name'] ?? 'N/A',
                                     style: TextStyle(
                                       fontSize: secondary(),
                                       fontWeight: FontWeight.w600,
@@ -152,9 +151,9 @@ class _WorkDetailsState extends State<WorkDetails> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                      'Site: ${jobData!['location'] ?? 'N/A'}'),
+                                      'Site: ${jobData!['labour_request']['project_name'] ?? 'N/A'}'),
                                   Text(
-                                      'Job Type: ${jobData!['job_type'] ?? 'N/A'}'),
+                                      'Job Type: ${jobData!['title'] ?? 'N/A'}'),
                                   Text(
                                       'Location: ${jobData!['location'] ?? 'N/A'}'),
                                 ],
@@ -162,7 +161,7 @@ class _WorkDetailsState extends State<WorkDetails> {
                             ),
                             const SizedBox(width: 12),
                             Text(
-                              'Site no: ${jobData!['site_no'] ?? 'N/A'}',
+                              'Site no: ${jobData!['labour_request']['site_number'] ?? 'N/A'}',
                               style: TextStyle(fontSize: tertiary()),
                             ),
                           ],
@@ -172,7 +171,7 @@ class _WorkDetailsState extends State<WorkDetails> {
 
                         // Employee info
                         Text(
-                          jobData!['employee_name'] ?? 'N/A',
+                          jobData!['labour_request']['site_manager_name'] ?? 'N/A',
                           style: TextStyle(
                             fontSize: secondary(),
                             fontWeight: FontWeight.w600,
@@ -188,7 +187,7 @@ class _WorkDetailsState extends State<WorkDetails> {
                             const Spacer(),
                             const Icon(Icons.access_time, size: 18),
                             const SizedBox(width: 4),
-                            Text(jobData!['shift_time'] ?? '-'),
+                            Text(jobData!['labour_request']['working_hours'] ?? '-'),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -196,28 +195,28 @@ class _WorkDetailsState extends State<WorkDetails> {
                           children: [
                             const Text('Role:'),
                             const SizedBox(width: 8),
-                            Text(jobData!['role'] ?? 'N/A'),
+                            Text(jobData!['department_name'] ?? 'N/A'),
                             const Spacer(),
                             const Icon(Icons.calendar_today, size: 18),
                             const SizedBox(width: 4),
-                            Text('Start: ${jobData!['start_date'] ?? 'N/A'}'),
+                            Text('Start: ${jobData!['labour_request']['start_date'] ?? 'N/A'}'),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Text('Total Hours Of Work'),
-                            const Spacer(),
-                            Text(jobData!['working_hours'] ?? 'N/A'),
-                          ],
-                        ),
+                        // const SizedBox(height: 8),
+                        // Row(
+                        //   children: [
+                        //     const Text('Total Hours Of Work'),
+                        //     const Spacer(),
+                        //     Text(jobData!['working_hours'] ?? 'N/A'),
+                        //   ],
+                        // ),
                         const SizedBox(height: 15),
                         Row(
                           children: [
-                            const Text('Total Earnings'),
+                            const Text('Earnings'),
                             const Spacer(),
                             Text(
-                              jobData!['total_earnings'] ?? 'N/A',
+                              "INR " + jobData!['salary'] ?? 'N/A',
                               style: TextStyle(
                                 fontSize: primary(),
                                 fontWeight: FontWeight.bold,

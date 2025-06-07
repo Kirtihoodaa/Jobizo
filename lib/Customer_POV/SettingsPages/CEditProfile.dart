@@ -1,11 +1,11 @@
 import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../Design contraints/FontSizes.dart';
+import '../../SnackBar/Snackbar.dart';
 
 class Ceditprofile extends StatefulWidget {
   const Ceditprofile({super.key});
@@ -122,15 +122,12 @@ class _CeditprofileState extends State<Ceditprofile> {
           Navigator.pop(context, 'refresh');
         } else {
           print("⚠️ Response missing 'data' or 'user' field");
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Unexpected response from server.")),
-          );
+          SnackbarHelper.showError(context, "Unexpected response from server.");
         }
       } else {
         print("❌ Profile update failed with status ${response.statusCode}");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Failed to update profile.")),
-        );
+        SnackbarHelper.showError(context, "Failed to update profile.");
+
       }
     } on DioException catch (e) {
       if (e.response != null) {
@@ -140,10 +137,8 @@ class _CeditprofileState extends State<Ceditprofile> {
         print("❌ Dio error without response: ${e.message}");
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Something went wrong. Please try again.")),
-      );
+      SnackbarHelper.showError(context, "Something went wrong. Please try again.");
+
     }
   }
 
@@ -284,16 +279,17 @@ class _CeditprofileState extends State<Ceditprofile> {
                       child: CircleAvatar(
                         radius: 50,
                         backgroundColor: AppColors.gold,
-                        backgroundImage: (cachedProfileImage != null &&
-                                cachedProfileImage!.trim().isNotEmpty)
-                            ? NetworkImage(
-                                "https://backend.jobizoindia.com/storage/${cachedProfileImage!.trim()}")
-                            : null, // No image if invalid
-                        child: (cachedProfileImage == null ||
-                                cachedProfileImage!.trim().isEmpty)
+                        backgroundImage: pickedImage != null
+                            ? FileImage(File(pickedImage!.path)) // <-- show picked image
+                            : (cachedProfileImage != null && cachedProfileImage!.trim().isNotEmpty
+                            ? NetworkImage("https://backend.jobizoindia.com/storage/${cachedProfileImage!.trim()}")
+                            : null) as ImageProvider?, // fallback to cached
+                        child: pickedImage == null &&
+                            (cachedProfileImage == null || cachedProfileImage!.trim().isEmpty)
                             ? Icon(Icons.person, size: 70, color: Colors.white)
                             : null,
                       ),
+
                     ),
                     Positioned(
                       right: -4,

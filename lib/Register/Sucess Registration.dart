@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:jobizo/SnackBar/Snackbar.dart';
 import '../Customer_POV/HomePages/HomePagess.dart';
+import '../Customer_POV/SettingsPages/CEditProfile.dart';
 import '../Customer_POV/SettingsPages/CustomerProfile.dart';
 import '../Design contraints/gradients.dart';
 import '../Labour_POV/Home Screens/HomePage.dart';
@@ -106,7 +107,7 @@ class _SucessRegisterState extends State<SucessRegister> {
                                               duration: const Duration(
                                                   milliseconds: 400));
                                         } else if (widget.role == 'customer') {
-                                          Get.to(() => Customerprofile(),
+                                          Get.to(() => Ceditprofile(),
                                               transition: Transition.cupertino,
                                               duration: const Duration(
                                                   milliseconds: 400));

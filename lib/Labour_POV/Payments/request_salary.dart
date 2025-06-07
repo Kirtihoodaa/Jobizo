@@ -1,6 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../SnackBar/Snackbar.dart';
 import '../All_app_bars/normal_app_bar.dart';
@@ -18,7 +20,7 @@ class _RequestSalaryState extends State<RequestSalary> {
   final TextEditingController reasonController = TextEditingController();
   final FocusNode amountFocus = FocusNode();
   final FocusNode reasonFocus = FocusNode();
-  final int availableAmount = 8500; // Replace INR 85,000
+  String creditedAmount = 'Loading...';
 
 
   @override
@@ -29,8 +31,31 @@ class _RequestSalaryState extends State<RequestSalary> {
     reasonFocus.dispose();
     super.dispose();
   }
+  Future<void> fetchPayments() async {
+    try {
+      final pref = await SharedPreferences.getInstance();
+      final token = pref.getString('auth_token') ?? '';
+      final dio = Dio(BaseOptions(headers: {'Authorization': token}));
 
-  void _submitRequest() {
+      final response = await dio.get('https://backend.jobizoindia.com/api/available-salary');
+      final data = response.data;
+      setState(() {
+        creditedAmount = "INR ${data['available_salary'].toString()}";
+      });
+    } catch (e) {
+      print('Error: $e');
+      setState(() {
+        creditedAmount = "INR 0";
+      });
+    }
+  }
+  @override
+  void initState() {
+    super.initState();
+    fetchPayments(); // Load available salary on screen start
+  }
+
+  void _submitRequest() async {
     final amount = amountController.text.trim();
     final reason = reasonController.text.trim();
 
@@ -40,27 +65,65 @@ class _RequestSalaryState extends State<RequestSalary> {
     }
 
     final enteredAmount = int.tryParse(amount.replaceAll(',', ''));
-
     if (enteredAmount == null) {
       SnackbarHelper.showWarning(context, "Invalid amount entered");
       return;
     }
+    final availableBalance = double.tryParse(
+        creditedAmount.replaceAll(RegExp(r'[^0-9.]'), '')
+    )?.floor() ?? 0;
+    print(availableBalance); // ✅ will show 800, not 80000
 
-    if (enteredAmount > availableAmount) {
-      SnackbarHelper.showWarning(context, "Amount cannot exceed INR $availableAmount");
+    if (enteredAmount > availableBalance) {
+      SnackbarHelper.showWarning(context, "Amount cannot exceed INR $availableBalance");
       return;
     }
 
-    // All checks passed
-    print('Submitting salary request: ₹$enteredAmount for "$reason"');
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      if (token == null) {
+        SnackbarHelper.showError(context, "Unauthorized. Please log in again.");
+        return;
+      }
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const BiometricSuccessScreen(requestType: 'Salary'),
-      ),
-    );
+      final dioClient = Dio();
+      dioClient.options.headers['Authorization'] = 'Bearer $token';
+
+      final response = await dioClient.post(
+        'https://backend.jobizoindia.com/api/request-salary',
+        data: {
+          "amount": enteredAmount,
+          "reason": reason,
+          "type": "salary"
+        },
+      );
+
+      if (response.statusCode == 200 && response.data['data'] != null) {
+        print("Salary request submitted: ${response.data['data']}");
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const BiometricSuccessScreen(requestType: 'Salary'),
+          ),
+        );
+      } else {
+        SnackbarHelper.showError(context, response.data['message'] ?? "Submission failed.");
+      }
+    } on DioException catch (dioError) {
+        if (dioError.response != null) {
+          print("Status code: ${dioError.response?.statusCode}");
+          print("Response data: ${dioError.response?.data}");
+          SnackbarHelper.showError(
+            context,
+            dioError.response?.data['message'] ?? "Validation error occurred.",
+          );
+        } else {
+          SnackbarHelper.showError(context, "Network error occurred.");
+        }
+      }
   }
+
 
 
   @override
@@ -96,7 +159,7 @@ class _RequestSalaryState extends State<RequestSalary> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    ' INR $availableAmount',
+                     creditedAmount,
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:dio/dio.dart'as dio;
+import 'package:dio/dio.dart' as dio;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -44,6 +44,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> updateProfile() async {
+    // No changes here, form validation is correct
     if (!_formKey.currentState!.validate()) return;
 
     try {
@@ -58,6 +59,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       dio.Dio dioClient = dio.Dio();
       dioClient.options.headers["Authorization"] = "Bearer $token";
 
+      // FormData creation is correct
       final formData = dio.FormData.fromMap({
         "name": nameController.text.trim(),
         "email": emailController.text.trim(),
@@ -79,16 +81,47 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         data: formData,
       );
 
+      // This part handles the success case
       if (response.statusCode == 200 && response.data['status'] == true) {
         SnackbarHelper.showSuccess(context, "Profile updated successfully.");
         fetchProfileData();
         Get.back(result: 'refresh');
       } else {
-        final errorMsg = response.data['message'] ?? "Failed to update profile.";
+        // START OF THE FIX
+        // This part now robustly handles logical failures (status: false)
+        String errorMsg = "Failed to update profile.";
+        final responseData = response.data;
+
+        if (responseData != null) {
+          if (responseData is Map<String, dynamic> && responseData.containsKey('message')) {
+            errorMsg = responseData['message'].toString();
+          } else if (responseData is List && responseData.isNotEmpty) {
+            errorMsg = responseData[0].toString();
+          } else if (responseData is String && responseData.trim().toLowerCase().startsWith('<!doctype html')) {
+            errorMsg = "An unexpected server error occurred.";
+          } else {
+            errorMsg = responseData.toString();
+          }
+        }
         SnackbarHelper.showError(context, errorMsg);
+        // END OF THE FIX
       }
     } on dio.DioException catch (dioError) {
-      final message = dioError.response?.data['message'] ?? "Network error occurred.";
+      // This block you already fixed is correct, no changes needed here.
+      String message = "Network error occurred.";
+      final responseData = dioError.response?.data;
+
+      if (responseData != null) {
+        if (responseData is String && responseData.trim().toLowerCase().startsWith('<!doctype html')) {
+          message = "The server returned an unexpected response.";
+        } else if (responseData is Map<String, dynamic> && responseData.containsKey('message')) {
+          message = responseData['message'].toString();
+        } else if (responseData is List && responseData.isNotEmpty) {
+          message = responseData[0].toString();
+        } else {
+          message = responseData.toString();
+        }
+      }
       SnackbarHelper.showError(context, "Error: $message");
     } catch (e) {
       SnackbarHelper.showError(context, "Something went wrong. Please try again.");
@@ -105,8 +138,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       final dioClient = dio.Dio();
       dioClient.options.headers["Authorization"] = "Bearer $token";
+      dioClient.options.headers["Accept"] = "application/json";
 
-      final response = await dioClient.get('https://backend.jobizoindia.com/api/profile');
+      final response =
+          await dioClient.get('https://backend.jobizoindia.com/api/profile');
 
       final user = response.data['user'];
       if (user == null || user['email'] == null) return;
@@ -144,7 +179,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               onSurface: Colors.black,
             ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(foregroundColor: const Color(0xFFFAC015)),
+              style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFFFAC015)),
             ),
           ),
           child: child!,
@@ -204,80 +240,97 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ],
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator(color: AppColors.gold,))
+          ? Center(
+              child: CircularProgressIndicator(
+              color: AppColors.gold,
+            ))
           : SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Stack(
-                  alignment: Alignment.bottomRight,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Material(
-                      elevation: 10,
-                      shape: const CircleBorder(),
-                      shadowColor: Colors.grey,
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundColor: AppColors.gold,
-                        backgroundImage: pickedImage != null
-                            ? FileImage(File(pickedImage!.path))
-                            : (profileImagePath != null && profileImagePath!.isNotEmpty)
-                            ? NetworkImage("https://backend.jobizoindia.com/storage/$profileImagePath")
-                            : null,
-                        child: (pickedImage == null && (profileImagePath == null || profileImagePath!.isEmpty))
-                            ? const Icon(Icons.person, size: 60, color: Colors.white)
-                            : null,
+                    Center(
+                      child: Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          Material(
+                            elevation: 10,
+                            shape: const CircleBorder(),
+                            shadowColor: Colors.grey,
+                            child: CircleAvatar(
+                              radius: 50,
+                              backgroundColor: AppColors.gold,
+                              backgroundImage: pickedImage != null
+                                  ? FileImage(File(pickedImage!.path))
+                                  : (profileImagePath != null &&
+                                          profileImagePath!.isNotEmpty)
+                                      ? NetworkImage(
+                                          "https://backend.jobizoindia.com/storage/$profileImagePath")
+                                      : null,
+                              child: (pickedImage == null &&
+                                      (profileImagePath == null ||
+                                          profileImagePath!.isEmpty))
+                                  ? const Icon(Icons.person,
+                                      size: 60, color: Colors.white)
+                                  : null,
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 4,
+                            child: GestureDetector(
+                              onTap: () async {
+                                final XFile? image = await _picker.pickImage(
+                                    source: ImageSource.gallery);
+                                if (image != null) {
+                                  setState(() {
+                                    pickedImage = image;
+                                  });
+                                }
+                              },
+                              child: CircleAvatar(
+                                backgroundColor: const Color(0xFFFAC015),
+                                radius: 16,
+                                child: const Icon(Icons.camera_alt,
+                                    size: 20, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    Positioned(
-                      bottom: 0,
-                      right: 4,
-                      child: GestureDetector(
-                        onTap: () async {
-                          final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-                          if (image != null) {
-                            setState(() {
-                              pickedImage = image;
-                            });
-                          }
-                        },
-                        child: CircleAvatar(
-                          backgroundColor: const Color(0xFFFAC015),
-                          radius: 16,
-                          child: const Icon(Icons.camera_alt, size: 20, color: Colors.white),
-                        ),
-                      ),
-                    ),
+                    const SizedBox(height: 24),
+                    buildTextField('Full Name', nameController,
+                        hint: 'Enter your full name'),
+                    buildTextField('Email', emailController, readOnly: true),
+                    buildTextField('Phone Number', phoneController,
+                        hint: 'Enter your phone number'),
+                    buildDatePickerField(
+                        'Date of Birth', dobController, pickDate),
+                    buildTextField('Bio', bioController,
+                        maxLines: 3, hint: 'Enter your bio'),
+                    buildTextField('Location', locationController,
+                        hint: 'Enter your location'),
+                    buildTextField('Skills', skillsController,
+                        hint: 'eg. Plumber'),
+                    buildTextField('Experience', experienceController,
+                        hint: 'eg. 4 Yrs'),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
-              buildTextField('Full Name', nameController, hint: 'Enter your full name'),
-              buildTextField('Email', emailController, readOnly: true),
-              buildTextField('Phone Number', phoneController, hint: 'Enter your phone number'),
-              buildDatePickerField('Date of Birth', dobController, pickDate),
-              buildTextField('Bio', bioController, maxLines: 3, hint: 'Enter your bio'),
-              buildTextField('Location', locationController, hint: 'Enter your location'),
-              buildTextField('Skills', skillsController, hint: 'eg. Plumber'),
-              buildTextField('Experience', experienceController, hint: 'eg. 4 Yrs'),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 
   Widget buildTextField(
-      String label,
-      TextEditingController controller, {
-        int maxLines = 1,
-        String? hint,
-        bool readOnly = false,
-      }) {
+    String label,
+    TextEditingController controller, {
+    int maxLines = 1,
+    String? hint,
+    bool readOnly = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -335,10 +388,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget buildDatePickerField(
-      String label,
-      TextEditingController controller,
-      VoidCallback onTap,
-      ) {
+    String label,
+    TextEditingController controller,
+    VoidCallback onTap,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -372,7 +425,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFFFAC015), width: 2),
+                borderSide:
+                    const BorderSide(color: Color(0xFFFAC015), width: 2),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
