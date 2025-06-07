@@ -244,7 +244,7 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
         "title": "Total Billing Amount",
         "value": "INR $billingAmount",
         "desc": "",
-        "screen": PendingPaymentScreen()
+        "screen":  null ,//PendingPaymentScreen()
       },
       {
         "title": "Pending Requests",
@@ -465,7 +465,7 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
         shrinkWrap: true,
         children: [
           _actionButton(context, "Required Labour", Requiredlabour()),
-          _actionButton(context, "Manage Labour", LabourManagementScreen()),
+          _actionButton(context, "All Labour", AllLaboursScreen()),
           _actionButton(context, "Add Complaint", AddComplaintPage()),
           _actionButton(context, "Complaint Status", ComplaintStatusScreen()),
         ],
