@@ -23,7 +23,7 @@ class JobApplication {
   final String? resume;
   final String? coverLetter;
   final String? photo;
-  final String? status;           // ← added status field
+  final String? status;
   final String applicationId;
   final String createdAt;
 
