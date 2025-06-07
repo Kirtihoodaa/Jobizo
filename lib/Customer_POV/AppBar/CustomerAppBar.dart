@@ -118,41 +118,53 @@ class CustomerappbarState extends State<Customerappbar> {
               children: [
                 AnimatedMenuButtonCustomer(),
                 GestureDetector(
-                    onTap: widget.onProfileTap,
+                  onTap: widget.onProfileTap,
+                  child: CircleAvatar(
+                    radius: 21,
+                    backgroundColor: Colors.white,
                     child: CircleAvatar(
-                      radius: 21,
-                      backgroundColor: Colors.white,
-                      child: CircleAvatar(
-                        radius: 20,
-                        backgroundColor: AppColors.gold,
-                        backgroundImage: (profileImage.isNotEmpty)
-                            ? NetworkImage("https://backend.jobizoindia.com/storage/${profileImage.trim()}")
-                            : null,
-                        child: (profileImage.isEmpty)
-                            ? const Icon(Icons.person, size: 35, color: Colors.white)
-                            : null,
-                      ),
-                    )),
-                const SizedBox(width: 5),
+                      radius: 20,
+                      backgroundColor: AppColors.gold,
+                      backgroundImage: (profileImage.isNotEmpty)
+                          ? NetworkImage("https://backend.jobizoindia.com/storage/${profileImage.trim()}")
+                          : null,
+                      child: (profileImage.isEmpty)
+                          ? const Icon(Icons.person, size: 35, color: Colors.white)
+                          : null,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       name,
                       style: TextStyle(
-                          color: Colors.white,
-                          fontSize: primary(),
-                          fontWeight: FontWeight.bold),
+                        color: Colors.white,
+                        fontSize: secondary(),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    Text(
-                      location,
-                      style:
-                          TextStyle(color: Colors.white, fontSize: secondary()),
+                    //const SizedBox(height: 2),
+                    Container(
+                      width: 120,
+                      child: Text(
+                        location,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: tertiary(),
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: true,
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
+
 
             /// Notifications and Dynamic Profile Image
             Row(
