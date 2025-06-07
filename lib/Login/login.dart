@@ -289,14 +289,14 @@ class _LoginPageState extends State<LoginPage> {
                               //   ),
                               // ),
                               // SizedBox(height: 10.h),
-                              Text(
-                                "OR",
-                                style: TextStyle(
-                                  color: AppColors.green,
-                                  fontSize: 20.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              // Text(
+                              //   "OR",
+                              //   style: TextStyle(
+                              //     color: AppColors.green,
+                              //     fontSize: 20.sp,
+                              //     fontWeight: FontWeight.bold,
+                              //   ),
+                              // ),
                               SizedBox(height: 10.h),
                               _buildInputFields(),
                               SizedBox(height: 15.h),

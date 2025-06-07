@@ -47,6 +47,7 @@ class CustomAppBarState extends State<CustomAppBar> {
         name = savedName;
         location = savedLocation;
         profileImage = savedImage;
+        print(profileImage);
       });
     } else {
       await _fetchAndStoreProfile();
@@ -69,10 +70,11 @@ class CustomAppBarState extends State<CustomAppBar> {
       final response = await dio.get("https://backend.jobizoindia.com/api/profile");
 
       if (response.statusCode == 200) {
+        print(response);
         final user = response.data['user'];
         final userName = user['name'] ?? "No Name";
         final userLocation = user['address'] ?? "No Location";
-        final imagePath = user['image'] ?? " ";
+        final imagePath = (user['image'] ?? "").trim();
 
         await prefs.setString('user_name', userName);
         await prefs.setString('user_location', userLocation);
@@ -104,84 +106,107 @@ class CustomAppBarState extends State<CustomAppBar> {
       elevation: 0,
       automaticallyImplyLeading: false,
       titleSpacing: 0,
-      title: Padding(
-        padding: const EdgeInsets.only(right: 8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            /// Menu + Profile Info
-            Row(
+      title: LayoutBuilder(
+        builder: (context, constraints) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                AnimatedMenuButton(), // uses the animated menu button
-                GestureDetector(
-                  onTap: widget.onProfileTap,
-                  child: CircleAvatar(
-                    radius: 20,
-                    backgroundColor: AppColors.gold,
-                    backgroundImage: profileImage.isNotEmpty
-                        ? NetworkImage("https://backend.jobizoindia.com/storage/$profileImage")
-                        : const AssetImage('Assets/Labour_image/user profile.png') as ImageProvider,
+                /// Menu + Profile Info
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: constraints.maxWidth - 130, // space reserved for notification & logo
+                  ),
+                  child: Row(
+                    children: [
+                      AnimatedMenuButton(),
+                      GestureDetector(
+                        onTap: widget.onProfileTap,
+                        child: CircleAvatar(
+                          radius: 21,
+                          backgroundColor: Colors.white,
+                          child: CircleAvatar(
+                            radius: 20,
+                            backgroundColor: AppColors.gold,
+                            backgroundImage: (profileImage.isNotEmpty)
+                                ? NetworkImage("https://backend.jobizoindia.com/storage/${profileImage.trim()}")
+                                : null,
+                            child: (profileImage.isEmpty)
+                                ? const Icon(Icons.abc, size: 35, color: Colors.white)
+                                : null,
+                          ),
+                        )
+
+                      ),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              name,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: primary(),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              location,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: tertiary(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 5),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+
+                /// Notifications and Logo
+                Row(
                   children: [
-                    Text(
-                      name,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: primary(),
-                        fontWeight: FontWeight.bold,
+                    GestureDetector(
+                      onTap: widget.onNotificationTap,
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundColor: Colors.white,
+                            child: CircleAvatar(
+                              radius: 18,
+                              backgroundColor: const Color(0xFFFAC015),
+                              child: Image.asset(
+                                "Assets/Labour_image/notification icon.png",
+                                height: 25,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    Text(
-                      location,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: secondary(),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: widget.onProfileTap,
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Colors.white,
+                        child: Image.asset("Assets/jobizo/jobizoLogo.png"),
                       ),
                     ),
                   ],
                 ),
               ],
             ),
-
-            /// Notifications and Logo
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: widget.onNotificationTap,
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.white,
-                        child: CircleAvatar(
-                          radius: 18,
-                          backgroundColor: const Color(0xFFFAC015),
-                          child: Image.asset(
-                            "Assets/Labour_image/notification icon.png",
-                            height: 25,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                GestureDetector(
-                  onTap: widget.onProfileTap,
-                  child: CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Colors.white,
-                    child: Image.asset("Assets/jobizo/jobizoLogo.png"),
-                  ),
-                ),
-              ],
-            )
-          ],
-        ),
+          );
+        },
       ),
     );
   }

@@ -1,7 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../SnackBar/Snackbar.dart';
 import '../All_app_bars/normal_app_bar.dart';
 import 'biometricsuccessscreen.dart';
 
@@ -17,6 +20,7 @@ class _RequestAdvanceState extends State<RequestAdvance> {
   final TextEditingController amountController = TextEditingController();
   final TextEditingController reasonController = TextEditingController();
   String? selectedPaymentMethod;
+  String creditedAmount = 'Loading...';
 
   final FocusNode amountFocus = FocusNode();
   final FocusNode reasonFocus = FocusNode();
@@ -28,6 +32,88 @@ class _RequestAdvanceState extends State<RequestAdvance> {
     amountFocus.dispose();
     reasonFocus.dispose();
     super.dispose();
+  }
+
+  void _submitRequest() async {
+    final amount = amountController.text.trim();
+    final reason = reasonController.text.trim();
+
+    if (amount.isEmpty || reason.isEmpty) {
+      SnackbarHelper.showWarning(context, "All Fields are Required");
+      return;
+    }
+
+    final enteredAmount = int.tryParse(amount.replaceAll(',', ''));
+    if (enteredAmount == null) {
+      SnackbarHelper.showWarning(context, "Invalid amount entered");
+      return;
+    }
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      if (token == null) {
+        SnackbarHelper.showError(context, "Unauthorized. Please log in again.");
+        return;
+      }
+
+      final dioClient = Dio();
+      dioClient.options.headers['Authorization'] = 'Bearer $token';
+
+      final response = await dioClient.post(
+        'https://backend.jobizoindia.com/api/request-salary',
+        data: {
+          "amount": enteredAmount,
+          "reason": reason,
+          "type": "advance"
+        },
+      );
+
+      if (response.statusCode == 200 && response.data['data'] != null) {
+        print("Salary request submitted: ${response.data['data']}");
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const BiometricSuccessScreen(requestType: 'Advance'),
+          ),
+        );
+      } else {
+        SnackbarHelper.showError(context, response.data['message'] ?? "Submission failed.");
+      }
+    } on DioException catch (dioError) {
+      if (dioError.response != null) {
+        print("Status code: ${dioError.response?.statusCode}");
+        print("Response data: ${dioError.response?.data}");
+        SnackbarHelper.showError(
+          context,
+          dioError.response?.data['message'] ?? "Validation error occurred.",
+        );
+      } else {
+        SnackbarHelper.showError(context, "Network error occurred.");
+      }
+    }
+  }
+  @override
+  void initState() {
+    super.initState();
+    fetchPayments(); // Load available salary on screen start
+  }
+  Future<void> fetchPayments() async {
+    try {
+      final pref = await SharedPreferences.getInstance();
+      final token = pref.getString('auth_token') ?? '';
+      final dio = Dio(BaseOptions(headers: {'Authorization': token}));
+
+      final response = await dio.get('https://backend.jobizoindia.com/api/available-salary');
+      final data = response.data;
+      setState(() {
+        creditedAmount = "INR ${data['available_salary'].toString()}";
+      });
+    } catch (e) {
+      print('Error: $e');
+      setState(() {
+        creditedAmount = "INR 0";
+      });
+    }
   }
 
   @override
@@ -63,7 +149,7 @@ class _RequestAdvanceState extends State<RequestAdvance> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'INR 25,000',
+                    creditedAmount,
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -181,7 +267,7 @@ class _RequestAdvanceState extends State<RequestAdvance> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {  },
+                onPressed: () { _submitRequest(); },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.gold,
                   padding: const EdgeInsets.symmetric(vertical: 16),

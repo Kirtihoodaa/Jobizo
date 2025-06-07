@@ -7,8 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../All_app_bars/normal_app_bar.dart';
 
 class BeforeAcceptJob extends StatefulWidget {
-  final Map<String, dynamic> jobData;
-  const BeforeAcceptJob({Key? key, required this.jobData}) : super(key: key);
+  final int jobId;
+  const BeforeAcceptJob({Key? key, required this.jobId}) : super(key: key);
 
   @override
   State<BeforeAcceptJob> createState() => _BeforeAcceptJobState();
@@ -16,25 +16,35 @@ class BeforeAcceptJob extends StatefulWidget {
 
 class _BeforeAcceptJobState extends State<BeforeAcceptJob> {
   final Dio _dio = Dio();
+
   bool _isSubmitting = false;
-  String? _jobStatus;
+  bool _isLoading = true;
+  Map<String, dynamic>? _jobData;
 
-  int get _jobId => widget.jobData['id'] as int;
-  String get _title => widget.jobData['job_title'] ?? '';
-  String get _location => widget.jobData['job_location'] ?? '';
-  String get _salary => widget.jobData['job_salary'] ?? '';
-  String get _duration => widget.jobData['job_duration'] ?? '';
-  String get _facilities => widget.jobData['site_facilities'] ?? '';
+  Future<void> _fetchJobDetails() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      print(token);
+      if (token == null) throw Exception('Token not found');
+      debugPrint('📌 Job ID received: ${widget.jobId}');
 
-  List<String> get _facilitiesList => _facilities.isNotEmpty
-      ? _facilities.split(',').map((e) => e.trim()).toList()
-      : [];
-
-  Map<String, dynamic> get _req =>
-      (widget.jobData['labour_request'] as Map<String, dynamic>?) ?? {};
-  String get _siteManager => _req['site_manager_name'] ?? '';
-  String get _startDate => _req['start_date'] ?? '';
-  String get _projectname => _req['project_name'] ?? 'N/A';
+      final response = await _dio.get(
+        'https://backend.jobizoindia.com/api/labour-jobs-status/${widget.jobId}',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+      print(response);
+      setState(() {
+        _jobData = response.data['data'];
+        _isLoading = false;
+      });
+    } catch (e, stack) {
+      debugPrint('❌ Error fetching job details: $e');
+      debugPrint('📦 Stack: $stack');
+      SnackbarHelper.showError(context, 'Failed to load job details');
+      setState(() => _isLoading = false);
+    }
+  }
 
   Future<void> _postStatus(String status) async {
     setState(() => _isSubmitting = true);
@@ -42,72 +52,105 @@ class _BeforeAcceptJobState extends State<BeforeAcceptJob> {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
 
-      if (token == null) {
-        throw Exception('⚠️ Authentication token is missing!');
-      }
+      if (token == null) throw Exception('Token not found');
 
-      final response = await _dio.post(
-        'https://backend.jobizoindia.com/api/upcoming-assignment/$_jobId/status',
-        data: {
-          'labour_job_id': '$_jobId',
-          'status': status,
-        },
+      final response = await _dio.get(
+        'https://backend.jobizoindia.com/api/labour-jobs-status/${widget.jobId}',
+        data: {'labour_job_id': '${widget.jobId}', 'status': status},
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
             'Accept': 'application/json',
           },
-          followRedirects: false,
-          validateStatus: (statusCode) =>
-              statusCode != null && statusCode < 500,
         ),
       );
 
       final data = response.data;
 
-      debugPrint('✅ API Response: $data');
+      final success = data['status'] == true || data['status'] == 'accept';
+      final message = data['message'] ?? 'Action completed';
 
-      if (data is! Map<String, dynamic>) {
-        throw Exception('⚠️ Unexpected response format from server.');
-      }
-
-      final success = (data['status'] == true ||
-          data['status'].toString().toLowerCase() == 'accept');
-      final message = data['message'] ?? (success ? 'Success' : 'Failed');
-
-      setState(() {
-        _jobStatus = data['status']?.toString();
-      });
-
-      SnackbarHelper.showInfo(context, 'message');
+      SnackbarHelper.showInfo(context, message);
 
       if (success) Navigator.pop(context, status);
-    } catch (e, stackTrace) {
-      debugPrint('⚠️ Error posting status: $e');
-      debugPrint('$stackTrace');
+    } catch (e) {
       SnackbarHelper.showError(context, 'Failed to $status: ${e.toString()}');
     } finally {
       setState(() => _isSubmitting = false);
     }
   }
 
+  String get _projectName => _jobData?['labour_request']?['project_name'] ?? '';
+  String get _siteManager =>
+      _jobData?['labour_request']?['site_manager_name'] ?? '';
+  String get _siteManagerPhone =>
+      _jobData?['labour_request']?['site_manager_phone'] ?? '';
+  String get _location => _jobData?['location'] ?? '';
+  String get _salary => _jobData?['salary'] ?? 'N/A';
+  String get _duration => _jobData?['duration'] ?? '';
+  List<String> get _facilitiesList =>
+      (_jobData?['site_facilities'] as List?)?.cast<String>() ?? [];
+
   String _iconFor(String facility) {
     switch (facility.toLowerCase()) {
-      case 'Free Parking':
+      case 'free parking':
         return 'Assets/Labour_image/parking.png';
-      case 'rest Rooms':
+      case 'rest rooms':
         return 'Assets/Labour_image/rest_room.png';
-      case 'Canteen':
+      case 'canteen':
         return 'Assets/Labour_image/canteen.png';
-      case 'Medical Bay':
+      case 'medical bay':
         return 'Assets/Labour_image/medical_boy.png';
       default:
         return 'Assets/Labour_image/rest_room.png';
     }
   }
+  Future<void> _postStatusss(String status) async {
+    setState(() => _isSubmitting = true);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      if (token == null) throw Exception('Token not found');
+
+      final response = await _dio.post(
+        'https://backend.jobizoindia.com/api/labour/project-status/${widget.jobId}',
+        data: {'status': status},
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Accept': 'application/json',
+          },
+        ),
+      );
+
+      final data = response.data;
+      print(data);
+      final success = data['status'] == true;
+      final message = data['message'] ?? 'Action completed';
+
+      SnackbarHelper.showInfo(context, message);
+      if (success) Navigator.pop(context, status);
+    } catch (e) {
+      SnackbarHelper.showError(context, 'Failed to $status: ${e.toString()}');
+    } finally {
+      setState(() => _isSubmitting = false);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchJobDetails();
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(color: AppColors.gold)),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.bgColor,
       appBar: CustomBackAppBar(title: 'Work Details'),
@@ -120,7 +163,7 @@ class _BeforeAcceptJobState extends State<BeforeAcceptJob> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _projectname,
+                    _projectName,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -132,7 +175,7 @@ class _BeforeAcceptJobState extends State<BeforeAcceptJob> {
                     children: [
                       Icon(Icons.location_on, size: 16, color: AppColors.green),
                       const SizedBox(width: 4),
-                      Flexible(child: Text(_location)),
+                      Expanded(child: Text(_location)),
                     ],
                   ),
                 ],
@@ -160,20 +203,21 @@ class _BeforeAcceptJobState extends State<BeforeAcceptJob> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Image.asset("Assets/Labour_image/zone.png"),
-                      const SizedBox(width: 9),
-                      Expanded(child: Text(_title)),
-                      Text(
-                        'INR $_salary/DAY',
-                        style: TextStyle(
-                          color: AppColors.green,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
+                  // Row(
+                  //   children: [
+                  //     // Image.asset("Assets/Labour_image/zone.png"),
+                  //     // const SizedBox(width: 9),
+                  //     // // const Expanded(child: Text("Zone A")),
+                  //     Text(
+                  //       'INR $_salary/DAY',
+                  //       style: TextStyle(
+                  //
+                  //         color: AppColors.green,
+                  //         fontWeight: FontWeight.bold,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -192,6 +236,14 @@ class _BeforeAcceptJobState extends State<BeforeAcceptJob> {
                       Image.asset("Assets/Labour_image/clock.png"),
                       const SizedBox(width: 9),
                       const Text('7:00 AM - 5:00 PM'),
+                      Spacer(),
+                      Text(
+                        'INR $_salary/DAY',
+                        style: TextStyle(
+                          color: AppColors.green,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -210,7 +262,7 @@ class _BeforeAcceptJobState extends State<BeforeAcceptJob> {
                   ),
                   const SizedBox(height: 8),
                   _facilitiesList.isEmpty
-                      ? const Text(' No facilities available')
+                      ? const Text('No facilities available')
                       : Wrap(
                           spacing: 12,
                           runSpacing: 8,
@@ -236,39 +288,41 @@ class _BeforeAcceptJobState extends State<BeforeAcceptJob> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Contact Information',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: AppColors.green,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
-                      Icon(Icons.person, size: 16, color: AppColors.green),
-                      SizedBox(width: 4),
+                      const Icon(Icons.person,
+                          size: 16, color: AppColors.green),
+                      const SizedBox(width: 4),
                       Text('Site Manager: $_siteManager'),
                     ],
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.phone, size: 16, color: AppColors.green),
-                      SizedBox(width: 4),
-                      const Text('+91 7788990089'),
+                      const Icon(Icons.phone, size: 16, color: AppColors.green),
+                      const SizedBox(width: 4),
+                      Text(_siteManagerPhone),
                     ],
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
+
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
                     onPressed:
-                        _isSubmitting ? null : () => _postStatus('rejected'),
+                        _isSubmitting ? null : () => _postStatusss('rejected'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4B1E03),
                       shape: RoundedRectangleBorder(
@@ -283,7 +337,7 @@ class _BeforeAcceptJobState extends State<BeforeAcceptJob> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed:
-                        _isSubmitting ? null : () => _postStatus('accept'),
+                        _isSubmitting ? null : () => _postStatusss('accept'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.green,
                       shape: RoundedRectangleBorder(
@@ -303,10 +357,13 @@ class _BeforeAcceptJobState extends State<BeforeAcceptJob> {
   }
 
   Widget buildCardContainer({required Widget child}) => Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(8)),
-      child: child);
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: child,
+      );
 }

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 
 import '../All_app_bars/normal_app_bar.dart';
+import 'Payment.dart';
 
 class BiometricSuccessScreen extends StatelessWidget {
   final String requestType; // e.g. "Advance" or "Salary"
@@ -35,15 +39,15 @@ class BiometricSuccessScreen extends StatelessWidget {
                     color: Color(0xFF62A910),
                   )),
               const SizedBox(height: 30),
-              Text(
-                'Biometric Authentication !',
-                style: TextStyle(
-                  fontSize: primary(),
-                  color: AppColors.gold,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 5),
+              // Text(
+              //   'Biometric Authentication !',
+              //   style: TextStyle(
+              //     fontSize: primary(),
+              //     color: AppColors.gold,
+              //     fontWeight: FontWeight.w500,
+              //   ),
+              // ),
+              // const SizedBox(height: 5),
               Text(
                 'Successful !',
                 style: TextStyle(
@@ -64,7 +68,9 @@ class BiometricSuccessScreen extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    // Handle post-success logic
+                    Get.off(() => Payment(),
+                        transition: Transition.cupertino,
+                        duration: const Duration(milliseconds: 400));
                   },
                   child: Text(
                     'Request $requestType',

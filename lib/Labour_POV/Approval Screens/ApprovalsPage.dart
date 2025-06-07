@@ -30,7 +30,6 @@ class LabourRequest {
     );
   }
 }
-
 class ApprovalItem {
   final int id;
   final String jobTitle;
@@ -39,7 +38,7 @@ class ApprovalItem {
   final String startDate;
   final String duration;
   final String status;
-  final LabourRequest labourRequest;
+  final String siteManagerName;
   final Map<String, dynamic> raw;
 
   ApprovalItem({
@@ -50,24 +49,25 @@ class ApprovalItem {
     required this.startDate,
     required this.status,
     required this.duration,
-    required this.labourRequest,
+    required this.siteManagerName,
     required this.raw,
   });
 
   factory ApprovalItem.fromJson(Map<String, dynamic> json) {
     return ApprovalItem(
       id: json['id'],
-      jobTitle: json['job_title'] ?? 'N/A',
-      projectName: json['labour_request']['project_name'] ?? 'N/A',
-      jobLocation: json['job_location'],
-      status: json['labour_status'],
-      startDate: json['labour_request']['start_date'],
-      duration: json['job_duration'],
-      labourRequest: LabourRequest.fromJson(json['labour_request']),
-      raw: json, // keep the original JSON in case you want it later
+      jobTitle: json['title'] ?? 'N/A',
+      projectName: json['company_name'] ?? 'N/A',
+      jobLocation: json['location'] ?? 'N/A',
+      status: json['labour_status'] ?? 'N/A',
+      startDate: json['start_date'] ?? '', // Using created_at as startDate
+      duration: json['duration'] ?? 'N/A',
+      siteManagerName: json['site_manager_name'] ?? 'N/A', // placeholder
+      raw: json,
     );
   }
 }
+
 
 class ApprovalsPage extends StatefulWidget {
   const ApprovalsPage({Key? key}) : super(key: key);
@@ -255,7 +255,7 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        item.labourRequest.siteManagerName,
+                                        item.siteManagerName,
                                         style: TextStyle(
                                           fontSize: secondary(),
                                           fontWeight: FontWeight.w600,
@@ -373,7 +373,7 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
                                   } else if (status == 'pending') {
                                     // ⏳ Navigate to detailed acceptance page
                                     Get.to(
-                                      () => BeforeAcceptJob(jobData: item.raw),
+                                      () => BeforeAcceptJob(jobId: item.id,),
                                       transition: Transition.cupertino,
                                       duration:
                                           const Duration(milliseconds: 400),
