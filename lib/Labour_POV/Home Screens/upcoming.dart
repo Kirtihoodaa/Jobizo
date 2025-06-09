@@ -32,19 +32,16 @@ class _UpcomingAssignmentScreenState extends State<UpcomingAssignmentScreen> {
       Dio dio = Dio();
       dio.options.headers["Authorization"] = "Bearer $token";
 
-      final response = await dio.get("https://backend.jobizoindia.com/api/labour/upcoming-contracts");
+      final response = await dio.get(
+          "https://backend.jobizoindia.com/api/labour-jobs-status/${widget.jobId}");
+      print(widget.jobId);
 
       if (response.statusCode == 200 && response.data['status'] == true) {
-        final jobList = response.data['upcoming_jobs'];
+        final data = response.data['data'];
 
-        if (jobList != null && jobList.isNotEmpty) {
-          final match = jobList.firstWhere(
-                (job) => job['job_id'] == widget.jobId,
-            orElse: () => null,
-          );
-
+        if (data != null) {
           setState(() {
-            jobData = match;
+            jobData = data;
             isLoading = false;
           });
         } else {
@@ -65,31 +62,43 @@ class _UpcomingAssignmentScreenState extends State<UpcomingAssignmentScreen> {
       backgroundColor: const Color(0xFFF9F9F9),
       appBar: CustomBackAppBar(title: 'Upcoming Assignment'),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.gold,))
+          ? const Center(
+          child: CircularProgressIndicator(color: AppColors.gold))
           : jobData == null
-              ? const Center(child: Text("No upcoming assignments"))
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      AssignmentInfoCard(
-                        company: jobData!["company"] ?? 'N/A',
-                        location: jobData!["job_location"] ?? 'N/A',
-                      ),
-                      WorkAreaCard(
-                        salary: jobData!["job_salary"] ?? '0',
-                        duration: jobData!["job_duration"] ?? '0 days',
-                      ),
-                      SiteFacilitiesCard(
-                          facilities: jobData!["site_facilities"] ??
-                              'No site facilities'),
-                      ContactInfoCard(
-                        manager: jobData!["Site_manager_name"] ?? 'No Assigned',
-                        phone: jobData!["Site_manager_number"] ?? 'N/A',
-                      ),
-                    ],
-                  ),
-                ),
+          ? const Center(child: Text("No upcoming assignments"))
+          : SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            AssignmentInfoCard(
+              company: jobData!["labour_request"]["company_name"] ??
+                  'N/A',
+              location: jobData!["location"] ?? 'N/A',
+            ),
+            WorkAreaCard(
+              salary: jobData!["salary"]?.toString() ?? '0',
+              duration: jobData!["duration"] ?? '0 days',
+              workingHours:
+              jobData!["labour_request"]["working_hours"] ??
+                  'N/A',
+              department: jobData!["department_name"] ?? 'Unknown',
+              startDate: jobData!["labour_request"]["start_date"] ?? 'N/A',
+            ),
+            SiteFacilitiesCard(
+              facilities: jobData!["site_facilities"] is List
+                  ? (jobData!["site_facilities"] as List<dynamic>)
+                  .join(', ')
+                  : 'No site facilities',
+            ),
+            ContactInfoCard(
+              manager: jobData!["labour_request"]
+              ["site_manager_name"] ??
+                  'No Assigned',
+              phone: jobData!["labour_request"]["site_manager_contact_number"] ?? 'N/A',
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -165,8 +174,18 @@ class AssignmentInfoCard extends StatelessWidget {
 class WorkAreaCard extends StatelessWidget {
   final String salary;
   final String duration;
+  final String workingHours;
+  final String department;
+  final String startDate;
 
-  const WorkAreaCard({super.key, required this.salary, required this.duration});
+  const WorkAreaCard({
+    super.key,
+    required this.salary,
+    required this.duration,
+    required this.workingHours,
+    required this.department,
+    required this.startDate,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -199,7 +218,7 @@ class WorkAreaCard extends StatelessWidget {
               const SizedBox(width: 9),
               Expanded(
                 child: Text(
-                  'Zone B - Structural Works',
+                  '$department',
                   style: TextStyle(fontSize: secondary()),
                 ),
               ),
@@ -216,29 +235,42 @@ class WorkAreaCard extends StatelessWidget {
           const SizedBox(height: 4),
           Row(
             children: [
-              Image.asset("Assets/Labour_image/workers.png"),
-              const SizedBox(width: 9),
+              // Image.asset("Assets/Labour_image/calendar.png"), // you can replace with any icon
+              // const SizedBox(width: 9),
               Text(
-                'Current Workers: 45/60',
-                style: TextStyle(fontSize: secondary()),
+                'Start Date: $startDate',
+                style: TextStyle(
+                  color: AppColors.green,
+                  fontWeight: FontWeight.bold,
+                  fontSize: secondary(),
+                ),
               ),
               const Spacer(),
               Image.asset("Assets/Labour_image/month_alarm.png"),
               const SizedBox(width: 9),
               Text(
                 duration,
-                style: TextStyle(fontSize: secondary()),
+                style: TextStyle(
+                  color: AppColors.green,
+                  fontWeight: FontWeight.bold,
+                  fontSize: secondary(),
+                ),
               ),
             ],
           ),
+
           const SizedBox(height: 4),
           Row(
             children: [
               Image.asset("Assets/Labour_image/clock.png"),
               const SizedBox(width: 9),
               Text(
-                '7:00 AM - 5:00 PM',
-                style: TextStyle(fontSize: secondary()),
+                workingHours,
+                style: TextStyle(
+                  color: AppColors.green,
+                  fontWeight: FontWeight.bold,
+                  fontSize: secondary(),
+                ),
               ),
             ],
           ),
@@ -256,7 +288,7 @@ class SiteFacilitiesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<String> facilityList =
-        facilities.split(',').map((e) => e.trim()).toList();
+    facilities.split(',').map((e) => e.trim()).toList();
 
     return ReusableCard(
       child: Column(
@@ -295,8 +327,11 @@ class ContactInfoCard extends StatelessWidget {
   final String manager;
   final String phone;
 
-  const ContactInfoCard(
-      {super.key, required this.manager, required this.phone});
+  const ContactInfoCard({
+    super.key,
+    required this.manager,
+    required this.phone,
+  });
 
   @override
   Widget build(BuildContext context) {
