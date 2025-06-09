@@ -41,6 +41,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final response =
           await dio.get('https://backend.jobizoindia.com/api/available-salary');
       final data = response.data;
+      print(data);
       setState(() {
         creditedAmount = "INR ${data['available_salary'].toString()}";
         final availableBalance =
@@ -78,6 +79,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           presentCount = data['presentCount'];
           absentCount = data['absentCount'];
           leaveCount = data['leaveCount'];
+          print(upcomingAssignments);
         });
       }
     } catch (e) {
@@ -228,7 +230,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 onTap: () {
                   Get.to(
                     () => UpcomingAssignmentScreen(
-                      jobId: assignment['job_id'],
+                      jobId: assignment['labour_project_id'],
 
                     ),
                     transition: Transition.cupertino,
