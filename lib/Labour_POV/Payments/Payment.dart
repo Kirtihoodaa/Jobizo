@@ -1,10 +1,15 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Design contraints/FontSizes.dart';
 import '../../Design contraints/app color.dart';
+import '../../SnackBar/Snackbar.dart';
 import '../All_app_bars/normal_app_bar.dart';
 import '../Payments/request_advance.dart';
 import '../Payments/request_salary.dart';
@@ -41,6 +46,74 @@ Future<Map<String, dynamic>> fetchPayments() async {
     };
   }
 }
+Future<void> downloadSalaryPdf(BuildContext context) async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('auth_token');
+  final dio = Dio();
+  dio.options.headers["Authorization"] = "Bearer $token";
+
+  // Handle permissions
+  if (Platform.isAndroid) {
+    if (Platform.version.startsWith('13') || Platform.version.startsWith('14')) {
+      final statuses = await [Permission.photos, Permission.videos].request();
+      if (statuses.values.any((status) => !status.isGranted)) {
+        SnackbarHelper.showWarning(context, "Media access is required to download the file.");
+        return;
+      }
+    } else {
+      final status = await Permission.storage.request();
+      if (!status.isGranted) {
+        SnackbarHelper.showWarning(context, "Storage permission is required to download the file.");
+        return;
+      }
+    }
+  }
+
+  try {
+    // ✅ Save to public Downloads folder
+    final downloadsDir = Directory('/storage/emulated/0/Download');
+    final filePath = "${downloadsDir.path}/salary_statement_${DateTime.now().millisecondsSinceEpoch}.pdf";
+
+    await dio.download(
+      'https://backend.jobizoindia.com/api/transaction-statement',
+      filePath,
+    );
+
+    SnackbarHelper.showSuccess(context, "PDF downloaded to: $filePath");
+  } catch (e) {
+    SnackbarHelper.showError(context, "Failed to download PDF.");
+    print("Download error: $e");
+  }
+}
+
+
+Future<void> mailSalaryStatement(BuildContext context) async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('auth_token');
+  final dio = Dio();
+
+  dio.options.headers["Authorization"] = "Bearer $token";
+
+  try {
+    final response = await dio.get(
+      'https://backend.jobizoindia.com/api/transaction-statement?delivery_type=email',
+    );
+
+    final data = response.data;
+    if (response.statusCode == 200 && data['status'] == true) {
+      SnackbarHelper.showSuccess(context, data['message']);
+    } else {
+      SnackbarHelper.showError(context, "Failed to send mail.");
+    }
+  } catch (e) {
+    SnackbarHelper.showError(context, "API error while sending mail.");
+    print("Mail error: $e");
+  }
+}
+
+
+
+
 
 class _PaymentState extends State<Payment> {
   String creditedAmount = 'Loading...';
@@ -110,6 +183,38 @@ class _PaymentState extends State<Payment> {
                             duration: const Duration(milliseconds: 400));
                       });
                     },
+                  ),
+                ],
+              ),const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      await downloadSalaryPdf(context);
+                    },
+                    icon: const Icon(Icons.download, color: AppColors.gold),
+                    label: const Text("Download", style: TextStyle(color: AppColors.gold)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.gold),
+                      backgroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      await mailSalaryStatement(context);
+                    },
+                    icon: const Icon(Icons.email, color: AppColors.gold),
+                    label: const Text("Send Mail", style: TextStyle(color: AppColors.gold)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.gold),
+                      backgroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                   ),
                 ],
               ),
