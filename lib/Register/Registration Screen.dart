@@ -164,34 +164,34 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 ),
                               ),
                               const SizedBox(height: 10),
-                              ElevatedButton.icon(
-                                onPressed: () {},
-                                label: const Text(
-                                  "Register with Google",
-                                  style: TextStyle(
-                                    color: Color(0xFF3E4E00),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 55, vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(40),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              const Text(
-                                "OR",
-                                style: TextStyle(
-                                  color: Color(0xFF2C4305),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              // ElevatedButton.icon(
+                              //   onPressed: () {},
+                              //   label: const Text(
+                              //     "Register with Google",
+                              //     style: TextStyle(
+                              //       color: Color(0xFF3E4E00),
+                              //       fontSize: 16,
+                              //       fontWeight: FontWeight.w600,
+                              //     ),
+                              //   ),
+                              //   style: ElevatedButton.styleFrom(
+                              //     backgroundColor: Colors.white,
+                              //     padding: const EdgeInsets.symmetric(
+                              //         horizontal: 55, vertical: 12),
+                              //     shape: RoundedRectangleBorder(
+                              //       borderRadius: BorderRadius.circular(40),
+                              //     ),
+                              //   ),
+                              // ),
+                              // const SizedBox(height: 10),
+                              // const Text(
+                              //   "OR",
+                              //   style: TextStyle(
+                              //     color: Color(0xFF2C4305),
+                              //     fontSize: 20,
+                              //     fontWeight: FontWeight.bold,
+                              //   ),
+                              // ),
                               const SizedBox(height: 10),
                               TextField(
                                 controller: _nameController,
