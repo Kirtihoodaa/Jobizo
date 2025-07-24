@@ -625,27 +625,30 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
   }
 
   Widget _buildRecentActivities() {
-    return Card(
-      margin: const EdgeInsets.all(12),
-      color: Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Recent Activities",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold, color: AppColors.gold)),
-            const SizedBox(height: 10),
-            ..._recentRequests.map((r) {
-              final date = (r['created_at'] as String).split('T').first;
-              return ListTile(
-                leading: const Icon(Icons.location_on, color: Colors.blue),
-                title: Text(r['project_name'] as String? ?? 'No project'),
-                subtitle: Text(date),
-              );
-            }).toList(),
-          ],
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      child: Card(
+        margin: const EdgeInsets.all(12),
+        color: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Recent Activities",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: AppColors.gold)),
+              const SizedBox(height: 10),
+              ..._recentRequests.map((r) {
+                final date = (r['created_at'] as String).split('T').first;
+                return ListTile(
+                  leading: const Icon(Icons.location_on, color: Colors.blue),
+                  title: Text(r['project_name'] as String? ?? 'No project'),
+                  subtitle: Text(date),
+                );
+              }).toList(),
+            ],
+          ),
         ),
       ),
     );

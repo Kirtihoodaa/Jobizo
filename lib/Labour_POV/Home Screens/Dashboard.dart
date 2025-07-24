@@ -22,7 +22,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int presentCount = 0;
   int absentCount = 0;
   int leaveCount = 0;
-  String weeklyEarnings = "INR 7,800";
+  // String weeklyEarnings = "INR 7,800";
   String creditedAmount = 'Loading...';
 
   @override
@@ -154,7 +154,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: ListTile(
         title: Text("Current Status:", style: TextStyle(fontSize: tertiary())),
         subtitle: Text(
-          "Last Ative: ${statusData?['last_active'] ?? 'N/A'}",
+          "Last Active: ${statusData?['last_active'] ?? 'N/A'}",
           style: TextStyle(fontSize: tertiary()),
         ),
         trailing: Text(
@@ -211,41 +211,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildUpcomingAssignments() {
-    return Card(
-      color: Colors.white,
-      margin: const EdgeInsets.only(top: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Upcoming Assignments",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: secondary(),
-                    color: AppColors.green)),
-            const SizedBox(height: 10),
-            ...upcomingAssignments.map((assignment) {
-              return GestureDetector(
-                onTap: () {
-                  Get.to(
-                    () => UpcomingAssignmentScreen(
-                      jobId: assignment['labour_project_id'],
+    return SizedBox(
+      width: MediaQuery.sizeOf(context).width,
+      child: Card(
+        color: Colors.white,
+        margin: const EdgeInsets.only(top: 12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Upcoming Assignments",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: secondary(),
+                      color: AppColors.green)),
+              const SizedBox(height: 10),
+              ...upcomingAssignments.map((assignment) {
+                return GestureDetector(
+                  onTap: () {
+                    Get.to(
+                      () => UpcomingAssignmentScreen(
+                        jobId: assignment['labour_project_id'],
 
-                    ),
-                    transition: Transition.cupertino,
-                    duration: const Duration(milliseconds: 400),
-                  );
-                },
-                child: assignmentTile(
-                  assignment['project_name'],
-                  assignment['site_description'],
-                  assignment['location'],
-                  "Starts in ${assignment['starts_in_days']} days",
-                ),
-              );
-            }).toList(),
-          ],
+                      ),
+                      transition: Transition.cupertino,
+                      duration: const Duration(milliseconds: 400),
+                    );
+                  },
+                  child: assignmentTile(
+                    assignment['project_name'],
+                    assignment['site_description'],
+                    assignment['location'],
+                    "Starts in ${assignment['starts_in_days']} days",
+                  ),
+                );
+              }).toList(),
+            ],
+          ),
         ),
       ),
     );
