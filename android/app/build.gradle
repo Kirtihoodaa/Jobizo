@@ -24,15 +24,14 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
     }
-   signingConfigs {
+    signingConfigs {
     release {
-        storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+        storeFile file(keystoreProperties['storeFile'])
         storePassword keystoreProperties['storePassword']
         keyAlias keystoreProperties['keyAlias']
         keyPassword keystoreProperties['keyPassword']
     }
 }
-
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
