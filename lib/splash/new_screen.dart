@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/routes/transitions_type.dart' show Transition;
+import 'package:get/get_navigation/src/routes/transitions_type.dart'
+    show Transition;
 import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 import 'package:jobizo/splash/splash_screen2.dart';
@@ -12,7 +13,7 @@ class JobizoInfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.bgColor,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
