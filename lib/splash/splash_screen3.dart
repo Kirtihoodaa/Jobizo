@@ -1,3 +1,5 @@
+import 'dart:developer' show log;
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -47,7 +49,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _controller.nextPage(
           duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
     } else {
-      // Last page: Navigate to JobizoInfoSection
       Get.off(() => const JobizoInfoSection());
     }
   }
@@ -56,47 +57,49 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          Positioned(
-            top: 50,
-            right: 20,
-            child: GestureDetector(
-              onTap: () {
-                print("Skip tapped");
-                Get.off(() => const JobizoInfoSection());
+      body: SafeArea(
+        child: Stack(
+          children: [
+            PageView.builder(
+              controller: _controller,
+              itemCount: pages.length,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentPage = index;
+                });
               },
-              child: Text(
-                'Skip →',
-                style: TextStyle(
-                  fontSize: secondary(),
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.green,
+              itemBuilder: (context, index) {
+                final page = pages[index];
+                return OnboardingContent(
+                  image: page.image,
+                  title: page.title,
+                  description: page.description,
+                  currentPage: _currentPage,
+                  totalPages: pages.length,
+                  onNext: _onNextPressed,
+                );
+              },
+            ),
+            Positioned(
+              top: 30,
+              right: 20,
+              child: GestureDetector(
+                onTap: () {
+                  log("Skip tapped");
+                  Get.off(() => const JobizoInfoSection());
+                },
+                child: Text(
+                  'Skip →',
+                  style: TextStyle(
+                    fontSize: secondary(),
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.green,
+                  ),
                 ),
               ),
             ),
-          ),
-          PageView.builder(
-            controller: _controller,
-            itemCount: pages.length,
-            onPageChanged: (index) {
-              setState(() {
-                _currentPage = index;
-              });
-            },
-            itemBuilder: (context, index) {
-              final page = pages[index];
-              return OnboardingContent(
-                image: page.image,
-                title: page.title,
-                description: page.description,
-                currentPage: _currentPage,
-                totalPages: pages.length,
-                onNext: _onNextPressed,
-              );
-            },
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

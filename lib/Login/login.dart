@@ -77,7 +77,12 @@ class _LoginPageState extends State<LoginPage> {
           await prefs.setString('userRole', 'unknown');
           // 👇 Open URL if role is something else
           final url = 'https://backend.jobizoindia.com/auth/login';
-          Get.to(() =>  WebViewPage(url: url, email: '$email', password: '$password',),
+          Get.to(
+              () => WebViewPage(
+                    url: url,
+                    email: '$email',
+                    password: '$password',
+                  ),
               transition: Transition.cupertino,
               duration: const Duration(milliseconds: 400));
         }
@@ -302,35 +307,35 @@ class _LoginPageState extends State<LoginPage> {
                               SizedBox(height: 15.h),
                               _isLoading
                                   ? const CircularProgressIndicator(
-                                  color: AppColors.gold)
+                                      color: AppColors.gold)
                                   : ElevatedButton.icon(
-                                onPressed: _login,
-                                icon: const Icon(Icons.login,
-                                    color: AppColors.green),
-                                label: Text(
-                                  "Login",
-                                  style: TextStyle(
-                                    color: AppColors.green,
-                                    fontSize: secondary(),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 75.w, vertical: 12.h),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                    BorderRadius.circular(40.r),
-                                  ),
-                                ),
-                              ),
+                                      onPressed: _login,
+                                      icon: const Icon(Icons.login,
+                                          color: AppColors.green),
+                                      label: Text(
+                                        "Login",
+                                        style: TextStyle(
+                                          color: AppColors.green,
+                                          fontSize: secondary(),
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.white,
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 75.w, vertical: 12.h),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(40.r),
+                                        ),
+                                      ),
+                                    ),
                               TextButton(
                                 onPressed: () => Get.to(
-                                        () => const Forgotpassword(),
+                                    () => const Forgotpassword(),
                                     transition: Transition.cupertino,
                                     duration:
-                                    const Duration(milliseconds: 400)),
+                                        const Duration(milliseconds: 400)),
                                 child: Text(
                                   "Forgot Password?",
                                   style: TextStyle(
@@ -348,7 +353,7 @@ class _LoginPageState extends State<LoginPage> {
                                 onPressed: () => Get.to(() => SplashScreen2(),
                                     transition: Transition.cupertino,
                                     duration:
-                                    const Duration(milliseconds: 400)),
+                                        const Duration(milliseconds: 400)),
                                 child: const Text(
                                   "Register Here",
                                   style: TextStyle(
