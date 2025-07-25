@@ -16,7 +16,7 @@ class Industrydetails extends StatefulWidget {
 
 class _IndustrydetailsState extends State<Industrydetails> {
   bool _insuranceExpanded = false;
-  bool _verifiedExpanded  = false;
+  bool _verifiedExpanded = false;
 
   List<Map<String, dynamic>> _recentWork = [];
   bool _loadingRecent = true;
@@ -81,7 +81,6 @@ class _IndustrydetailsState extends State<Industrydetails> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,7 +105,8 @@ class _IndustrydetailsState extends State<Industrydetails> {
                     bottom: 48,
                     child: Row(
                       children: [
-                        const Icon(Icons.construction, color: Colors.white, size: 28),
+                        const Icon(Icons.construction,
+                            color: Colors.white, size: 28),
                         const SizedBox(width: 8),
                         Text(
                           'JOBIZO',
@@ -128,7 +128,8 @@ class _IndustrydetailsState extends State<Industrydetails> {
                         const SizedBox(width: 4),
                         Text(
                           '4.8 (2,456 reviews)',
-                          style: TextStyle(color: Colors.white, fontSize: tertiary()),
+                          style: TextStyle(
+                              color: Colors.white, fontSize: tertiary()),
                         ),
                       ],
                     ),
@@ -158,13 +159,14 @@ class _IndustrydetailsState extends State<Industrydetails> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Card(
                 color: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                elevation: 1,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                elevation: 3,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Text(
                     'Professional construction services for residential and commercial projects. '
-                        'Our skilled workers specialize in building, renovation, and infrastructure development.',
+                    'Our skilled workers specialize in building, renovation, and infrastructure development.',
                     style: TextStyle(fontSize: tertiary(), height: 1.4),
                   ),
                 ),
@@ -235,10 +237,10 @@ class _IndustrydetailsState extends State<Industrydetails> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Card(
-
                 color: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                elevation: 1,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                elevation: 3,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -254,7 +256,6 @@ class _IndustrydetailsState extends State<Industrydetails> {
                       ),
                       SizedBox(height: 15),
                       ClipRRect(
-
                         child: Image.asset(
                           'Assets/Labour_image/map.png',
                           width: double.infinity,
@@ -316,17 +317,25 @@ class _IndustrydetailsState extends State<Industrydetails> {
                 children: [
                   Row(
                     children: [
-                      Expanded(child: _buildCert(Icons.verified, 'OSHA Certified', '142 workers')),
+                      Expanded(
+                          child: _buildCert(
+                              Icons.verified, 'OSHA Certified', '142 workers')),
                       const SizedBox(width: 12),
-                      Expanded(child: _buildCert(Icons.handyman, 'Master Builder', '98 workers')),
+                      Expanded(
+                          child: _buildCert(
+                              Icons.handyman, 'Master Builder', '98 workers')),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      Expanded(child: _buildCert(Icons.architecture_sharp, 'Blueprint Expert', '75 workers')),
+                      Expanded(
+                          child: _buildCert(Icons.architecture_sharp,
+                              'Blueprint Expert', '75 workers')),
                       const SizedBox(width: 12),
-                      Expanded(child: _buildCert(Icons.local_shipping, 'Heavy Equipment', '89 workers')),
+                      Expanded(
+                          child: _buildCert(Icons.local_shipping,
+                              'Heavy Equipment', '89 workers')),
                     ],
                   ),
                 ],
@@ -398,34 +407,35 @@ class _IndustrydetailsState extends State<Industrydetails> {
                 ),
               )
             else if (_recentWork.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    'No recent work found.',
-                    style: TextStyle(fontSize: tertiary()),
-                  ),
-                )
-              else
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: GridView.count(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: _recentWork.map((item) {
-                      final img = item['image'] as String?;
-                      final imgPath = img != null
-                          ? 'https://backend.jobizoindia.com/storage/$img'
-                          : 'Assets/Customer_Images/villa.png';
-                      final title = item['title'] as String? ?? 'Untitled';
-                      final date = item['complition_date'] as String? ?? 'Date N/A';
-
-                      return buildRecentWork(imgPath, title, date);
-                    }).toList(),
-                  ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'No recent work found.',
+                  style: TextStyle(fontSize: tertiary()),
                 ),
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: _recentWork.map((item) {
+                    final img = item['image'] as String?;
+                    final imgPath = img != null
+                        ? 'https://backend.jobizoindia.com/storage/$img'
+                        : 'Assets/Customer_Images/villa.png';
+                    final title = item['title'] as String? ?? 'Untitled';
+                    final date =
+                        item['complition_date'] as String? ?? 'Date N/A';
+
+                    return buildRecentWork(imgPath, title, date);
+                  }).toList(),
+                ),
+              ),
 
             // Padding(
             //   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -482,27 +492,26 @@ class _IndustrydetailsState extends State<Industrydetails> {
                   _buildFaqItem(
                     question: 'What insurance do workers carry?',
                     answer:
-                    'Workers carry comprehensive liability and workers\' compensation insurance, covering both property damage and personal injury on-site.',
+                        'Workers carry comprehensive liability and workers\' compensation insurance, covering both property damage and personal injury on-site.',
                     expanded: _insuranceExpanded,
-                    onTap: () => setState(() => _insuranceExpanded = !_insuranceExpanded),
+                    onTap: () => setState(
+                        () => _insuranceExpanded = !_insuranceExpanded),
                   ),
                   const SizedBox(height: 8),
                   // Q2
                   _buildFaqItem(
                     question: 'How are workers verified?',
                     answer:
-                    'Workers undergo background checks, license verification, and skills assessment before joining our platform.',
+                        'Workers undergo background checks, license verification, and skills assessment before joining our platform.',
                     expanded: _verifiedExpanded,
-                    onTap: () => setState(() => _verifiedExpanded = !_verifiedExpanded),
+                    onTap: () =>
+                        setState(() => _verifiedExpanded = !_verifiedExpanded),
                   ),
                 ],
               ),
             ),
 
             const SizedBox(height: 24),
-
-
-
           ],
         ),
       ),
@@ -610,7 +619,6 @@ class _IndustrydetailsState extends State<Industrydetails> {
     );
   }
 
-
   Widget buildRecentWork(String imgPath, String title, String subtitle) {
     final imageProvider = imgPath.startsWith('http')
         ? NetworkImage(imgPath)
@@ -654,6 +662,7 @@ class _IndustrydetailsState extends State<Industrydetails> {
       ),
     );
   }
+
   Widget _buildStat(String value, String label) {
     return Expanded(
       child: Container(
@@ -728,7 +737,7 @@ class _IndustrydetailsState extends State<Industrydetails> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
       ),
-      padding:  EdgeInsets.all(10),
+      padding: EdgeInsets.all(10),
       child: Row(
         children: [
           Column(

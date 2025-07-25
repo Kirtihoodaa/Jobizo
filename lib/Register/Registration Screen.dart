@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -83,6 +84,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('auth_token', response.data['token'] ?? '');
+        await prefs.setBool('isLoggedIn', true); 
 
         final dynamic rawRole = widget.selectedRole;
         final String role = (rawRole is List && rawRole.isNotEmpty)
@@ -200,8 +202,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               const SizedBox(height: 10),
                               TextField(
                                 controller: _mobileController,
-                                decoration: _inputDecoration("Mobile Number"),
+                                keyboardType: TextInputType.number,
+                                maxLength: 10,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                ],
+                                decoration: _inputDecoration("Mobile Number")
+                                    .copyWith(counterText: ''),
                               ),
+
                               const SizedBox(height: 10),
                               TextField(
                                 controller: _emailController,
