@@ -4,12 +4,13 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:jobizo/splash/splash_screen2.dart';
+import 'package:jobizo/splash/splash_screen3.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:jobizo/Design%20contraints/gradients.dart';
-import '../Labour_POV/Home Screens/HomePage.dart';       // Labour Dashboard
-import '../Customer_POV/HomePages/HomePagess.dart';     // Customer Dashboard
-import '../Login/login.dart';                     // Login Screen
+import '../Labour_POV/Home Screens/HomePage.dart'; // Labour Dashboard
+import '../Customer_POV/HomePages/HomePagess.dart'; // Customer Dashboard
+import '../Login/login.dart'; // Login Screen
 
 class SplashScreen1 extends StatefulWidget {
   const SplashScreen1({super.key});
@@ -63,11 +64,11 @@ class _SplashScreen1State extends State<SplashScreen1>
           nextScreen = const LoginPage(); // Fallback
         }
       } else {
-        nextScreen = const SplashScreen2();
+        nextScreen = const OnboardingScreen();
       }
 
       Get.off(
-            () => nextScreen,
+        () => nextScreen,
         transition: Transition.cupertino,
         duration: const Duration(milliseconds: 400),
       );
