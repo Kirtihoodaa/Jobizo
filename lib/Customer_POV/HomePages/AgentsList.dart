@@ -27,17 +27,20 @@ class Agent {
   });
 
   factory Agent.fromJson(Map<String, dynamic> json) {
+    final user = json['user'] as Map<String, dynamic>? ?? {};
+
     return Agent(
       id: json['id'] as int,
-      agentName: json['agent_name'] as String,
-      agencyName: json['agency_name'] as String,
-      jobCategory: json['job_category'] as String,
-      contactNumber: json['contact_number'] as String,
-      email: json['email'] as String,
-      location: json['location'] as String,
+      agentName: (user['name'] as String?) ?? 'Unknown',
+      agencyName: (json['agency_name'] as String?) ?? 'Unknown Agency',
+      jobCategory: (json['job_category'] as String?) ?? '-',
+      contactNumber: (user['phone'] as String?) ?? '-',
+      email: (user['email'] as String?) ?? '-',
+      location: (json['location'] as String?) ?? 'Unknown location',
     );
   }
 }
+
 
 class AgentsList extends StatefulWidget {
   const AgentsList({Key? key}) : super(key: key);
@@ -97,6 +100,7 @@ class _AgentsListState extends State<AgentsList> {
       _error = 'Network error: $msg';
       SnackbarHelper.showError(context, _error);
     } catch (e) {
+      print('Unexpected error: $e');
       _error = 'Unexpected error: $e';
       SnackbarHelper.showError(context, _error);
     } finally {

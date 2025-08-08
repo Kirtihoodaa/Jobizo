@@ -108,8 +108,17 @@ class _SitedetailsState extends State<Sitedetails> {
 
       final body = resp.data as Map<String, dynamic>;
       if (resp.statusCode == 200 && body['status'] == true) {
-        _detail =
-            SiteDetail.fromJson(body['data'] as Map<String, dynamic>);
+        final data = body['data'] as Map<String, dynamic>;
+        _detail = SiteDetail.fromJson(data['request'] as Map<String, dynamic>);
+
+        // Parse assigned labour counts
+        final assignedLabourCounts = Map<String, int>.from(data['assigned_labour_counts'] ?? {});
+        // Set your _acceptedCounts per department (by capitalized role name for UI matching)
+        _acceptedCounts.clear();
+        assignedLabourCounts.forEach((role, count) {
+          _acceptedCounts[_roleDisplayName(role)] = count;
+        });
+
       } else {
         throw body['message'] ?? 'Failed to load';
       }
@@ -121,6 +130,15 @@ class _SitedetailsState extends State<Sitedetails> {
       });
     }
   }
+  String _roleDisplayName(String role) {
+    if (role.contains('electrician')) return 'Electricians';
+    if (role.contains('plumber')) return 'Plumbers';
+    if (role.contains('painter')) return 'Painters';
+    if (role.contains('carpenter')) return 'Carpenters';
+    if (role.contains('construction')) return 'Construction';
+    return 'Others';
+  }
+
 
   /// Called when a user taps to “accept” a worker for [role].
   /// Finds the matching department_id, sends a POST to the server, and
@@ -481,7 +499,7 @@ class SiteSummaryCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-            'Labor Distribution',
+            'Labour Distribution',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: primary(),
@@ -560,47 +578,39 @@ class SiteSummaryCard extends StatelessWidget {
       ) {
     final pct = required > 0 ? (accepted / required).clamp(0.0, 1.0) : 0.0;
 
-    return GestureDetector(
-      onTap: () {
-
-        if (accepted < required) {
-          onAccept(role);
-        }
-      },
-      child: Container(
-        width: MediaQuery.of(context).size.width / 2 - 24,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: const [
-            BoxShadow(
-              color: Color.fromRGBO(0, 0, 0, 0.05),
-              offset: Offset(0, 1),
-              blurRadius: 2,
-            )
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, color: color, size: 32),
-            const SizedBox(height: 8),
-            Text(
-              '$accepted / $required',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-            const SizedBox(height: 4),
-            Text(role, style: TextStyle(fontSize: secondary())),
-            const SizedBox(height: 8),
-            LinearProgressIndicator(
-              value: pct,
-              backgroundColor: Colors.grey[200],
-              valueColor: AlwaysStoppedAnimation<Color>(color),
-              minHeight: 6,
-            ),
-          ],
-        ),
+    return Container(
+      width: MediaQuery.of(context).size.width / 2 - 24,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(
+            color: Color.fromRGBO(0, 0, 0, 0.05),
+            offset: Offset(0, 1),
+            blurRadius: 2,
+          )
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 32),
+          const SizedBox(height: 8),
+          Text(
+            '$accepted / $required',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          const SizedBox(height: 4),
+          Text(role, style: TextStyle(fontSize: secondary())),
+          const SizedBox(height: 8),
+          LinearProgressIndicator(
+            value: pct,
+            backgroundColor: Colors.grey[200],
+            valueColor: AlwaysStoppedAnimation<Color>(color),
+            minHeight: 6,
+          ),
+        ],
       ),
     );
   }

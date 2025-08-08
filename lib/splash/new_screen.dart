@@ -7,14 +7,19 @@ import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 import 'package:jobizo/splash/splash_screen2.dart';
 
+import '../Design contraints/gradients.dart';
+
 class JobizoInfoSection extends StatelessWidget {
   const JobizoInfoSection({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgColor,
-      body: SingleChildScrollView(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: AppGradients.yellowOrangeVertical, // your custom gradient
+          ),
+          child :SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
@@ -309,6 +314,7 @@ class JobizoInfoSection extends StatelessWidget {
           ],
         ),
       ),
+    )
     );
   }
 

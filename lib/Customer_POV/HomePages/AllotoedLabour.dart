@@ -1,5 +1,3 @@
-// lib/Customer_POV/AllottedLaboursScreen.dart
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:jobizo/Customer_POV/AppBar/commonAppBar.dart';
@@ -42,27 +40,30 @@ class _AllottedLaboursScreenState extends State<AllottedLaboursScreen> {
 
       final body = resp.data as Map<String, dynamic>;
       if (resp.statusCode == 200 && body['status'] == true) {
-        final list = body['projects'] as List<dynamic>;
+        final list = body['data'] as List<dynamic>;
         _sites = list.map((raw) {
           final m = raw as Map<String, dynamic>;
-          final workersRaw = m['active_labours'] as List<dynamic>;
-          final workerList = workersRaw.map((w) {
+          final laboursRaw = m['labours'] as List<dynamic>;
+          final workerList = laboursRaw.map((w) {
             final wm = w as Map<String, dynamic>;
             return Worker(
-              name: wm['name'] as String? ?? 'Unknown',
-              role: wm['category'] as String? ?? '-',
-              time: wm['phone'] as String? ?? '-',
+              name: wm['labour_name'] as String? ?? 'Unknown',
+              role: wm['labour_category'] as String? ?? '-',
+              time: wm['labour_email'] as String? ?? '-',  // Not really time, but used in your UI
+              status: wm['status'] as String? ?? '-',      // Add status if needed
             );
           }).toList();
 
           return SiteData(
-            siteName: m['job_title'] as String? ?? 'Untitled',
-            location: m['job_location'] as String? ?? '-',
+            siteName: m['project_name'] as String? ?? 'Untitled',
+            location: m['work_address'] as String? ?? '-',
             workersCount: workerList.length,
             workers: workerList,
+            // Add more fields if needed (start_date, etc)
           );
         }).toList();
-      } else {
+      }
+      else {
         throw body['message'] ?? 'Failed to load';
       }
     } catch (e) {
@@ -86,6 +87,23 @@ class _AllottedLaboursScreenState extends State<AllottedLaboursScreen> {
         backgroundColor: AppColors.bgColor,
         appBar: const Commonappbar(title: "Alloted Labour"),
         body: Center(child: Text(_error!)),
+      );
+    }
+    // ⬇️ Handle "no sites returned" here
+    if (_sites.isEmpty) {
+      return Scaffold(
+        backgroundColor: AppColors.bgColor,
+        appBar: const Commonappbar(title: "Alloted Labour"),
+        body: Center(
+          child: Text(
+            'No Allotted Labour',
+            style: TextStyle(
+              fontSize: secondary(),
+              color: AppColors.gold,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
       );
     }
     return Scaffold(
@@ -199,38 +217,61 @@ class WorkerTile extends StatelessWidget {
           fontWeight: FontWeight.bold,
         ),
       ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      subtitle: Row(
         children: [
-          Text(
-            worker.role,
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: tertiary(),
-              fontWeight: FontWeight.w400,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                worker.role,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: tertiary(),
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              Text(
+                worker.time,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: tertiary(),
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
           ),
-          Text(
-            worker.time,
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: tertiary(),
-              fontWeight: FontWeight.w400,
+          Spacer(),
+          Container(
+            decoration: BoxDecoration(
+              color: worker.status == 'accept'
+                  ? AppColors.gold
+
+                  : AppColors.green,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            padding: EdgeInsets.all(5),
+            child: Text(
+              worker.status,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: tertiary(),
+                fontWeight: FontWeight.w400,
+              ),
             ),
           ),
         ],
       ),
-      trailing: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 7),
-        decoration: BoxDecoration(
-          color: Colors.lightGreen,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: const Text(
-          'Active',
-          style: TextStyle(color: Colors.white, fontSize: 12),
-        ),
-      ),
+      // trailing: Container(
+      //   padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 7),
+      //   decoration: BoxDecoration(
+      //     color: Colors.lightGreen,
+      //     borderRadius: BorderRadius.circular(20),
+      //   ),
+      //   child: const Text(
+      //     'Active',
+      //     style: TextStyle(color: Colors.white, fontSize: 12),
+      //   ),
+      // ),
     );
   }
 }
@@ -253,10 +294,11 @@ class Worker {
   final String name;
   final String role;
   final String time;
-
+  final String status;
   Worker({
     required this.name,
     required this.role,
     required this.time,
+    required this.status,
   });
 }

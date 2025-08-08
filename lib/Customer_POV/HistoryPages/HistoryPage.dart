@@ -240,14 +240,9 @@ class _Request {
   });
 
   factory _Request.fromJson(Map<String, dynamic> json) {
-    // department name fallback if project_name null
-    final deptList = json['departments'] as List<dynamic>;
-    final firstDept = deptList.isNotEmpty
-        ? (deptList[0]['department']['name'] as String)
-        : 'Unknown';
     return _Request(
       id: json['id'] as int,
-      serviceType: firstDept.capitalize ?? firstDept,
+      serviceType: json['project_name'] ?? 'Unknown',
       workers: json['total_labour'] as int,
       location: json['work_address'] as String,
       startDate: DateTime.parse(json['start_date'] as String),

@@ -62,13 +62,15 @@ class _RequiredlabourState extends State<Requiredlabour> {
 
       final List<Map<String, dynamic>> list = data.map((e) {
         final m = e as Map<String, dynamic>;
-        final name = (m['name'] as String? ?? '').replaceFirst(
-            (m['name'] as String)[0], (m['name'] as String)[0].toUpperCase());
-        final available = m['labour_count'] as int? ?? 0;
+        final name = (m['category_name'] as String? ?? '').replaceFirst(
+          (m['category_name'] as String)[0],
+          (m['category_name'] as String)[0].toUpperCase(),
+        );
+        final available = m['count'] as int? ?? 0;
         return {
           'category': name,
           'available': available,
-          'required': available, // adjust if you have a real "required" field
+          'required': available, // If you want a separate 'required', adjust accordingly!
         };
       }).toList();
 
@@ -86,6 +88,7 @@ class _RequiredlabourState extends State<Requiredlabour> {
       });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

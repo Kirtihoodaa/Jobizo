@@ -6,6 +6,8 @@ import 'package:jobizo/Design%20contraints/gradients.dart';
 import 'package:jobizo/Login/login.dart';
 import 'package:jobizo/Register/RoleSelection.dart';
 
+import '../Register/Registration Screen.dart';
+
 class SplashScreen2 extends StatefulWidget {
   const SplashScreen2({super.key});
 
@@ -66,7 +68,7 @@ class _SplashScreen2State extends State<SplashScreen2> {
               text: 'Register',
               textColor: Colors.white,
               onTap: () {
-                Get.to(() => RoleScreen(),
+                Get.to(() => RegistrationScreen(selectedRole: "Customer",),
                     transition: Transition.cupertino,
                     duration: const Duration(milliseconds: 400));
               },

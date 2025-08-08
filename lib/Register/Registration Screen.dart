@@ -1,17 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/routes/transitions_type.dart';
-import 'package:jobizo/Design%20contraints/app%20color.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../Design contraints/FontSizes.dart';
 import '../Design contraints/gradients.dart';
 import '../Login/login.dart';
 import '../SnackBar/Snackbar.dart';
+import '../splash/splash_screen2.dart';
 import 'RoleSelection.dart';
 import 'Sucess Registration.dart';
 
@@ -263,7 +259,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton.icon(
-                      onPressed: () => Get.to(() => const RoleScreen(),
+                      onPressed: () => Get.to(() => const SplashScreen2(),
                           transition: Transition.cupertino,
                           duration: const Duration(milliseconds: 400)),
                       icon: const Icon(Icons.arrow_back, color: Colors.white),

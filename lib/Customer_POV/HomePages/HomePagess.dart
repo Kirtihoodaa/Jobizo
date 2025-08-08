@@ -32,11 +32,11 @@ class _HomepagessState extends State<Homepagess> {
       "image": "Assets/Labour_image/dashboard icon.png",
       "navigateTo": () => DashboardScreenC(),
     },
-    {
-      "label": "Industry",
-      "image": "Assets/Customer_Images/industry.png",
-      "navigateTo": () => Industrydetails(),
-    },
+    // {
+    //   "label": "Industry",
+    //   "image": "Assets/Customer_Images/industry.png",
+    //   "navigateTo": () => Industrydetails(),
+    // },
     {
       "label": "Sites",
       "image": "Assets/Customer_Images/sites.png",

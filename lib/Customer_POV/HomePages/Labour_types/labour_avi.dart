@@ -51,17 +51,16 @@ class _AllLaboursScreenState extends State<AllLaboursScreen> {
         setState(() {
           _totalLabours = body['total_labours'] as int;
           _categories = data.map((e) {
-            final raw = e['name'] as String;
+            final raw = e['category_name'] as String;
             return LabourCategory(
-              id: e['id'] as int,
+              id: e['category_id'] as int,
               name: raw.isNotEmpty
                   ? raw[0].toUpperCase() + raw.substring(1)
                   : '',
-              count: e['labour_count'] as int,
+              count: e['count'] as int,
             );
           }).toList();
-
-        });
+    });
       } else {
         throw body['message'] ?? 'Failed to load';
       }
