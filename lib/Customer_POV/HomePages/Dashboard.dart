@@ -127,9 +127,10 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
       final data = raw['data'] as List<dynamic>;
       _categoryCounts = {
         for (var entry in data)
-          (entry['name'] as String).toLowerCase():
-          (entry['labour_count'] as int? ?? 0)
+          (entry['category_name'] as String).toLowerCase():
+          (entry['count'] as int? ?? 0)
       };
+
     } catch (e) {
       _categoriesError = e.toString();
     } finally {
@@ -180,10 +181,9 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
       _leave = att['leave'] as int? ?? 0;
 
       // Recent Requests
-      _recentRequests = (d['recent_activities']?['recent_requests']
-      as List<dynamic>? ??
-          [])
-          .cast<Map<String, dynamic>>();
+      _recentRequests =
+          (d['recent_activities']?['recent_requests'] as List<dynamic>? ?? [])
+              .cast<Map<String, dynamic>>();
 
       setState(() {});
     } catch (e) {
@@ -202,7 +202,10 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
     if (_loading) {
       return const Scaffold(
         backgroundColor: Colors.white,
-        body: Center(child: CircularProgressIndicator(color: AppColors.gold,)),
+        body: Center(
+            child: CircularProgressIndicator(
+          color: AppColors.gold,
+        )),
       );
     }
     if (_error != null) {
@@ -237,14 +240,14 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
       {
         "title": "Total Active Labour",
         "value": totalLabour.toString(),
-        "desc": "" ,
+        "desc": "",
         "screen": Activelist()
       },
       {
         "title": "Total Billing Amount",
         "value": "INR $billingAmount",
         "desc": "",
-        "screen":  null ,//PendingPaymentScreen()
+        "screen": null, //PendingPaymentScreen()
       },
       {
         "title": "Pending Requests",
@@ -304,13 +307,17 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(fontSize: tertiary(), color: Colors.black)),
+          Text(title,
+              style: TextStyle(fontSize: tertiary(), color: Colors.black)),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
-              Text(descriptor, style: TextStyle(color: Colors.green, fontSize: tertiary())),
+              Text(value,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 25)),
+              Text(descriptor,
+                  style: TextStyle(color: Colors.green, fontSize: tertiary())),
             ],
           )
         ],
@@ -328,7 +335,8 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
     if (_categoriesError != null) {
       return Padding(
         padding: const EdgeInsets.all(16),
-        child: Center(child: Text('Error loading categories: $_categoriesError')),
+        child:
+            Center(child: Text('Error loading categories: $_categoriesError')),
       );
     }
     return Padding(
@@ -361,7 +369,7 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
                     onTap: () {
                       if (count > 0) {
                         Get.to(
-                              () => LabourListScreen(
+                          () => LabourListScreen(
                             categoryId: cat.id,
                             categoryName: cat.name,
                           ),
@@ -381,7 +389,8 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Image.asset(cat.imagePath, height: 40, fit: BoxFit.contain),
+                          Image.asset(cat.imagePath,
+                              height: 40, fit: BoxFit.contain),
                           const SizedBox(height: 6),
                           Text(
                             cat.name,
@@ -426,19 +435,22 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
     );
   }
 
-  Widget _mainButton(String label, Color color, String imagePath, Widget? destination) {
+  Widget _mainButton(
+      String label, Color color, String imagePath, Widget? destination) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         ),
         onPressed: () {
           if (destination != null) {
             Get.to(() => destination,
-                transition: Transition.cupertino, duration: const Duration(milliseconds: 400));
+                transition: Transition.cupertino,
+                duration: const Duration(milliseconds: 400));
           }
         },
         child: Row(
@@ -447,7 +459,10 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
             Image.asset(imagePath, height: 20, width: 20, color: Colors.white),
             const SizedBox(width: 10),
             Text(label,
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: tertiary())),
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: tertiary())),
           ],
         ),
       ),
@@ -480,14 +495,16 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
         onPressed: () {
           if (targetPage != null) {
             Get.to(() => targetPage,
-                transition: Transition.cupertino, duration: const Duration(milliseconds: 400));
+                transition: Transition.cupertino,
+                duration: const Duration(milliseconds: 400));
           }
         },
         style: ElevatedButton.styleFrom(
             backgroundColor: Colors.white,
             foregroundColor: Colors.black,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10))),
         child: Text(label),
       ),
     );
@@ -653,5 +670,4 @@ class _DashboardScreenStateC extends State<DashboardScreenC> {
       ),
     );
   }
-
 }

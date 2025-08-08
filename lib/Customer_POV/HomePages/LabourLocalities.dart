@@ -49,20 +49,25 @@ class _LabourlocalitiesState extends State<Labourlocalities> {
 
       final resp = await Dio(BaseOptions(headers: {'Authorization': token}))
           .get(
-        'https://backend.jobizoindia.com/api/labour/localities',
+        'https://backend.jobizoindia.com/api/localities',
         options: Options(validateStatus: (s) => s! < 500),
       );
 
       final data = resp.data as Map<String, dynamic>;
+      print('resp.data: ${resp.data.runtimeType}');
+      print('resp.data content: ${resp.data}');
       if (resp.statusCode == 200 && data['status'] == true) {
         _allWorkers = List<Map<String, dynamic>>.from(
           data['data'] as List<dynamic>,
         );
+        print('resp.data: ${resp.data.runtimeType}');
+        print('resp.data content: ${resp.data}');
         _applyFilter();
       } else {
         throw data['message'] ?? 'Failed to load';
       }
     } catch (e) {
+      print(e.toString());
       _error = e.toString();
     } finally {
       setState(() => _loading = false);

@@ -10,6 +10,9 @@ import 'package:jobizo/Design%20contraints/FontSizes.dart';
 import 'package:jobizo/Design%20contraints/app%20color.dart';
 import 'package:jobizo/splash/splash_screen2.dart';
 
+
+import '../Design contraints/gradients.dart';
+
 class JobizoInfoSection extends StatefulWidget {
 
 
@@ -111,7 +114,6 @@ class _JobizoInfoSectionState extends State<JobizoInfoSection> {
         .join(' • ');
 
     return Scaffold(
-
       backgroundColor: Colors.white,
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -398,6 +400,7 @@ class _JobizoInfoSectionState extends State<JobizoInfoSection> {
           ],
         ),
       ),
+    )
     );
   }
 
