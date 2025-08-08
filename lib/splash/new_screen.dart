@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import 'package:get/get_navigation/src/routes/transitions_type.dart' show Transition;
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -110,12 +111,14 @@ class _JobizoInfoSectionState extends State<JobizoInfoSection> {
         .join(' • ');
 
     return Scaffold(
+
       backgroundColor: Colors.white,
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : (_error != null)
           ? _ErrorState(message: _error!, onRetry: _fetchOverview)
           : SingleChildScrollView(
+
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
