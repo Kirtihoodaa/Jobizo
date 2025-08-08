@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../Design contraints/app color.dart';
 import '../../Design contraints/FontSizes.dart';
@@ -327,29 +326,29 @@ class _SettingsPageState extends State<SettingsPage> {
                             fontWeight: FontWeight.bold),
                       ),
                     ),
-                    SizedBox(height: 20),
-                    OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: AppColors.gold, width: 1),
-                          minimumSize: Size.fromHeight(45),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          )),
-                      onPressed: () {
-                        Get.to(
-                              () => DeleteAccount(),
-                          transition: Transition.cupertino,
-                          duration: const Duration(milliseconds: 400),
-                        );
-                      },
-                      child: Text(
-                        "Delete Account",
-                        style: TextStyle(
-                            fontSize: secondary(),
-                            color: AppColors.gold,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
+                    // SizedBox(height: 20),
+                    // OutlinedButton(
+                    //   style: OutlinedButton.styleFrom(
+                    //       side: BorderSide(color: AppColors.gold, width: 1),
+                    //       minimumSize: Size.fromHeight(45),
+                    //       shape: RoundedRectangleBorder(
+                    //         borderRadius: BorderRadius.circular(20),
+                    //       )),
+                    //   onPressed: () {
+                    //     Get.to(
+                    //           () => DeleteAccount(),
+                    //       transition: Transition.cupertino,
+                    //       duration: const Duration(milliseconds: 400),
+                    //     );
+                    //   },
+                    //   child: Text(
+                    //     "Delete Account",
+                    //     style: TextStyle(
+                    //         fontSize: secondary(),
+                    //         color: AppColors.gold,
+                    //         fontWeight: FontWeight.bold),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
